@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Test - Street 10 Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar { width: 288px; background-color: #4C50A2; }
+        .main-content { flex: 1; background-color: #f9fafb; }
+    </style>
+</head>
+<body class="m-0 p-0">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar flex-shrink-0 text-white p-6">
+            <h2 class="text-xl font-bold">SIDEBAR</h2>
+            <p class="text-sm">Width: 288px</p>
+            <p class="text-sm">Fixed position</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content p-6">
+            <h2 class="text-xl font-bold text-gray-900">MAIN CONTENT</h2>
+            <p class="text-gray-600">Takes remaining space</p>
+            <p class="text-gray-600">No overlap with sidebar</p>
+            
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-blue-500 text-white p-4 rounded-lg">Card 1</div>
+                <div class="bg-green-500 text-white p-4 rounded-lg">Card 2</div>
+                <div class="bg-purple-600 text-white p-4 rounded-lg">Card 3</div>
+                <div class="bg-orange-500 text-white p-4 rounded-lg">Card 4</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
