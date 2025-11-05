@@ -1,11 +1,12 @@
 import './globals.css'
 import LanguageProviderWrapper from '@/components/providers/LanguageProviderWrapper'
+import { RoleProvider } from '@/contexts/RoleContext'
 import { ReactNode } from 'react'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'MAZAD - Vendor Dashboard',
-  description: 'Professional vendor dashboard for MAZAD marketplace',
+  title: 'Street 10 - Vendor Dashboard',
+  description: 'Professional vendor dashboard for Street 10',
   icons: {
     icon: '/images/sidebar-topicon.png',
     shortcut: '/images/sidebar-topicon.png',
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className="font-sans">
       <body>
         <LanguageProviderWrapper>
-          {children}
+          <RoleProvider>
+            {children}
+          </RoleProvider>
         </LanguageProviderWrapper>
       </body>
     </html>

@@ -3,7 +3,7 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState, useRef } from 'react'
-import { Menu, HelpCircle, Upload, Image as ImageIcon, Save, ShoppingBag, FileText, Share2, Facebook, Instagram, Linkedin, Music2 } from 'lucide-react'
+import { Menu, HelpCircle, Upload, Image as ImageIcon, Save, ShoppingBag, FileText, Share2, Facebook, Instagram, Linkedin, Music2, Palette } from 'lucide-react'
 import TabsBar from '@/components/ui/TabsBar'
 
 export default function StoreSettingsPage() {
@@ -65,89 +65,105 @@ export default function StoreSettingsPage() {
           <main className="flex-1 overflow-y-auto p-6">
             <div className="max-w-6xl mx-auto space-y-6">
               {/* Page header */}
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Store Setting</h1>
-                  <p className="text-sm text-gray-500 mt-1">Dashboard - Store Setting</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm px-3 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
-                    type="button"
-                  >
-                    <HelpCircle size={16} />
-                    Help
-                  </button>
-                  <button
-                    onClick={onSave}
-                    disabled={saving}
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm px-3 py-2 rounded-md bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50"
-                  >
-                    <Save size={16} />
-                    {saving ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Store Setting</h1>
+                <p className="text-sm text-gray-600">Dashboard • Store Setting</p>
               </div>
 
               {/* Tabs */}
-              <TabsBar
-                tabs={[
-                  { label: 'Store Settings', href: '/settings/store', active: true },
-                  { label: 'Policy Settings', href: '/settings/policy' },
-                  { label: 'Notification', href: '/settings/notifications' },
-                ]}
-                variant="underline"
-              />
+              <div className="mb-6">
+                <TabsBar
+                  tabs={[
+                    { label: 'Store Settings', href: '/settings/store', active: true },
+                    { label: 'Policy Settings', href: '/settings/policy' },
+                    { label: 'Notification', href: '/settings/notifications' },
+                  ]}
+                  variant="underline"
+                />
+              </div>
 
               {/* Section Header */}
-              <div className="mt-6 mb-4">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Store Settings</h2>
-                <p className="text-sm text-gray-600">Customize and manage your storefront information.</p>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                <div className="flex items-start justify-between px-6 py-6 border-b border-gray-200">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Store Settings</h2>
+                    <p className="text-sm text-gray-600">Customize and manage your storefront information</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button
+                      className="inline-flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 transition-colors"
+                      type="button"
+                    >
+                      <HelpCircle size={18} />
+                      Help
+                    </button>
+                    <button
+                      onClick={onSave}
+                      disabled={saving}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 transition-colors font-medium"
+                    >
+                      <Save size={18} />
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Store Branding */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <ShoppingBag className="w-4 h-4 text-primary-500" />
-                    <h2 className="text-base font-semibold text-gray-900">Store Branding</h2>
-                  </div>
-                  <p className="text-xs text-gray-600 ml-6">Upload your store logo and banner to showcase your form!</p>
-                </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Store Logo */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Store Logo</label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-                         onClick={() => logoInputRef.current?.click()}>
-                      <Upload className="mx-auto text-gray-400 mb-2" size={24} />
-                      <p className="text-xs text-gray-600 mt-2">Click to upload or drag and drop</p>
-                      <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 200x200px</p>
-                      <input ref={logoInputRef} type="file" accept="image/*" className="hidden" title="Upload store logo" />
+                    <div className="px-6 py-4 border-b border-gray-200 bg-white">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Palette className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">Store Branding</h3>
+                          <p className="text-sm text-gray-600">Upload your store logo and banner to showcase your brand</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Store Logo */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Store Logo</label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                             onClick={() => logoInputRef.current?.click()}>
+                          <div className="w-16 h-16 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center shadow-sm">
+                            <ImageIcon className="text-gray-400" size={32} />
+                          </div>
+                          <p className="text-xs text-gray-600 mt-2">Click to upload or drag and drop</p>
+                          <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 200x200px</p>
+                          <input ref={logoInputRef} type="file" accept="image/*" className="hidden" title="Upload store logo" />
+                        </div>
+                      </div>
+                      {/* Store Banner */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Store Banner</label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                             onClick={() => bannerInputRef.current?.click()}>
+                          <div className="w-16 h-16 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center shadow-sm">
+                            <ImageIcon className="text-gray-400" size={32} />
+                          </div>
+                          <p className="text-xs text-gray-600 mt-2">Click to upload or drag and drop</p>
+                          <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 1200x400px</p>
+                          <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" title="Upload store banner" />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  {/* Store Banner */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Store Banner</label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors"
-                         onClick={() => bannerInputRef.current?.click()}>
-                      <ImageIcon className="mx-auto text-gray-400 mb-2" size={24} />
-                      <p className="text-xs text-gray-600 mt-2">Click to upload banner</p>
-                      <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 1200x400px</p>
-                      <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" title="Upload store banner" />
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* Store Information */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <FileText className="w-4 h-4 text-primary-500" />
-                    <h2 className="text-base font-semibold text-gray-900">Store Information</h2>
+                <div className="px-6 py-4 border-b border-gray-200 bg-white">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">Store Information</h3>
+                      <p className="text-sm text-gray-600">Provide essential details about your store</p>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-600 ml-6">Provide essential details about your store</p>
                 </div>
                 <div className="p-6 space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -178,12 +194,16 @@ export default function StoreSettingsPage() {
 
               {/* Social Media Links */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Share2 className="w-4 h-4 text-pink-500" />
-                    <h2 className="text-base font-semibold text-gray-900">Social Media Links</h2>
+                <div className="px-6 py-4 border-b border-gray-200 bg-white">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Share2 className="w-5 h-5 text-pink-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">Social Media Links</h3>
+                      <p className="text-sm text-gray-600">Connect your social media accounts (Optional)</p>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-600 ml-6">Connect your social media accounts (Optional)</p>
                 </div>
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
@@ -225,7 +245,7 @@ export default function StoreSettingsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <button className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Cancel</button>
-                  <button onClick={onSave} disabled={saving} className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-colors">
+                  <button onClick={onSave} disabled={saving} className="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 transition-colors">
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>

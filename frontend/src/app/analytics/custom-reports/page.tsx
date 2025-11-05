@@ -78,82 +78,80 @@ export default function CustomReportsPage() {
 
             <div className="space-y-6">
 
-              {/* Content Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                {/* Main column (2/3 width) */}
-                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-                  {/* Saved Reports */}
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-0 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                      <h2 className="text-base font-bold text-gray-900">Saved Reports</h2>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full text-sm text-left">
-                        <thead className="bg-gray-50">
-                          <tr className="text-xs font-semibold text-gray-700">
-                            <th className="py-3 px-6">Report Name</th>
-                            <th className="py-3 px-3">Type</th>
-                            <th className="py-3 px-3">Created On</th>
-                            <th className="py-3 px-3">Last Run</th>
-                            <th className="py-3 px-3">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                          <tr>
-                            <td className="py-3 px-6 text-sm text-gray-900">Monthly Sales Report</td>
-                            <td className="py-3 px-3">
-                              <span className="inline-block px-2.5 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">Sales</span>
-                            </td>
-                            <td className="py-3 px-3 text-sm text-gray-700">Jan 01, 2023</td>
-                            <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
-                            <td className="py-3 px-3">
-                              <div className="flex items-center gap-3 text-xs">
-                                <button className="text-blue-600 hover:underline">View</button>
-                                <button className="text-blue-600 hover:underline">Edit</button>
-                                <button className="text-blue-600 hover:underline">Export</button>
-                                <button className="text-red-600 hover:underline">Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-3 px-6 text-sm text-gray-900">Customer Insights - Q1</td>
-                            <td className="py-3 px-3">
-                              <span className="inline-block px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">Customers</span>
-                            </td>
-                            <td className="py-3 px-3 text-sm text-gray-700">Dec 10, 2024</td>
-                            <td className="py-3 px-3 text-sm text-gray-700">Jan 17, 2023</td>
-                            <td className="py-3 px-3">
-                              <div className="flex items-center gap-3 text-xs">
-                                <button className="text-blue-600 hover:underline">View</button>
-                                <button className="text-blue-600 hover:underline">Edit</button>
-                                <button className="text-blue-600 hover:underline">Export</button>
-                                <button className="text-red-600 hover:underline">Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-3 px-6 text-sm text-gray-900">Transactional Summary</td>
-                            <td className="py-3 px-3">
-                              <span className="inline-block px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Transactions</span>
-                            </td>
-                            <td className="py-3 px-3 text-sm text-gray-700">Jan 15, 2023</td>
-                            <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
-                            <td className="py-3 px-3">
-                              <div className="flex items-center gap-3 text-xs">
-                                <button className="text-blue-600 hover:underline">View</button>
-                                <button className="text-blue-600 hover:underline">Edit</button>
-                                <button className="text-blue-600 hover:underline">Export</button>
-                                <button className="text-red-600 hover:underline">Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+              {/* Saved Reports - Full Row */}
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-0 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-base font-bold text-gray-900">Saved Reports</h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm text-left">
+                    <thead className="bg-gray-50">
+                      <tr className="text-xs font-semibold text-gray-700">
+                        <th className="py-3 px-6">Report Name</th>
+                        <th className="py-3 px-3">Type</th>
+                        <th className="py-3 px-3">Created On</th>
+                        <th className="py-3 px-3">Last Run</th>
+                        <th className="py-3 px-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      <tr>
+                        <td className="py-3 px-6 text-sm text-gray-900">Monthly Sales Report</td>
+                        <td className="py-3 px-3">
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">Sales</span>
+                        </td>
+                        <td className="py-3 px-3 text-sm text-gray-700">Jan 01, 2023</td>
+                        <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-3 text-xs">
+                            <button className="text-blue-600 hover:underline">View</button>
+                            <button className="text-blue-600 hover:underline">Edit</button>
+                            <button className="text-blue-600 hover:underline">Export</button>
+                            <button className="text-red-600 hover:underline">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-6 text-sm text-gray-900">Customer Insights - Q1</td>
+                        <td className="py-3 px-3">
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">Customers</span>
+                        </td>
+                        <td className="py-3 px-3 text-sm text-gray-700">Dec 10, 2024</td>
+                        <td className="py-3 px-3 text-sm text-gray-700">Jan 17, 2023</td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-3 text-xs">
+                            <button className="text-blue-600 hover:underline">View</button>
+                            <button className="text-blue-600 hover:underline">Edit</button>
+                            <button className="text-blue-600 hover:underline">Export</button>
+                            <button className="text-red-600 hover:underline">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-6 text-sm text-gray-900">Transactional Summary</td>
+                        <td className="py-3 px-3">
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Transactions</span>
+                        </td>
+                        <td className="py-3 px-3 text-sm text-gray-700">Jan 15, 2023</td>
+                        <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-3 text-xs">
+                            <button className="text-blue-600 hover:underline">View</button>
+                            <button className="text-blue-600 hover:underline">Edit</button>
+                            <button className="text-blue-600 hover:underline">Export</button>
+                            <button className="text-red-600 hover:underline">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                    {/* Report Builder */}
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+              {/* Report Builder and Smart Insights - Same Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                {/* Report Builder */}
+                <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm p-6">
                     <h2 className="text-base font-bold text-gray-900 mb-5">Report Builder</h2>
                     
                       {/* Select Report Type */}
@@ -270,155 +268,152 @@ export default function CustomReportsPage() {
                         Generate Report
                       </button>
                     </div>
-                  </div>
+                </div>
 
-                  {/* Report Preview */}
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-                    <h2 className="text-base font-bold text-gray-900 mb-5">Report Preview</h2>
-                    
-                    {/* Chart Section */}
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 mb-4">Sales Trend - Last 7 Days</h3>
-                      
-                      {/* Chart Container */}
-                      <div className="relative">
-                        {/* Y-axis Label */}
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-medium text-gray-600 whitespace-nowrap">
-                          Revenue (K)
-                        </div>
-                        
-                        {/* Chart Area */}
-                        <div className="ml-8 mr-4 mb-8">
-                          {/* Y-axis values and grid lines */}
-                          <div className="relative h-48">
-                            {/* Grid lines */}
-                            <div className="absolute inset-0 flex flex-col justify-between">
-                              <div className="border-t border-gray-200"></div>
-                              <div className="border-t border-gray-200"></div>
-                              <div className="border-t border-gray-200"></div>
-                              <div className="border-t border-gray-200"></div>
-                            </div>
-                            
-                            {/* Y-axis labels */}
-                            <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-600 -ml-6">
-                              <span>20K</span>
-                              <span>15K</span>
-                              <span>10K</span>
-                              <span>5K</span>
-                              <span>0</span>
-                            </div>
-                            
-                            {/* Chart Line */}
-                            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 160" preserveAspectRatio="none">
-                              {/* Data points - adjusted for the trend shown */}
-                              <circle cx="28" cy="140" r="4" fill="#3b82f6" />
-                              <circle cx="85" cy="100" r="4" fill="#3b82f6" />
-                              <circle cx="142" cy="80" r="4" fill="#3b82f6" />
-                              <circle cx="199" cy="112" r="4" fill="#3b82f6" />
-                              <circle cx="256" cy="50" r="4" fill="#3b82f6" />
-                              <circle cx="313" cy="30" r="4" fill="#3b82f6" />
-                              <circle cx="370" cy="60" r="4" fill="#3b82f6" />
-                              
-                              {/* Line */}
-                              <polyline
-                                fill="none"
-                                stroke="#3b82f6"
-                                strokeWidth="2.5"
-                                points="28,140 85,100 142,80 199,112 256,50 313,30 370,60"
-                              />
-                            </svg>
-                          </div>
-                          
-                          {/* X-axis labels */}
-                          <div className="flex justify-between mt-2 text-xs text-gray-600">
-                            <span>Mon</span>
-                            <span>Tue</span>
-                            <span>Wed</span>
-                            <span>Thu</span>
-                            <span>Fri</span>
-                            <span>Sat</span>
-                            <span>Sun</span>
-                          </div>
+                {/* Smart Insights */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                  <h2 className="text-base font-bold text-gray-900 mb-5">Smart Insights</h2>
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
+                      <div className="flex items-start gap-3">
+                        <TrendingUp className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+                        <div>
+                          <p className="text-sm font-semibold text-blue-700 mb-1">Sales Growth</p>
+                          <p className="text-xs text-gray-700">Data in Karachi grew 10% last month compared to Lahore.</p>
                         </div>
                       </div>
-                      
-                      {/* Legend */}
-                      <div className="flex items-center gap-2 mt-4">
-                        <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                        <span className="text-xs text-gray-700">Sales</span>
+                    </div>
+                    <div className="bg-green-50 rounded-lg border border-green-200 p-4">
+                      <div className="flex items-start gap-3">
+                        <Users className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+                        <div>
+                          <p className="text-sm font-semibold text-green-700 mb-1">Customer Loyalty</p>
+                          <p className="text-xs text-gray-700">Retaining customers generated 60% of revenue this month.</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Export Options - Separate Section */}
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-                    <h2 className="text-base font-bold text-gray-900 mb-4">Export Options</h2>
-                    <div className="flex gap-2 flex-wrap">
-                      <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-green-700">
-                        <FileSpreadsheet size={16} />
-                        Excel
-                      </button>
-                      <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700">
-                        <FileText size={16} />
-                        PDF
-                      </button>
-                      <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
-                        <FileCode size={16} />
-                        CSV
-                      </button>
-                      <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-purple-600 text-white text-sm font-medium hover:bg-purple-700">
-                        <Clock size={16} />
-                        Schedule
-                      </button>
+                    <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-4">
+                      <div className="flex items-start gap-3">
+                        <Clock className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
+                        <div>
+                          <p className="text-sm font-semibold text-yellow-700 mb-1">Peak Hours</p>
+                          <p className="text-xs text-gray-700">Most orders occur between 2-4 PM, on weekdays.</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
+                    <div className="bg-purple-50 rounded-lg border border-purple-200 p-4">
+                      <div className="flex items-start gap-3">
+                        <Star className="text-purple-600 flex-shrink-0 mt-0.5" size={20} />
+                        <div>
+                          <p className="text-sm font-semibold text-purple-700 mb-1">Top Product</p>
+                          <p className="text-xs text-gray-700">Electronics category shows higher conversion rate of 52%.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {/* Smart Insights (side panel) */}
-                <aside>
-                  <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                    <h2 className="text-base font-bold text-gray-900 mb-5">Smart Insights</h2>
-                    <div className="space-y-4">
-                      <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
-                        <div className="flex items-start gap-3">
-                          <TrendingUp className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
-                      <div>
-                            <p className="text-sm font-semibold text-blue-700 mb-1">Sales Growth</p>
-                            <p className="text-xs text-gray-700">Data in Karachi grew 10% last month compared to Lahore.</p>
-                          </div>
+              </div>
+
+              {/* Report Preview - Below Report Builder and Smart Insights */}
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 max-w-2xl">
+                <h2 className="text-base font-bold text-gray-900 mb-5">Report Preview</h2>
+                
+                {/* Chart Section */}
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">Sales Trend - Last 7 Days</h3>
+                  
+                  {/* Chart Container */}
+                  <div className="relative">
+                    {/* Y-axis Label */}
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-medium text-gray-600 whitespace-nowrap">
+                      Revenue (K)
+                    </div>
+                    
+                    {/* Chart Area */}
+                    <div className="ml-8 mr-4 mb-8">
+                      {/* Y-axis values and grid lines */}
+                      <div className="relative h-48">
+                        {/* Grid lines */}
+                        <div className="absolute inset-0 flex flex-col justify-between">
+                          <div className="border-t border-gray-200"></div>
+                          <div className="border-t border-gray-200"></div>
+                          <div className="border-t border-gray-200"></div>
+                          <div className="border-t border-gray-200"></div>
                         </div>
+                        
+                        {/* Y-axis labels */}
+                        <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-600 -ml-6">
+                          <span>20K</span>
+                          <span>15K</span>
+                          <span>10K</span>
+                          <span>5K</span>
+                          <span>0</span>
+                        </div>
+                        
+                        {/* Chart Line */}
+                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 160" preserveAspectRatio="none">
+                          {/* Data points - adjusted for the trend shown */}
+                          <circle cx="28" cy="140" r="4" fill="#3b82f6" />
+                          <circle cx="85" cy="100" r="4" fill="#3b82f6" />
+                          <circle cx="142" cy="80" r="4" fill="#3b82f6" />
+                          <circle cx="199" cy="112" r="4" fill="#3b82f6" />
+                          <circle cx="256" cy="50" r="4" fill="#3b82f6" />
+                          <circle cx="313" cy="30" r="4" fill="#3b82f6" />
+                          <circle cx="370" cy="60" r="4" fill="#3b82f6" />
+                          
+                          {/* Line */}
+                          <polyline
+                            fill="none"
+                            stroke="#3b82f6"
+                            strokeWidth="2.5"
+                            points="28,140 85,100 142,80 199,112 256,50 313,30 370,60"
+                          />
+                        </svg>
                       </div>
-                      <div className="bg-green-50 rounded-lg border border-green-200 p-4">
-                        <div className="flex items-start gap-3">
-                          <Users className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
-                          <div>
-                            <p className="text-sm font-semibold text-green-700 mb-1">Customer Loyalty</p>
-                            <p className="text-xs text-gray-700">Retaining customers generated 60% of revenue this month.</p>
+                      
+                      {/* X-axis labels */}
+                      <div className="flex justify-between mt-2 text-xs text-gray-600">
+                        <span>Mon</span>
+                        <span>Tue</span>
+                        <span>Wed</span>
+                        <span>Thu</span>
+                        <span>Fri</span>
+                        <span>Sat</span>
+                        <span>Sun</span>
+                      </div>
                     </div>
                   </div>
-                      </div>
-                      <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-4">
-                        <div className="flex items-start gap-3">
-                          <Clock className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
-                          <div>
-                            <p className="text-sm font-semibold text-yellow-700 mb-1">Peak Hours</p>
-                            <p className="text-xs text-gray-700">Most orders occur between 2-4 PM, on weekdays.</p>
-                    </div>
+                  
+                  {/* Legend */}
+                  <div className="flex items-center gap-2 mt-4">
+                    <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+                    <span className="text-xs text-gray-700">Sales</span>
                   </div>
-                      </div>
-                      <div className="bg-purple-50 rounded-lg border border-purple-200 p-4">
-                        <div className="flex items-start gap-3">
-                          <Star className="text-purple-600 flex-shrink-0 mt-0.5" size={20} />
-                          <div>
-                            <p className="text-sm font-semibold text-purple-700 mb-1">Top Product</p>
-                            <p className="text-xs text-gray-700">Electronics category shows higher conversion rate of 52%.</p>
-                    </div>
-                  </div>
-                      </div>
-                    </div>
-                  </div>
-                </aside>
+                </div>
+              </div>
+
+              {/* Export Options - Below Report Preview */}
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 max-w-2xl">
+                <h2 className="text-base font-bold text-gray-900 mb-4">Export Options</h2>
+                <div className="flex gap-2 flex-wrap">
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-green-700">
+                    <FileSpreadsheet size={16} />
+                    Excel
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700">
+                    <FileText size={16} />
+                    PDF
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
+                    <FileCode size={16} />
+                    CSV
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-purple-600 text-white text-sm font-medium hover:bg-purple-700">
+                    <Clock size={16} />
+                    Schedule
+                  </button>
+                </div>
+              </div>
               </div>
               </div>
             </div>

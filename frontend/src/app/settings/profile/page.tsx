@@ -3,7 +3,7 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState, useRef } from 'react'
-import { Menu, Camera, Upload, Download, Check, X, Eye, EyeOff, Plus, Trash2, Edit, Search, MoreVertical, ChevronDown, ChevronLeft, ChevronRight, Clock, Bold, Italic, Underline } from 'lucide-react'
+import { Menu, Camera, Upload, Download, Check, X, Eye, EyeOff, Plus, Trash2, Edit, Search, MoreVertical, ChevronDown, ChevronLeft, ChevronRight, Clock, Bold, Italic, Underline, FileText, Image } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function SettingsProfilePage() {
@@ -29,11 +29,13 @@ export default function SettingsProfilePage() {
     uploadedDate: string | null
     verified: boolean
     file: File | null
+    fileType: string | null
   }>({
     fileName: 'passport_john_doe.pdf',
     uploadedDate: 'Jan 15 2024',
     verified: true,
-    file: null
+    file: null,
+    fileType: 'pdf'
   })
 
   // Password states
@@ -178,12 +180,40 @@ export default function SettingsProfilePage() {
         return
       }
       
+      // Detect file type
+      let fileType = 'pdf'
+      if (file.type === 'application/pdf') {
+        fileType = 'pdf'
+      } else if (file.type === 'image/png') {
+        fileType = 'png'
+      } else if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+        fileType = 'jpg'
+      }
+      
       setIdDocument({
         fileName: file.name,
         uploadedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         verified: false,
-        file: file
+        file: file,
+        fileType: fileType
       })
+    }
+  }
+
+  // Get file icon and label based on file type
+  const getFileIcon = (fileType: string | null) => {
+    if (!fileType) return { Icon: FileText, label: 'PDF', bgColor: 'bg-teal-500' }
+    
+    switch (fileType.toLowerCase()) {
+      case 'pdf':
+        return { Icon: FileText, label: 'PDF', bgColor: 'bg-teal-500' }
+      case 'png':
+        return { Icon: Image, label: 'PNG', bgColor: 'bg-blue-500' }
+      case 'jpg':
+      case 'jpeg':
+        return { Icon: Image, label: 'JPG', bgColor: 'bg-purple-500' }
+      default:
+        return { Icon: FileText, label: 'FILE', bgColor: 'bg-gray-500' }
     }
   }
 
@@ -314,7 +344,7 @@ export default function SettingsProfilePage() {
           />
           <button 
             onClick={() => profileImageRef.current?.click()}
-            className="absolute bottom-0 right-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center border-4 border-white hover:bg-purple-700 transition-colors"
+            className="absolute bottom-0 right-0 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center border-4 border-white hover:bg-primary-600 transition-colors"
             aria-label="Change profile picture"
           >
             <Camera size={18} />
@@ -331,7 +361,7 @@ export default function SettingsProfilePage() {
         <div className="flex-1 min-w-[200px]">
           <button 
             onClick={() => profileImageRef.current?.click()}
-            className="px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium mb-2"
+            className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium mb-2"
           >
             Upload New Photo
           </button>
@@ -460,7 +490,7 @@ export default function SettingsProfilePage() {
             <p className="text-sm text-gray-500 mb-4">Upload your CNIC, Passport or any valid government ID.</p>
             <button 
               onClick={() => idDocumentRef.current?.click()}
-              className="px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+              className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium"
             >
               Choose File
             </button>
@@ -477,27 +507,45 @@ export default function SettingsProfilePage() {
         />
         
         {idDocument.fileName && (
-          <div className={`rounded-lg p-4 flex flex-wrap items-center justify-between gap-4 ${
-            idDocument.verified ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'
+          <div className={`rounded-lg p-4 flex items-center justify-between gap-4 ${
+            idDocument.verified 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-yellow-50 border border-yellow-200'
           }`}>
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                idDocument.verified ? 'bg-green-100' : 'bg-yellow-100'
-              }`}>
-                <Upload className={idDocument.verified ? 'text-green-600' : 'text-yellow-600'} size={24} />
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">{idDocument.fileName}</p>
-                <p className="text-sm text-gray-600">
+            {/* Left Section - File Information */}
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              {/* File Type Icon */}
+              {(() => {
+                const { Icon, label, bgColor } = getFileIcon(idDocument.fileType)
+                return (
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 relative overflow-hidden ${
+                    idDocument.verified ? bgColor : 'bg-yellow-500'
+                  }`}>
+                    <Icon className="text-white" size={28} />
+                    <span className="absolute bottom-0.5 right-0.5 text-[7px] font-bold text-white leading-none">
+                      {label}
+                    </span>
+                  </div>
+                )
+              })()}
+              
+              {/* File Name and Status */}
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 truncate">{idDocument.fileName}</p>
+                <p className={`text-sm ${
+                  idDocument.verified ? 'text-teal-600' : 'text-yellow-600'
+                }`}>
                   {idDocument.verified ? 'Verified' : 'Pending Verification'} - Uploaded on {idDocument.uploadedDate}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            
+            {/* Right Section - Status Badge and Download */}
+            <div className="flex items-center gap-3 flex-shrink-0">
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                 idDocument.verified 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-yellow-100 text-yellow-700'
+                  ? 'bg-green-100 text-teal-600' 
+                  : 'bg-yellow-100 text-yellow-600'
               }`}>
                 {idDocument.verified ? 'Verified' : 'Pending'}
               </span>
@@ -511,7 +559,11 @@ export default function SettingsProfilePage() {
                     a.click()
                     URL.revokeObjectURL(url)
                   }}
-                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                  className={`p-2 rounded-lg transition-colors ${
+                    idDocument.verified 
+                      ? 'text-teal-600 hover:bg-green-100' 
+                      : 'text-yellow-600 hover:bg-yellow-100'
+                  }`}
                   aria-label="Download document"
                 >
                   <Download size={20} />
@@ -604,7 +656,7 @@ export default function SettingsProfilePage() {
 
         </div>
 
-        <div className="flex justify-end gap-4 mt-8">
+        <div className="flex justify-between gap-4 mt-8">
           <button
             onClick={() => {
               setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
@@ -1300,7 +1352,7 @@ export default function SettingsProfilePage() {
         {/* Review & Save */}
         <div className="bg-white rounded-lg p-4 sm:p-6">
           <p className="text-xs sm:text-sm text-gray-500 mb-4">Make sure all information is accurate before saving.</p>
-          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
             <button
               onClick={() => {
                 // Reset form
@@ -1394,7 +1446,7 @@ export default function SettingsProfilePage() {
           </div>
           
           <main className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-5xl mx-auto space-y-6">
+            <div className="w-full space-y-6">
               {/* Header */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
@@ -1463,7 +1515,7 @@ export default function SettingsProfilePage() {
 
                 {/* Action Buttons */}
                 {(activeTab === 'personal' || activeTab === 'password') && (
-                  <div className="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-gray-200">
+                  <div className="flex items-center justify-between gap-4 pt-6 mt-6 border-t border-gray-200">
                     <button
                       onClick={() => router.back()}
                       className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"

@@ -2,9 +2,10 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
+import Modal from '@/components/ui/Modal'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, Eye, EyeOff, Check, ChevronUp, ChevronDown, Shield, Package } from 'lucide-react'
+import { Menu, Eye, EyeOff, Check, ChevronUp, ChevronDown, Shield, Package, CheckCircle } from 'lucide-react'
 
 export default function AddSubVendorPage() {
   const router = useRouter()
@@ -56,6 +57,7 @@ export default function AddSubVendorPage() {
   })
   const [showPasswordSetup, setShowPasswordSetup] = useState(false)
   const [showConfirmPasswordSetup, setShowConfirmPasswordSetup] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBasicInfo({
@@ -125,22 +127,16 @@ export default function AddSubVendorPage() {
 
   const handleInviteUser = () => {
     // Handle form submission
-    alert('User invited successfully!')
+    setShowSuccessModal(true)
+  }
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false)
     router.push('/settings/profile')
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Sidebar */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-64 bg-primary-500">
-            <Sidebar onClose={() => setSidebarOpen(false)} currentPage="settings" />
-          </div>
-        </div>
-      )}
-
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-screen overflow-hidden">
         {!sidebarCollapsed && (
@@ -165,109 +161,90 @@ export default function AddSubVendorPage() {
           </div>
           
           <main className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="max-w-6xl mx-auto space-y-6">
               {/* Header */}
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Add New Sub Vendors</h1>
-                <p className="text-sm text-gray-500 mt-1">Dashboard - Add New Sub Vendors</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Add New Sub Vendors</h1>
+                <p className="text-sm text-gray-500 mt-1">Dashboard • Add New Sub Vendors</p>
                 <p className="text-base text-gray-600 mt-2">Create a new Sub Vendors user with custom permissions</p>
               </div>
 
-              {/* Progress Indicator */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex-1 flex items-center">
+              {/* Step Content with Progress Indicator */}
+              <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+                {/* Progress Indicator */}
+                <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8 mb-6 md:mb-8 pb-6 md:pb-8 border-b border-gray-200">
                   {/* Step 1 */}
-                  <div className="flex items-center flex-1">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-orange-500' : 'bg-gray-300'}`}>
-                        {currentStep > 1 ? (
-                          <Check className="text-white" size={20} />
-                        ) : (
-                          <span className={`text-white font-semibold ${currentStep >= 1 ? 'text-white' : 'text-gray-600'}`}>1</span>
-                        )}
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className={`font-semibold ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-500'}`}>Basic Info</p>
-                        <p className="text-xs text-gray-500">Personal details and credentials</p>
-                      </div>
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${currentStep >= 1 ? 'bg-orange-500' : 'bg-gray-600'}`}>
+                      <span className="text-white font-semibold text-lg">1</span>
                     </div>
-                    <div className={`flex-1 h-0.5 mx-4 ${currentStep >= 2 ? 'bg-orange-500' : 'bg-gray-300'}`} />
+                    <div>
+                      <p className={`font-bold text-gray-900 mb-1 ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-600'}`}>Basic Info</p>
+                      <p className={`text-sm ${currentStep >= 1 ? 'text-gray-600' : 'text-gray-400'}`}>Personal details and credentials</p>
+                    </div>
                   </div>
 
                   {/* Step 2 */}
-                  <div className="flex items-center flex-1">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-orange-500' : 'bg-gray-300'}`}>
-                        {currentStep > 2 ? (
-                          <Check className="text-white" size={20} />
-                        ) : (
-                          <span className={`text-white font-semibold ${currentStep >= 2 ? 'text-white' : 'text-gray-600'}`}>2</span>
-                        )}
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className={`font-semibold ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-500'}`}>Role Assignment</p>
-                        <p className="text-xs text-gray-500">Select admin role and responsibilities</p>
-                      </div>
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${currentStep >= 2 ? 'bg-orange-500' : 'bg-gray-600'}`}>
+                      <span className="text-white font-semibold text-lg">2</span>
                     </div>
-                    <div className={`flex-1 h-0.5 mx-4 ${currentStep >= 3 ? 'bg-orange-500' : 'bg-gray-300'}`} />
+                    <div>
+                      <p className={`font-bold mb-1 ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-600'}`}>Role Assignment</p>
+                      <p className={`text-sm ${currentStep >= 2 ? 'text-gray-600' : 'text-gray-400'}`}>Select admin role and responsibilities</p>
+                    </div>
                   </div>
 
                   {/* Step 3 */}
-                  <div className="flex items-center flex-1">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep >= 3 ? 'bg-orange-500' : 'bg-gray-300'}`}>
-                        <span className={`text-white font-semibold ${currentStep >= 3 ? 'text-white' : 'text-gray-600'}`}>3</span>
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className={`font-semibold ${currentStep >= 3 ? 'text-gray-900' : 'text-gray-500'}`}>Permission Control</p>
-                        <p className="text-xs text-gray-500">Customize access permissions</p>
-                      </div>
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${currentStep >= 3 ? 'bg-orange-500' : 'bg-gray-600'}`}>
+                      <span className="text-white font-semibold text-lg">3</span>
+                    </div>
+                    <div>
+                      <p className={`font-bold mb-1 ${currentStep >= 3 ? 'text-gray-900' : 'text-gray-600'}`}>Permission Control</p>
+                      <p className={`text-sm ${currentStep >= 3 ? 'text-gray-600' : 'text-gray-400'}`}>Customize access permissions</p>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Step Content */}
-              <div className="bg-white rounded-lg p-6 shadow-sm">
                 {currentStep === 1 && (
                   <div className="space-y-6">
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900 mb-1">Basic Information</h2>
-                      <p className="text-sm text-gray-500">Enter the Vendor user's personal details and login credentials</p>
+                    <div className="mb-6">
+                      <h2 className="text-xl font-bold text-gray-900 mb-2">Basic Information</h2>
+                      <p className="text-sm text-gray-600">Enter the Vendor user's personal details and login credentials</p>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Full Name</label>
                         <input
                           type="text"
                           name="fullName"
                           value={basicInfo.fullName}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Email Address</label>
                         <input
                           type="email"
                           name="email"
                           value={basicInfo.email}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Password</label>
                         <div className="relative">
                           <input
                             type={showPassword ? 'text' : 'password'}
                             name="password"
                             value={basicInfo.password}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className="w-full px-4 py-3 pr-10 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
                           />
                           <button
                             type="button"
@@ -280,14 +257,14 @@ export default function AddSubVendorPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">Confirm Password</label>
                         <div className="relative">
                           <input
                             type={showConfirmPassword ? 'text' : 'password'}
                             name="confirmPassword"
                             value={basicInfo.confirmPassword}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className="w-full px-4 py-3 pr-10 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
                           />
                           <button
                             type="button"
@@ -300,7 +277,7 @@ export default function AddSubVendorPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">Status</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-3">Status</label>
                         <div className="flex gap-6">
                           <label className="flex items-center cursor-pointer">
                             <input
@@ -328,10 +305,10 @@ export default function AddSubVendorPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-end mt-8">
+                    <div className="flex justify-end mt-6 md:mt-8">
                       <button
                         onClick={nextStep}
-                        className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                        className="w-full sm:w-auto px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
                       >
                         Next Step
                       </button>
@@ -398,17 +375,17 @@ export default function AddSubVendorPage() {
                       </div>
                     </div>
 
-                    <div className="flex justify-end gap-4 mt-8">
+                    <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-6 md:mt-8">
                       <button
                         onClick={previousStep}
-                        className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="w-full sm:w-auto px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         Previous
                       </button>
                       <button
                         onClick={nextStep}
                         disabled={!selectedRole}
-                        className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Next Step
                       </button>
@@ -459,7 +436,7 @@ export default function AddSubVendorPage() {
                             </div>
                           </div>
                           {expandedGroups.productManagement && (
-                            <div className="grid grid-cols-2 gap-3 mt-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                               {[
                                 { key: 'viewProducts', label: 'View Products' },
                                 { key: 'editProducts', label: 'Edit Products' },
@@ -516,7 +493,7 @@ export default function AddSubVendorPage() {
                             </div>
                           </div>
                           {expandedGroups.orderManagement && (
-                            <div className="grid grid-cols-2 gap-3 mt-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                               {[
                                 { key: 'viewOrders', label: 'View Orders' },
                                 { key: 'updateOrderStatus', label: 'Update Order Status' },
@@ -597,16 +574,16 @@ export default function AddSubVendorPage() {
                       )}
                     </div>
 
-                    <div className="flex justify-between mt-8">
+                    <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 mt-6 md:mt-8">
                       <button
                         onClick={previousStep}
-                        className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="w-full sm:w-auto px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         Previous
                       </button>
                       <button
                         onClick={handleInviteUser}
-                        className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                        className="w-full sm:w-auto px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                       >
                         Invite User
                       </button>
@@ -621,33 +598,478 @@ export default function AddSubVendorPage() {
 
       {/* Mobile Layout */}
       <div className="lg:hidden">
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-            aria-label="Menu"
-          >
-            <Menu size={24} />
-          </button>
-          <h1 className="text-lg font-semibold">Add New Sub Vendors</h1>
-          <div className="w-10" />
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+            <div className="absolute left-0 top-0 bottom-0 w-64 bg-primary-500">
+              <Sidebar onClose={() => setSidebarOpen(false)} currentPage="settings" />
+            </div>
+          </div>
+        )}
+
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+          <Header onToggleSidebar={() => setSidebarOpen(true)} isSidebarOpen={sidebarOpen} />
         </div>
-        <main className="p-4">
-          {/* Mobile content - same as desktop but adjusted */}
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div>
-              <p className="text-sm text-gray-500">Dashboard - Add New Sub Vendors</p>
-              <h1 className="text-2xl font-bold text-gray-900 mt-1">Add New Sub Vendors</h1>
-              <p className="text-sm text-gray-600 mt-2">Create a new Sub Vendors user with custom permissions</p>
+        <main className="p-4 space-y-4 pt-20 lg:pt-4">
+          {/* Page header */}
+          <div className="mb-4">
+            <h1 className="text-xl font-bold text-gray-900">Add New Sub Vendors</h1>
+            <p className="text-xs text-gray-500 mt-1">Dashboard • Add New Sub Vendors</p>
+            <p className="text-sm text-gray-600 mt-2">Create a new Sub Vendors user with custom permissions</p>
+          </div>
+
+          {/* Step Content with Progress Indicator */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            {/* Progress Indicator */}
+            <div className="flex flex-col gap-4 mb-6 pb-6 border-b border-gray-200">
+              {/* Step 1 */}
+              <div className="flex items-start gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${currentStep >= 1 ? 'bg-orange-500' : 'bg-gray-600'}`}>
+                  <span className="text-white font-semibold text-lg">1</span>
+                </div>
+                <div>
+                  <p className={`font-bold text-gray-900 mb-1 ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-600'}`}>Basic Info</p>
+                  <p className={`text-xs ${currentStep >= 1 ? 'text-gray-600' : 'text-gray-400'}`}>Personal details and credentials</p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex items-start gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${currentStep >= 2 ? 'bg-orange-500' : 'bg-gray-600'}`}>
+                  <span className="text-white font-semibold text-lg">2</span>
+                </div>
+                <div>
+                  <p className={`font-bold mb-1 ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-600'}`}>Role Assignment</p>
+                  <p className={`text-xs ${currentStep >= 2 ? 'text-gray-600' : 'text-gray-400'}`}>Select admin role and responsibilities</p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex items-start gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${currentStep >= 3 ? 'bg-orange-500' : 'bg-gray-600'}`}>
+                  <span className="text-white font-semibold text-lg">3</span>
+                </div>
+                <div>
+                  <p className={`font-bold mb-1 ${currentStep >= 3 ? 'text-gray-900' : 'text-gray-600'}`}>Permission Control</p>
+                  <p className={`text-xs ${currentStep >= 3 ? 'text-gray-600' : 'text-gray-400'}`}>Customize access permissions</p>
+                </div>
+              </div>
             </div>
 
-            {/* Progress indicator and form content would go here - simplified for mobile */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <p className="text-center text-gray-500">Please use desktop view for full functionality</p>
-            </div>
+            {/* Step Content - Same as desktop but with mobile optimizations */}
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2">Basic Information</h2>
+                  <p className="text-sm text-gray-600">Enter the Vendor user's personal details and login credentials</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={basicInfo.fullName}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={basicInfo.email}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={basicInfo.password}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 pr-10 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">Confirm Password</label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        name="confirmPassword"
+                        value={basicInfo.confirmPassword}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 pr-10 bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-3">Status</label>
+                    <div className="flex gap-6">
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="radio"
+                          name="status"
+                          value="Active"
+                          checked={basicInfo.status === 'Active'}
+                          onChange={handleInputChange}
+                          className="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                        />
+                        <span className="ml-2 text-gray-700">Active</span>
+                      </label>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="radio"
+                          name="status"
+                          value="Inactive"
+                          checked={basicInfo.status === 'Inactive'}
+                          onChange={handleInputChange}
+                          className="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                        />
+                        <span className="ml-2 text-gray-700">Inactive</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={nextStep}
+                    className="w-full px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    Next Step
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">Role Assignment</h2>
+                  <p className="text-sm text-gray-500">Select an admin role. Default permissions will be applied automatically.</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div
+                    onClick={() => setSelectedRole('Product Manager')}
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      selectedRole === 'Product Manager' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Shield className="text-pink-600" size={20} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-gray-900 text-sm">Product Manager</h3>
+                          <p className="text-xs text-gray-500">Handles product setup, content, and tracking.</p>
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={selectedRole === 'Product Manager'}
+                        onChange={() => setSelectedRole('Product Manager')}
+                        className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 flex-shrink-0"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => setSelectedRole('Order Manager')}
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      selectedRole === 'Order Manager' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Package className="text-blue-600" size={20} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-gray-900 text-sm">Order Manager</h3>
+                          <p className="text-xs text-gray-500">Manages customer orders, delivery, and operations.</p>
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={selectedRole === 'Order Manager'}
+                        onChange={() => setSelectedRole('Order Manager')}
+                        className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 flex-shrink-0"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 mt-6">
+                  <button
+                    onClick={previousStep}
+                    className="w-full px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    disabled={!selectedRole}
+                    className="w-full px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next Step
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">Permission Control</h2>
+                  <p className="text-sm text-gray-500">
+                    Customize access permissions for the selected role: <span className="text-blue-600 font-semibold">{selectedRole}</span>
+                  </p>
+                </div>
+
+                {/* Product Management Permissions */}
+                {(() => {
+                  const pmPerms = getProductManagementPermissions()
+                  return (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex flex-col gap-3 mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span className="text-gray-600 font-semibold">C</span>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 text-sm">Product Management</h3>
+                            <p className="text-xs text-gray-500">{pmPerms.granted} of {pmPerms.total} permissions granted</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-xs text-gray-700">Select All</span>
+                            <input
+                              type="checkbox"
+                              checked={selectAllGroups.productManagement}
+                              onChange={() => toggleSelectAll('productManagement', pmPerms.keys)}
+                              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                            />
+                          </label>
+                          <button
+                            onClick={() => toggleGroup('productManagement')}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            {expandedGroups.productManagement ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                          </button>
+                        </div>
+                      </div>
+                      {expandedGroups.productManagement && (
+                        <div className="grid grid-cols-1 gap-3 mt-4">
+                          {[
+                            { key: 'viewProducts', label: 'View Products' },
+                            { key: 'editProducts', label: 'Edit Products' },
+                            { key: 'deleteProducts', label: 'Delete Products' },
+                            { key: 'approveProducts', label: 'Approve Products' }
+                          ].map((perm) => (
+                            <label key={perm.key} className="flex items-center gap-2 cursor-pointer p-2 border border-gray-200 rounded hover:bg-gray-50">
+                              <input
+                                type="checkbox"
+                                checked={permissions[perm.key]}
+                                onChange={() => togglePermission(perm.key)}
+                                className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500 flex-shrink-0"
+                              />
+                              <span className="text-sm text-gray-700">{perm.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                {/* Order Management Permissions */}
+                {(() => {
+                  const omPerms = getOrderManagementPermissions()
+                  return (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex flex-col gap-3 mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <span className="text-gray-600 font-semibold">P</span>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-gray-900 text-sm">Order Management</h3>
+                            <p className="text-xs text-gray-500">{omPerms.granted} of {omPerms.total} permissions granted</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-xs text-gray-700">Select All</span>
+                            <input
+                              type="checkbox"
+                              checked={selectAllGroups.orderManagement}
+                              onChange={() => toggleSelectAll('orderManagement', omPerms.keys)}
+                              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                            />
+                          </label>
+                          <button
+                            onClick={() => toggleGroup('orderManagement')}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            {expandedGroups.orderManagement ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                          </button>
+                        </div>
+                      </div>
+                      {expandedGroups.orderManagement && (
+                        <div className="grid grid-cols-1 gap-3 mt-4">
+                          {[
+                            { key: 'viewOrders', label: 'View Orders' },
+                            { key: 'updateOrderStatus', label: 'Update Order Status' },
+                            { key: 'manageShipments', label: 'Manage Shipments' },
+                            { key: 'viewPaymentMethods', label: 'View Payment Methods & Transactions' },
+                            { key: 'downloadInvoices', label: 'Download Order Invoices/Reports' },
+                            { key: 'respondToInquiries', label: 'Respond to Customer Inquiries (some elements)' }
+                          ].map((perm) => (
+                            <label key={perm.key} className="flex items-center gap-2 cursor-pointer p-2 border border-gray-200 rounded hover:bg-gray-50">
+                              <input
+                                type="checkbox"
+                                checked={permissions[perm.key]}
+                                onChange={() => togglePermission(perm.key)}
+                                className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500 flex-shrink-0"
+                              />
+                              <span className="text-sm text-gray-700">{perm.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                {/* Password Setup */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900">Password Setup</h3>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={passwordSetup.sendInviteLink}
+                      onChange={(e) => setPasswordSetup({ ...passwordSetup, sendInviteLink: e.target.checked })}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <span className="text-sm text-gray-700">Send invite link via email (user sets password later)</span>
+                  </label>
+                  {!passwordSetup.sendInviteLink && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div className="relative">
+                          <input
+                            type={showPasswordSetup ? 'text' : 'password'}
+                            name="password"
+                            value={passwordSetup.password}
+                            onChange={(e) => setPasswordSetup({ ...passwordSetup, password: e.target.value })}
+                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPasswordSetup(!showPasswordSetup)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          >
+                            {showPasswordSetup ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <div className="relative">
+                          <input
+                            type={showConfirmPasswordSetup ? 'text' : 'password'}
+                            name="confirmPassword"
+                            value={passwordSetup.confirmPassword}
+                            onChange={(e) => setPasswordSetup({ ...passwordSetup, confirmPassword: e.target.value })}
+                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPasswordSetup(!showConfirmPasswordSetup)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          >
+                            {showConfirmPasswordSetup ? <EyeOff size={18} /> : <Eye size={18} />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-3 mt-6">
+                  <button
+                    onClick={previousStep}
+                    className="w-full px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={handleInviteUser}
+                    className="w-full px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    Invite User
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+        size="sm"
+        showCloseButton={false}
+      >
+        <div className="text-center py-4 sm:py-6">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="text-green-600" size={40} />
+            </div>
+          </div>
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Success!</h3>
+          <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 px-2">
+            User invited successfully! The new sub vendor has been added to your system.
+          </p>
+          <button
+            onClick={handleCloseSuccessModal}
+            className="w-full px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base"
+          >
+            Continue
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// Mock dashboard data
+// Vendor/Super Admin Dashboard Data
 router.get('/data', async (req, res) => {
   try {
     res.json({
@@ -84,6 +84,47 @@ router.get('/data', async (req, res) => {
           rating: 4,
           review: 'Great experience shopping here. Good customer service and quality products. Will definitely order again.'
         }
+      ]
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Sub Admin Dashboard Data
+router.get('/sub-admin/data', async (req, res) => {
+  try {
+    res.json({
+      metrics: {
+        assignedTasks: 18,
+        completedOrders: 42,
+        pendingApprovals: 7,
+        teamPerformance: 87
+      },
+      recentTasks: [
+        { id: 'TASK-001', title: 'Review Product Listings', status: 'In Progress', priority: 'High' },
+        { id: 'TASK-002', title: 'Approve New Vendor', status: 'Pending', priority: 'Medium' },
+        { id: 'TASK-003', title: 'Update Order Status', status: 'Completed', priority: 'Low' },
+      ],
+      pendingApprovals: [
+        { id: 'APP-001', type: 'Product', title: 'New Product Submission', submittedBy: 'John Doe', date: '2 hours ago' },
+        { id: 'APP-002', type: 'Vendor', title: 'Vendor Account Request', submittedBy: 'Jane Smith', date: '5 hours ago' },
+        { id: 'APP-003', type: 'Order', title: 'Refund Request', submittedBy: 'Mike Johnson', date: '1 day ago' },
+      ],
+      teamActivity: [
+        { name: 'Sarah Wilson', action: 'Completed order review', time: '30 mins ago' },
+        { name: 'Tom Brown', action: 'Updated product status', time: '1 hour ago' },
+        { name: 'Emma Davis', action: 'Approved vendor request', time: '2 hours ago' },
+      ],
+      recentOrders: [
+        { id: '#ORD-89', customer: 'Customer A', items: 3, status: 'Pending Review' },
+        { id: '#ORD-88', customer: 'Customer B', items: 1, status: 'Approved' },
+        { id: '#ORD-87', customer: 'Customer C', items: 5, status: 'Pending Review' },
+      ],
+      notifications: [
+        { icon: 'approval', message: 'New Approval Request', detail: 'Product #1234 needs review' },
+        { icon: 'task', message: 'Task Assigned', detail: 'Review vendor documentation' },
+        { icon: 'order', message: 'Order Update', detail: 'Order #ORD-89 requires attention' },
       ]
     });
   } catch (error) {

@@ -2,35 +2,15 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import DashboardContent from '@/components/dashboard/DashboardContent'
-import { useRole } from '@/contexts/RoleContext'
-import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Menu } from 'lucide-react'
 
-export default function DashboardPage() {
-  const { role, isSubAdmin } = useRole()
-  const router = useRouter()
+export default function SubAdminAnalyticsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  // Redirect to role selection if no role is selected
-  useEffect(() => {
-    if (!role) {
-      router.push('/select-role')
-    }
-  }, [role, router])
-
-  // Redirect Sub Admin directly to users page
-  useEffect(() => {
-    if (isSubAdmin) {
-      router.push('/sub-admin/users')
-    }
-  }, [isSubAdmin, router])
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 z-[45] bg-black bg-opacity-50 lg:hidden"
@@ -38,16 +18,13 @@ export default function DashboardPage() {
         />
       )}
       
-      {/* Desktop Layout - Side by Side */}
       <div className="hidden lg:flex h-screen overflow-hidden">
-        {/* Sidebar - Collapsible */}
         {!sidebarCollapsed && (
           <div className="w-64 flex-shrink-0 bg-primary-500 h-screen overflow-y-auto">
-            <Sidebar onClose={() => setSidebarCollapsed(true)} currentPage="dashboard" />
+            <Sidebar onClose={() => setSidebarCollapsed(true)} currentPage="subAdminAnalytics" />
           </div>
         )}
         
-        {/* Sidebar Toggle Button - Show when collapsed */}
         {sidebarCollapsed && (
           <button
             onClick={() => setSidebarCollapsed(false)}
@@ -58,23 +35,21 @@ export default function DashboardPage() {
           </button>
         )}
 
-        {/* Main Content - Takes remaining space, independently scrollable */}
         <div className={`flex-1 flex flex-col h-screen overflow-hidden bg-gray-50 ${sidebarCollapsed ? 'w-full' : ''}`}>
-          {/* Fixed Header */}
           <div className="flex-shrink-0 sticky top-0 z-10 bg-white border-b border-gray-200">
             <Header />
           </div>
           
-          {/* Scrollable Main Content */}
           <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
-            {!isSubAdmin && <DashboardContent />}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Analytics</h1>
+              <p className="text-gray-600">Sub Admin - Analytics page content will go here</p>
+            </div>
           </main>
         </div>
       </div>
 
-      {/* Mobile Layout - Stacked */}
       <div className="lg:hidden">
-        {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div 
             className="fixed inset-0 z-[45] bg-black bg-opacity-50 lg:hidden"
@@ -82,19 +57,20 @@ export default function DashboardPage() {
           />
         )}
         
-        {/* Mobile Sidebar */}
         <div className={`
           fixed inset-y-0 left-0 z-[60] w-64 transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
-          <Sidebar onClose={() => setSidebarOpen(false)} currentPage="dashboard" />
+          <Sidebar onClose={() => setSidebarOpen(false)} currentPage="subAdminAnalytics" />
         </div>
 
-        {/* Mobile Main Content */}
         <div className="flex-1 flex flex-col min-h-screen bg-gray-50 pt-20 lg:pt-0">
           <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} isSidebarOpen={sidebarOpen} />
           <main className="flex-1 overflow-x-hidden overflow-y-auto p-4">
-            {!isSubAdmin && <DashboardContent />}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Analytics</h1>
+              <p className="text-gray-600">Sub Admin - Analytics page content will go here</p>
+            </div>
           </main>
         </div>
       </div>

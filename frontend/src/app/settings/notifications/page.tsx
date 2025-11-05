@@ -55,43 +55,43 @@ export default function SettingsNotificationsPage() {
 
               {/* Filters header */}
               <div className="bg-white rounded-lg border border-gray-200 p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-3 px-2">
                   <button 
                     onClick={() => setActiveFilter('all')}
-                    className={`px-3 py-1.5 rounded-full border transition-colors ${
+                    className={`px-4 py-2 transition-colors font-medium ${
                       activeFilter === 'all' 
-                        ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'bg-[#5C50AE] text-white rounded-lg' 
+                        : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
                     All
                   </button>
                   <button 
                     onClick={() => setActiveFilter('orders')}
-                    className={`px-3 py-1.5 rounded-full border transition-colors ${
+                    className={`px-4 py-2 transition-colors font-medium ${
                       activeFilter === 'orders' 
-                        ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'bg-[#5C50AE] text-white rounded-lg' 
+                        : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
                     Orders
                   </button>
                   <button 
                     onClick={() => setActiveFilter('payouts')}
-                    className={`px-3 py-1.5 rounded-full border transition-colors ${
+                    className={`px-4 py-2 transition-colors font-medium ${
                       activeFilter === 'payouts' 
-                        ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'bg-[#5C50AE] text-white rounded-lg' 
+                        : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
                     Payouts
                   </button>
                   <button 
                     onClick={() => setActiveFilter('system')}
-                    className={`px-3 py-1.5 rounded-full border transition-colors ${
+                    className={`px-4 py-2 transition-colors font-medium ${
                       activeFilter === 'system' 
-                        ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        ? 'bg-[#5C50AE] text-white rounded-lg' 
+                        : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
                     System Updates
@@ -166,7 +166,7 @@ export default function SettingsNotificationsPage() {
         <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
           <Header onToggleSidebar={() => setSidebarOpen(true)} isSidebarOpen={sidebarOpen} />
         </div>
-        <main className="mt-14 p-4 space-y-4">
+        <main className="p-4 space-y-4 pt-20 lg:pt-4">
           <div>
             <TabsBar
               tabs={[
@@ -180,43 +180,43 @@ export default function SettingsNotificationsPage() {
 
           {/* Filters header */}
           <div className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-2 sm:gap-3 px-2">
               <button 
                 onClick={() => setActiveFilter('all')}
-                className={`px-3 py-1.5 rounded-full border transition-colors ${
+                className={`px-3 sm:px-4 py-2 transition-colors font-medium text-sm ${
                   activeFilter === 'all' 
-                    ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    ? 'bg-[#5C50AE] text-white rounded-lg' 
+                    : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
                 All
               </button>
               <button 
                 onClick={() => setActiveFilter('orders')}
-                className={`px-3 py-1.5 rounded-full border transition-colors ${
+                className={`px-3 sm:px-4 py-2 transition-colors font-medium text-sm ${
                   activeFilter === 'orders' 
-                    ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    ? 'bg-[#5C50AE] text-white rounded-lg' 
+                    : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
                 Orders
               </button>
               <button 
                 onClick={() => setActiveFilter('payouts')}
-                className={`px-3 py-1.5 rounded-full border transition-colors ${
+                className={`px-3 sm:px-4 py-2 transition-colors font-medium text-sm ${
                   activeFilter === 'payouts' 
-                    ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    ? 'bg-[#5C50AE] text-white rounded-lg' 
+                    : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
                 Payouts
               </button>
               <button 
                 onClick={() => setActiveFilter('system')}
-                className={`px-3 py-1.5 rounded-full border transition-colors ${
+                className={`px-3 sm:px-4 py-2 transition-colors font-medium text-sm ${
                   activeFilter === 'system' 
-                    ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    ? 'bg-[#5C50AE] text-white rounded-lg' 
+                    : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
                 System Updates

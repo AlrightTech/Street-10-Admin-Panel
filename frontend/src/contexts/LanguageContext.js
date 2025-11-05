@@ -27,6 +27,8 @@ export function LanguageProvider({ children }) {
         settings: 'الإعدادات',
         welcomeBack: 'مرحباً بعودتك',
         vendor: 'بائع',
+        subAdmin: 'مسؤول فرعي',
+        superAdmin: 'المسؤول الرئيسي',
 
         // Header
         search: 'بحث',
@@ -278,7 +280,135 @@ export function LanguageProvider({ children }) {
         
         // Reviews
         reviewGreatQuality: 'جودة عالية وتوصيل سريع!',
-        reviewDescribed: 'المنتج كما هو موضح، سأشتريه مرة أخرى.'
+        reviewDescribed: 'المنتج كما هو موضح، سأشتريه مرة أخرى.',
+        
+        // Sub Admin Dashboard
+        assignedTasks: 'المهام المخصصة',
+        completedOrders: 'الطلبات المكتملة',
+        pendingApprovals: 'الموافقات المعلقة',
+        teamPerformance: 'أداء الفريق',
+        recentTasks: 'المهام الأخيرة',
+        teamActivity: 'نشاط الفريق',
+        review: 'مراجعة',
+        
+        // Select Role Page
+        welcomeToMazad: 'مرحباً بك في Street 10',
+        selectRoleToContinue: 'يرجى اختيار دورك للمتابعة',
+        changeRoleOrContinue: 'قم بتغيير دورك أو المتابعة إلى لوحة التحكم',
+        currentRole: 'الدور الحالي',
+        fullSystemAccess: 'وصول كامل إلى النظام والإدارة',
+        limitedAccess: 'وصول محدود مع إدارة المهام',
+        manageProductsOrders: 'إدارة المنتجات والطلبات والمبيعات',
+        yourSelectionSaved: 'سيتم حفظ اختيارك للزيارات المستقبلية',
+        continueToDashboard: 'المتابعة إلى لوحة التحكم',
+        superAdminLabel: 'المسؤول الرئيسي',
+        subAdminLabel: 'مسؤول فرعي',
+        vendorDashboardLabel: 'لوحة تحكم البائع',
+        current: '(الحالي)',
+        
+        // Sub Admin Users Page
+        users: 'المستخدمون',
+        subAdminUsers: 'المستخدمون - المسؤول الفرعي',
+        addNew: 'إضافة جديد',
+        assignRole: 'تعيين دور',
+        assignRoleToUsers: 'تعيين دور للمستخدمين',
+        selectUsers: 'اختر المستخدمين',
+        selectRole: 'اختر الدور',
+        assign: 'تعيين',
+        cancel: 'إلغاء',
+        roleAssignedSuccessfully: 'تم تعيين الدور بنجاح',
+        roleAssignedToUsers: 'تم تعيين الدور {count} للمستخدمين',
+        close: 'إغلاق',
+        verified: 'متحقق',
+        pendingStatus: 'قيد الانتظار',
+        orders: 'الطلبات',
+        biddingWins: 'انتصارات المزايدة',
+        interests: 'الاهتمامات',
+        noUsersFound: 'لم يتم العثور على مستخدمين',
+        showingResults: 'عرض {start} - {end} من {total}',
+        previous: 'السابق',
+        nextPage: 'التالي',
+        marketingAdmin: 'مسؤول التسويق',
+        marketingAdminDesc: 'يدير الحملات والمحتوى وتحليلات التسويق.',
+        operationAdmin: 'مسؤول العمليات',
+        operationAdminDesc: 'يتعامل مع المنتجات والطلبات والمهام التشغيلية.',
+        financeAdmin: 'مسؤول المالية',
+        financeAdminDesc: 'الوصول إلى التقارير المالية وإدارة الميزانية.',
+        supportAdmin: 'مسؤول الدعم',
+        supportAdminDesc: 'يدير دعم العملاء وحل التذاكر.',
+        
+        // Sub Admin Add User Page
+        addNewUser: 'إضافة مستخدم جديد',
+        basicInfo: 'المعلومات الأساسية',
+        roleAssignment: 'تعيين الدور',
+        permissionControl: 'التحكم في الصلاحيات',
+        fullName: 'الاسم الكامل',
+        email: 'البريد الإلكتروني',
+        password: 'كلمة المرور',
+        confirmPassword: 'تأكيد كلمة المرور',
+        status: 'الحالة',
+        active: 'نشط',
+        inactive: 'غير نشط',
+        step: 'الخطوة',
+        of: 'من',
+        next: 'التالي',
+        previous: 'السابق',
+        submit: 'إرسال',
+        productManagement: 'إدارة المنتجات',
+        userManagement: 'إدارة المستخدمين',
+        orderManagement: 'إدارة الطلبات',
+        supportTickets: 'تذاكر الدعم',
+        selectAll: 'تحديد الكل',
+        viewProducts: 'عرض المنتجات',
+        editProducts: 'تعديل المنتجات',
+        deleteProducts: 'حذف المنتجات',
+        approveProducts: 'الموافقة على المنتجات',
+        viewUsers: 'عرض المستخدمين',
+        editUsers: 'تعديل المستخدمين',
+        deleteUsers: 'حذف المستخدمين',
+        manageRoles: 'إدارة الأدوار',
+        viewOrders: 'عرض الطلبات',
+        updateOrderStatus: 'تحديث حالة الطلب',
+        manageShipments: 'إدارة الشحنات',
+        viewPaymentMethods: 'عرض طرق الدفع',
+        viewTickets: 'عرض التذاكر',
+        respondTickets: 'الرد على التذاكر',
+        assignTickets: 'تعيين التذاكر',
+        closeTickets: 'إغلاق التذاكر',
+        granted: 'ممنوح',
+        permissions: 'الصلاحيات',
+        userCreatedSuccessfully: 'تم إنشاء المستخدم بنجاح',
+        newUserHasBeenCreated: 'تم إنشاء مستخدم جديد بنجاح في النظام.',
+        
+        // Sub Admin User Detail Page
+        backToUsers: 'العودة إلى المستخدمين',
+        userDetails: 'تفاصيل المستخدم',
+        phone: 'الهاتف',
+        emailLabel: 'البريد الإلكتروني',
+        username: 'اسم المستخدم',
+        statistics: 'الإحصاءات',
+        roleAssignedSuccessfullySingle: 'تم تعيين الدور بنجاح',
+        roleAssignedToUser: 'تم تعيين الدور للمستخدم بنجاح.',
+        
+        // Sidebar
+        logout: 'تسجيل الخروج',
+        hostsProviders: 'المضيفون والمزودون',
+        bookings: 'الحجوزات',
+        finance: 'المالية',
+        marketing: 'التسويق',
+        analyticsSubAdmin: 'التحليلات',
+        settingsSubAdmin: 'الإعدادات',
+        
+        // Common labels
+        ordersMade: 'الطلبات المقدمة',
+        accountStatus: 'حالة الحساب',
+        numberOfBiddingWins: 'عدد انتصارات المزايدة',
+        action: 'إجراء',
+        searchByNameEmail: 'البحث بالاسم أو البريد الإلكتروني أو اسم المستخدم',
+        selectUsersAndAssignRole: 'اختر المستخدمين وقم بتعيين دور لهم. يمكنك اختيار عدة مستخدمين في وقت واحد.',
+        success: 'نجاح',
+        roleAssignedToUsersCount: 'تم تعيين الدور لـ {count} مستخدم(ين) بنجاح.',
+        usersCount: 'مستخدمين'
       })
     } else {
       setTranslations({
@@ -297,6 +427,8 @@ export function LanguageProvider({ children }) {
         settings: 'Settings',
         welcomeBack: 'Welcome Back',
         vendor: 'Vendor',
+        subAdmin: 'Sub Admin',
+        superAdmin: 'Super Admin',
 
         // Header
         search: 'Search',
@@ -548,7 +680,135 @@ export function LanguageProvider({ children }) {
         
         // Reviews
         reviewGreatQuality: 'Great quality and fast delivery!',
-        reviewDescribed: 'Product as described, will buy again.'
+        reviewDescribed: 'Product as described, will buy again.',
+        
+        // Sub Admin Dashboard
+        assignedTasks: 'Assigned Tasks',
+        completedOrders: 'Completed Orders',
+        pendingApprovals: 'Pending Approvals',
+        teamPerformance: 'Team Performance',
+        recentTasks: 'Recent Tasks',
+        teamActivity: 'Team Activity',
+        review: 'Review',
+        
+        // Select Role Page
+        welcomeToMazad: 'Welcome to Street 10',
+        selectRoleToContinue: 'Please select your role to continue',
+        changeRoleOrContinue: 'Change your role or continue to dashboard',
+        currentRole: 'Current role',
+        fullSystemAccess: 'Full system access and management',
+        limitedAccess: 'Limited access with task management',
+        manageProductsOrders: 'Manage products, orders, and sales',
+        yourSelectionSaved: 'Your selection will be saved for future visits',
+        continueToDashboard: 'Continue to Dashboard',
+        superAdminLabel: 'Super Admin',
+        subAdminLabel: 'Sub Admin',
+        vendorDashboardLabel: 'Vendor Dashboard',
+        current: '(Current)',
+        
+        // Sub Admin Users Page
+        users: 'Users',
+        subAdminUsers: 'Sub Admin - Users',
+        addNew: 'Add New',
+        assignRole: 'Assign Role',
+        assignRoleToUsers: 'Assign Role to Users',
+        selectUsers: 'Select Users',
+        selectRole: 'Select Role',
+        assign: 'Assign',
+        cancel: 'Cancel',
+        roleAssignedSuccessfully: 'Role Assigned Successfully',
+        roleAssignedToUsers: 'Role assigned to {count} users successfully',
+        close: 'Close',
+        verified: 'Verified',
+        pendingStatus: 'Pending',
+        orders: 'Orders',
+        biddingWins: 'Bidding Wins',
+        interests: 'Interests',
+        noUsersFound: 'No users found',
+        showingResults: 'Showing {start} - {end} of {total}',
+        previous: 'Previous',
+        nextPage: 'Next',
+        marketingAdmin: 'Marketing Admin',
+        marketingAdminDesc: 'Manages campaigns, content, and marketing analytics.',
+        operationAdmin: 'Operation Admin',
+        operationAdminDesc: 'Handles products, orders, and operational tasks.',
+        financeAdmin: 'Finance Admin',
+        financeAdminDesc: 'Access to financial reports and budget management.',
+        supportAdmin: 'Support Admin',
+        supportAdminDesc: 'Manages customer support and ticket resolution.',
+        
+        // Sub Admin Add User Page
+        addNewUser: 'Add New User',
+        basicInfo: 'Basic Info',
+        roleAssignment: 'Role Assignment',
+        permissionControl: 'Permission Control',
+        fullName: 'Full Name',
+        email: 'Email',
+        password: 'Password',
+        confirmPassword: 'Confirm Password',
+        status: 'Status',
+        active: 'Active',
+        inactive: 'Inactive',
+        step: 'Step',
+        of: 'of',
+        next: 'Next',
+        previous: 'Previous',
+        submit: 'Submit',
+        productManagement: 'Product Management',
+        userManagement: 'User Management',
+        orderManagement: 'Order Management',
+        supportTickets: 'Support Tickets',
+        selectAll: 'Select All',
+        viewProducts: 'View Products',
+        editProducts: 'Edit Products',
+        deleteProducts: 'Delete Products',
+        approveProducts: 'Approve Products',
+        viewUsers: 'View Users',
+        editUsers: 'Edit Users',
+        deleteUsers: 'Delete Users',
+        manageRoles: 'Manage Roles',
+        viewOrders: 'View Orders',
+        updateOrderStatus: 'Update Order Status',
+        manageShipments: 'Manage Shipments',
+        viewPaymentMethods: 'View Payment Methods',
+        viewTickets: 'View Tickets',
+        respondTickets: 'Respond to Tickets',
+        assignTickets: 'Assign Tickets',
+        closeTickets: 'Close Tickets',
+        granted: 'Granted',
+        permissions: 'Permissions',
+        userCreatedSuccessfully: 'User Created Successfully',
+        newUserHasBeenCreated: 'New user has been created successfully in the system.',
+        
+        // Sub Admin User Detail Page
+        backToUsers: 'Back to Users',
+        userDetails: 'User Details',
+        phone: 'Phone',
+        emailLabel: 'Email',
+        username: 'Username',
+        statistics: 'Statistics',
+        roleAssignedSuccessfullySingle: 'Role Assigned Successfully',
+        roleAssignedToUser: 'Role assigned to user successfully.',
+        
+        // Sidebar
+        logout: 'Logout',
+        hostsProviders: 'Hosts & Providers',
+        bookings: 'Bookings',
+        finance: 'Finance',
+        marketing: 'Marketing',
+        analyticsSubAdmin: 'Analytics',
+        settingsSubAdmin: 'Settings',
+        
+        // Common labels
+        ordersMade: 'Orders Made',
+        accountStatus: 'Account Status',
+        numberOfBiddingWins: 'Number of bidding wins',
+        action: 'Action',
+        searchByNameEmail: 'Search by name, email, or username',
+        selectUsersAndAssignRole: 'Select users and assign them a role. You can select multiple users at once.',
+        success: 'Success',
+        roleAssignedToUsersCount: 'The role has been assigned to {count} user(s) successfully.',
+        usersCount: 'users'
       })
     }
   }, [language])
@@ -556,9 +816,9 @@ export function LanguageProvider({ children }) {
   const changeLanguage = (lang) => {
     setLanguage(lang)
     localStorage.setItem('dashboard_language', lang)
-    // Update language attribute only (keep layout as LTR)
+    // Update language attribute only (keep layout as LTR to preserve sidebar position)
     document.documentElement.lang = lang
-    // Always keep direction as LTR to preserve layout/grids
+    // Always keep direction as LTR to preserve layout/grids and sidebar position
     document.documentElement.dir = 'ltr'
   }
 
@@ -566,7 +826,7 @@ export function LanguageProvider({ children }) {
     // Load saved language preference
     const savedLang = localStorage.getItem('dashboard_language') || 'en'
     setLanguage(savedLang)
-    // Always keep direction as LTR to preserve layout/grids
+    // Always keep direction as LTR to preserve layout/grids and sidebar position
     document.documentElement.dir = 'ltr'
     document.documentElement.lang = savedLang
   }, [])

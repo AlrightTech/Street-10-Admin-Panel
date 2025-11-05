@@ -259,9 +259,9 @@ export default function ChatPage() {
               </aside>
 
               {/* Chat thread */}
-              <section className="col-span-12 md:col-span-6 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col min-h-0">
-                {/* Chat header */}
-                <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
+              <section className="col-span-12 md:col-span-6 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col min-h-0 h-full">
+                {/* Chat header - Fixed */}
+                <div className="flex-shrink-0 p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between bg-white">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(active.name)}`} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0" alt={active.name} />
                     <div>
@@ -288,8 +288,8 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+                {/* Messages - Scrollable */}
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
                   {active.messages.map((m, idx) => {
                     const isSystemMessage = m.text.includes('Tracking ID') || m.text.includes('shipped')
                     return (
@@ -327,8 +327,8 @@ export default function ChatPage() {
                   )}
                 </div>
 
-                {/* Quick Replies */}
-                <div className="px-3 sm:px-4 pt-2 pb-2 flex gap-2 overflow-x-auto">
+                {/* Quick Replies - Fixed */}
+                <div className="flex-shrink-0 px-3 sm:px-4 pt-2 pb-2 flex gap-2 overflow-x-auto bg-white border-t border-gray-200">
                   <button 
                     onClick={()=>insertQuick('Thank you for your order!')} 
                     className="text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition-colors whitespace-nowrap flex-shrink-0"
@@ -343,8 +343,8 @@ export default function ChatPage() {
                   </button>
                 </div>
 
-                {/* Composer */}
-                <div className="border-t border-gray-200 p-2 sm:p-4 relative">
+                {/* Composer - Fixed */}
+                <div className="flex-shrink-0 border-t border-gray-200 p-2 sm:p-4 relative bg-white">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -507,19 +507,20 @@ export default function ChatPage() {
         <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
           <Header onToggleSidebar={() => setSidebarOpen(true)} isSidebarOpen={sidebarOpen} />
         </div>
-        <main className="p-3 space-y-3">
+
+        <main className="p-3 space-y-3 pt-20 lg:pt-4">
           {/* Page Header */}
           <div className="mb-4">
             <h1 className="text-xl font-bold text-gray-900">Chat</h1>
             <p className="text-xs text-gray-500 mt-1">Dashboard • Chat</p>
           </div>
 
-          {/* Tabs */}
-          <div className="bg-white rounded-lg border border-gray-200 px-2 py-2">
+          {/* Tabs - Below Headings */}
+          <div className="bg-white rounded-lg border border-gray-200 px-2 py-2 mb-4">
             <div className="flex gap-2 overflow-x-auto text-sm">
-              <button onClick={()=>setMobileTab('messages')} className={`px-3 py-2 rounded-md ${mobileTab==='messages'?'bg-orange-100 text-orange-700 font-medium':'text-gray-700'}`}>Messages</button>
-              <button onClick={()=>setMobileTab('chat')} className={`px-3 py-2 rounded-md ${mobileTab==='chat'?'bg-orange-100 text-orange-700 font-medium':'text-gray-700'}`}>Chat</button>
-              <button onClick={()=>setMobileTab('details')} className={`px-3 py-2 rounded-md ${mobileTab==='details'?'bg-orange-100 text-orange-700 font-medium':'text-gray-700'}`}>Details</button>
+              <button onClick={()=>setMobileTab('messages')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='messages'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>Messages</button>
+              <button onClick={()=>setMobileTab('chat')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='chat'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>Chat</button>
+              <button onClick={()=>setMobileTab('details')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='details'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>Details</button>
             </div>
           </div>
 
@@ -556,8 +557,9 @@ export default function ChatPage() {
 
           {/* Chat thread */}
           {mobileTab==='chat' && (
-            <div className="bg-white rounded-lg border border-gray-200 flex flex-col min-h-[60vh]">
-              <div className="p-3 border-b flex items-center justify-between">
+            <div className="bg-white rounded-lg border border-gray-200 flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
+              {/* Chat header - Fixed */}
+              <div className="flex-shrink-0 p-3 border-b border-gray-200 flex items-center justify-between bg-white">
                 <div className="flex items-center gap-3">
                   <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(active.name)}`} className="w-8 h-8 rounded-full" alt={active.name} />
                   <div>
@@ -569,7 +571,8 @@ export default function ChatPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-3 space-y-3">
+              {/* Messages - Scrollable */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
                 {active.messages.map((m, idx) => {
                   const isSystemMessage = m.text.includes('Tracking ID') || m.text.includes('shipped')
                   return (
@@ -596,7 +599,8 @@ export default function ChatPage() {
                   )
                 })}
               </div>
-              <div className="border-t p-2 sm:p-3 relative">
+              {/* Composer - Fixed */}
+              <div className="flex-shrink-0 border-t border-gray-200 p-2 sm:p-3 relative bg-white">
                 <input
                   ref={fileInputRef}
                   type="file"

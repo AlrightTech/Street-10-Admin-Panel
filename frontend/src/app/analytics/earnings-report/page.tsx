@@ -252,15 +252,15 @@ export default function EarningsReportPage() {
                   <h1 className="text-2xl font-bold text-gray-900 mb-1">Earnings Report</h1>
                   <p className="text-sm text-gray-500">Monitor your revenue performance and financial insights</p>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="bg-gray-100 rounded-lg p-2 flex items-center gap-2 flex-wrap">
                   {['Today', 'Last 7 Days', 'This Month', 'Custom'].map((range) => (
                     <button
                       key={range}
                       onClick={() => setActiveDateRange(range)}
-                      className={`px-4 py-2 text-sm rounded-md transition-colors ${
+                      className={`px-4 py-2 text-sm rounded-lg transition-colors font-medium ${
                         activeDateRange === range
-                          ? 'bg-purple-600 text-white font-medium'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-primary-500 text-white'
+                          : 'text-gray-600 hover:text-gray-700'
                       }`}
                     >
                       {range}
@@ -556,15 +556,15 @@ export default function EarningsReportPage() {
           </div>
 
           {/* Date Range Buttons */}
-          <div className="flex items-center gap-2 flex-wrap mb-4">
+          <div className="bg-gray-100 rounded-lg p-2 flex items-center gap-2 flex-wrap mb-4">
             {['Today', 'Last 7 Days', 'This Month', 'Custom'].map((range) => (
               <button
                 key={range}
                 onClick={() => setActiveDateRange(range)}
-                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md transition-colors ${
+                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-colors font-medium ${
                   activeDateRange === range
-                    ? 'bg-purple-600 text-white font-medium'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-primary-500 text-white'
+                    : 'text-gray-600 hover:text-gray-700'
                 }`}
               >
                 {range}
