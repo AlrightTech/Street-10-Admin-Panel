@@ -259,6 +259,10 @@ export function LanguageProvider({ children }) {
         image: 'صورة',
         saveChanges: 'حفظ التغييرات',
         condition: 'الحالة',
+        confirmDelete: 'تأكيد الحذف',
+        deleteProductConfirm: 'هل أنت متأكد أنك تريد حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.',
+        deleting: 'جاري الحذف...',
+        delete: 'حذف',
         
         // Orders Page
         dashboardOrders: 'لوحة التحكم - الطلبات',
@@ -692,6 +696,10 @@ export function LanguageProvider({ children }) {
         image: 'Image',
         saveChanges: 'Save Changes',
         condition: 'Condition',
+        confirmDelete: 'Confirm Delete',
+        deleteProductConfirm: 'Are you sure you want to delete this product? This action cannot be undone.',
+        deleting: 'Deleting...',
+        delete: 'Delete',
         
         // Orders Page
         dashboardOrders: 'Dashboard - Orders',

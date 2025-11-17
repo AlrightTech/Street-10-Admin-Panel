@@ -2,18 +2,21 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState, Fragment } from 'react'
+import { useState, Fragment, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, ChevronLeft, ChevronRight, Search, Plus, Edit, Trash2, ChevronDown, Filter } from 'lucide-react'
+import { Menu, ChevronLeft, ChevronRight, Search, Plus, Edit, Trash2, ChevronDown, Filter, AlertTriangle, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function ProductsPage() {
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const itemsPerPage = 5
   const totalPages = 8
 
@@ -58,12 +61,43 @@ export default function ProductsPage() {
     router.push(`/products/${productId}/edit`)
   }
 
-  // Handle delete
+  // Handle delete - open modal
   const handleDelete = (productId: number) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      setProducts(products.filter(p => p.id !== productId))
-    }
+    setProductToDelete(productId)
+    setDeleteModalOpen(true)
   }
+
+  // Confirm delete
+  const confirmDelete = async () => {
+    if (productToDelete === null) return
+    
+    setIsDeleting(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    setProducts(products.filter(p => p.id !== productToDelete))
+    setDeleteModalOpen(false)
+    setProductToDelete(null)
+    setIsDeleting(false)
+  }
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setDeleteModalOpen(false)
+    setProductToDelete(null)
+  }
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (deleteModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [deleteModalOpen])
 
   // Get visible pages for pagination
   const getVisiblePages = () => {
@@ -814,6 +848,77 @@ export default function ProductsPage() {
           </main>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4"
+            onClick={cancelDelete}
+          >
+            {/* Modal */}
+            <div 
+              className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="text-red-600" size={20} />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    {t('confirmDelete')}
+                  </h3>
+                </div>
+                <button
+                  onClick={cancelDelete}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-4 sm:p-6">
+                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                  {t('deleteProductConfirm')}
+                </p>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 p-4 sm:p-6 border-t border-gray-200 bg-gray-50 sm:bg-white">
+                <button
+                  onClick={cancelDelete}
+                  disabled={isDeleting}
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>{t('deleting')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={18} />
+                      <span>{t('delete')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
