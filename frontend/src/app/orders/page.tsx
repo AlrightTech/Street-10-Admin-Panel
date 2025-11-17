@@ -2,27 +2,32 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Search, Filter, MoreVertical, ChevronLeft, ChevronRight, Eye, Edit, X, RefreshCw, FileText, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function OrdersPage() {
   const router = useRouter()
-  const { t, language } = useLanguage()
+  const { t, language, translateOrder } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
-  const [orders, setOrders] = useState([
+  const [rawOrders, setRawOrders] = useState([
     { id: 1, orderNo: 'ORD-1562792771583', placedOn: '26/04/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'Online', status: 'Pending' },
     { id: 2, orderNo: 'ORD-1562792771584', placedOn: '26/04/2020', type: 'Order', items: 5, amount: 200, paymentMethod: 'COD', status: 'Completed' },
     { id: 3, orderNo: 'ORD-1562792771585', placedOn: '27/02/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'Wallet', status: 'Cancelled' },
     { id: 4, orderNo: 'ORD-1562792771586', placedOn: '26/04/2020', type: 'Order', items: 5, amount: 200, paymentMethod: 'Online', status: 'Refunded' },
     { id: 5, orderNo: 'ORD-1562792771587', placedOn: '27/02/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'COD', status: 'Pending' },
   ])
+
+  // Automatically translate orders
+  const orders = useMemo(() => {
+    return rawOrders.map(order => translateOrder(order))
+  }, [rawOrders, translateOrder, language])
 
   const allOrders = orders
 
@@ -132,13 +137,13 @@ export default function OrdersPage() {
 
   const handleCancelOrder = async (orderId: number) => {
     setOpenDropdownId(null)
-    if (confirm(language === 'ar' ? 'هل أنت متأكد أنك تريد إلغاء هذا الطلب؟' : 'Are you sure you want to cancel this order?')) {
+    if (confirm(t('confirmCancelOrder'))) {
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500))
         
         // Update order status to Cancelled
-        setOrders(prevOrders => 
+        setRawOrders(prevOrders => 
           prevOrders.map(order => 
             order.id === orderId 
               ? { ...order, status: 'Cancelled' as const }
@@ -147,10 +152,10 @@ export default function OrdersPage() {
         )
         
         // Show success message
-        alert(language === 'ar' ? 'تم إلغاء الطلب بنجاح.' : 'Order has been cancelled successfully.')
+        alert(t('orderCancelledSuccess'))
         
         // Reset to page 1 if current page becomes empty
-        const updatedOrders = orders.map(order => 
+        const updatedOrders = rawOrders.map(order => 
           order.id === orderId ? { ...order, status: 'Cancelled' as const } : order
         )
         const filtered = updatedOrders.filter(order => {
@@ -168,20 +173,20 @@ export default function OrdersPage() {
         }
       } catch (error) {
         console.error('Error cancelling order:', error)
-        alert(language === 'ar' ? 'فشل إلغاء الطلب. يرجى المحاولة مرة أخرى.' : 'Failed to cancel order. Please try again.')
+        alert(t('orderCancelledFailed'))
       }
     }
   }
 
   const handleRefundOrder = async (orderId: number) => {
     setOpenDropdownId(null)
-    if (confirm(language === 'ar' ? 'هل أنت متأكد أنك تريد استرجاع هذا الطلب؟' : 'Are you sure you want to refund this order?')) {
+    if (confirm(t('confirmRefundOrder'))) {
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500))
         
         // Update order status to Refunded
-        setOrders(prevOrders => 
+        setRawOrders(prevOrders => 
           prevOrders.map(order => 
             order.id === orderId 
               ? { ...order, status: 'Refunded' as const }
@@ -190,10 +195,10 @@ export default function OrdersPage() {
         )
         
         // Show success message
-        alert(language === 'ar' ? 'تم معالجة الاسترجاع بنجاح.' : 'Refund has been processed successfully.')
+        alert(t('refundProcessedSuccess'))
         
         // Reset to page 1 if current page becomes empty
-        const updatedOrders = orders.map(order => 
+        const updatedOrders = rawOrders.map(order => 
           order.id === orderId ? { ...order, status: 'Refunded' as const } : order
         )
         const filtered = updatedOrders.filter(order => {
@@ -211,7 +216,7 @@ export default function OrdersPage() {
         }
       } catch (error) {
         console.error('Error processing refund:', error)
-        alert(language === 'ar' ? 'فشل معالجة الاسترجاع. يرجى المحاولة مرة أخرى.' : 'Failed to process refund. Please try again.')
+        alert(t('refundProcessedFailed'))
       }
     }
   }
@@ -223,19 +228,19 @@ export default function OrdersPage() {
 
   const handleDeleteOrder = async (orderId: number) => {
     setOpenDropdownId(null)
-    if (confirm(language === 'ar' ? 'هل أنت متأكد أنك تريد حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete this order? This action cannot be undone.')) {
+    if (confirm(t('confirmDeleteOrder'))) {
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500))
         
         // Remove order from list
-        setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId))
+        setRawOrders(prevOrders => prevOrders.filter(order => order.id !== orderId))
         
         // Show success message
-        alert(language === 'ar' ? 'تم حذف الطلب بنجاح.' : 'Order has been deleted successfully.')
+        alert(t('orderDeletedSuccess'))
         
         // Reset to page 1 if current page becomes empty
-        const remainingOrders = orders.filter(order => order.id !== orderId)
+        const remainingOrders = rawOrders.filter(order => order.id !== orderId)
         const filtered = remainingOrders.filter(order => {
           if (activeTab === 'all') return true
           const statusMap: { [key: string]: string } = {
@@ -253,7 +258,7 @@ export default function OrdersPage() {
         }
       } catch (error) {
         console.error('Error deleting order:', error)
-        alert(language === 'ar' ? 'فشل حذف الطلب. يرجى المحاولة مرة أخرى.' : 'Failed to delete order. Please try again.')
+        alert(t('orderCancelledFailed'))
       }
     }
   }
@@ -431,7 +436,7 @@ export default function OrdersPage() {
                           >
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-900 whitespace-nowrap">{order.orderNo}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.placedOn}</td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.type === 'Subscription' ? t('subscription') : t('orderType')}</td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.type}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.items}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">${order.amount}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.paymentMethod}</td>
@@ -846,7 +851,7 @@ export default function OrdersPage() {
                   })
                 ) : (
                   <div className="bg-white rounded-lg shadow-sm p-8 text-center text-sm text-gray-500">
-                    {language === 'ar' ? 'لم يتم العثور على طلبات' : 'No orders found'}
+                    {t('noOrdersFound')}
                   </div>
                 )}
 
@@ -862,7 +867,7 @@ export default function OrdersPage() {
                       {t('back')}
                     </button>
                     <span className="text-sm text-gray-600">
-                      {language === 'ar' ? `صفحة ${currentPage} من ${totalPages}` : `Page ${currentPage} of ${totalPages}`}
+                      {t('pageOf').replace('{current}', currentPage.toString()).replace('{total}', totalPages.toString())}
                     </span>
                     <button
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
@@ -1185,7 +1190,7 @@ export default function OrdersPage() {
 
                         {/* Action Button */}
                         <button className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                          View Details
+                          {t('viewDetailsBtn')}
                         </button>
                       </div>
                     </div>
@@ -1193,7 +1198,7 @@ export default function OrdersPage() {
                 })
               ) : (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center text-sm text-gray-500">
-                  No orders found
+                  {t('noOrdersFound')}
                 </div>
               )}
             </div>
@@ -1207,17 +1212,17 @@ export default function OrdersPage() {
                   className="flex items-center gap-1 text-sm text-gray-700 disabled:opacity-50"
                 >
                   <ChevronLeft size={16} />
-                  Back
+                  {t('back')}
                 </button>
                 <span className="text-sm text-gray-600">
-                  Page {currentPage} of {totalPages}
+                  {t('pageOf').replace('{current}', currentPage.toString()).replace('{total}', totalPages.toString())}
                 </span>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
                   className="flex items-center gap-1 text-sm text-gray-700 disabled:opacity-50"
                 >
-                  Next
+                  {t('next')}
                   <ChevronRight size={16} />
                 </button>
               </div>

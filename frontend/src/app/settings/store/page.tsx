@@ -5,8 +5,10 @@ import Header from '@/components/layout/Header'
 import { useState, useRef } from 'react'
 import { Menu, HelpCircle, Upload, Image as ImageIcon, Save, ShoppingBag, FileText, Share2, Facebook, Instagram, Linkedin, Music2, Palette } from 'lucide-react'
 import TabsBar from '@/components/ui/TabsBar'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function StoreSettingsPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -66,17 +68,17 @@ export default function StoreSettingsPage() {
             <div className="max-w-6xl mx-auto space-y-6">
               {/* Page header */}
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Store Setting</h1>
-                <p className="text-sm text-gray-600">Dashboard • Store Setting</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('storeSetting')}</h1>
+                <p className="text-sm text-gray-600">{t('dashboard')} • {t('storeSetting')}</p>
               </div>
 
               {/* Tabs */}
               <div className="mb-6">
                 <TabsBar
                   tabs={[
-                    { label: 'Store Settings', href: '/settings/store', active: true },
-                    { label: 'Policy Settings', href: '/settings/policy' },
-                    { label: 'Notification', href: '/settings/notifications' },
+                    { label: t('storeSettings'), href: '/settings/store', active: true },
+                    { label: t('policySettings'), href: '/settings/policy' },
+                    { label: t('notifications'), href: '/settings/notifications' },
                   ]}
                   variant="underline"
                 />
@@ -86,8 +88,8 @@ export default function StoreSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
                 <div className="flex items-start justify-between px-6 py-6 border-b border-gray-200">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Store Settings</h2>
-                    <p className="text-sm text-gray-600">Customize and manage your storefront information</p>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('storeSettings')}</h2>
+                    <p className="text-sm text-gray-600">{t('customizeStorefront')}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <button
@@ -95,7 +97,7 @@ export default function StoreSettingsPage() {
                       type="button"
                     >
                       <HelpCircle size={18} />
-                      Help
+                      {t('help')}
                     </button>
                     <button
                       onClick={onSave}
@@ -103,7 +105,7 @@ export default function StoreSettingsPage() {
                       className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 transition-colors font-medium"
                     >
                       <Save size={18} />
-                      {saving ? 'Saving...' : 'Save Changes'}
+                      {saving ? t('saving') : t('saveChanges')}
                     </button>
                   </div>
                 </div>
@@ -117,36 +119,36 @@ export default function StoreSettingsPage() {
                           <Palette className="w-5 h-5 text-purple-600" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-1">Store Branding</h3>
-                          <p className="text-sm text-gray-600">Upload your store logo and banner to showcase your brand</p>
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">{t('storeBranding')}</h3>
+                          <p className="text-sm text-gray-600">{t('uploadStoreLogoBanner')}</p>
                         </div>
                       </div>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Store Logo */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Store Logo</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">{t('storeLogo')}</label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:bg-gray-50 transition-colors"
                              onClick={() => logoInputRef.current?.click()}>
                           <div className="w-16 h-16 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center shadow-sm">
                             <ImageIcon className="text-gray-400" size={32} />
                           </div>
-                          <p className="text-xs text-gray-600 mt-2">Click to upload or drag and drop</p>
-                          <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 200x200px</p>
-                          <input ref={logoInputRef} type="file" accept="image/*" className="hidden" title="Upload store logo" />
+                          <p className="text-xs text-gray-600 mt-2">{t('clickToUpload')}</p>
+                          <p className="text-[10px] text-gray-500 mt-1">{t('pngJpgUpTo1MB')}</p>
+                          <input ref={logoInputRef} type="file" accept="image/*" className="hidden" title={t('storeLogo')} />
                         </div>
                       </div>
                       {/* Store Banner */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">Store Banner</label>
+                        <label className="block text-sm font-medium text-gray-900 mb-2">{t('storeBanner')}</label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center cursor-pointer hover:bg-gray-50 transition-colors"
                              onClick={() => bannerInputRef.current?.click()}>
                           <div className="w-16 h-16 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center shadow-sm">
                             <ImageIcon className="text-gray-400" size={32} />
                           </div>
-                          <p className="text-xs text-gray-600 mt-2">Click to upload or drag and drop</p>
-                          <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 1200x400px</p>
-                          <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" title="Upload store banner" />
+                          <p className="text-xs text-gray-600 mt-2">{t('clickToUpload')}</p>
+                          <p className="text-[10px] text-gray-500 mt-1">{t('pngJpgUpTo1MBBanner')}</p>
+                          <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" title={t('storeBanner')} />
                         </div>
                       </div>
                     </div>
@@ -160,34 +162,34 @@ export default function StoreSettingsPage() {
                       <FileText className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">Store Information</h3>
-                      <p className="text-sm text-gray-600">Provide essential details about your store</p>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">{t('storeInformation')}</h3>
+                      <p className="text-sm text-gray-600">{t('provideEssentialDetails')}</p>
                     </div>
                   </div>
                 </div>
                 <div className="p-6 space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">Store Name *</label>
-                      <input name="storeName" value={form.storeName} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Enter your store name" />
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeNameRequired')}</label>
+                      <input name="storeName" value={form.storeName} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('enterStoreName')} />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">Contact Email *</label>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('contactEmailRequired')}</label>
                       <input name="contactEmail" type="email" value={form.contactEmail} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="store@example.com" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Contact Phone</label>
+                    <label className="block text-xs font-medium text-gray-700 mb-2">{t('contactPhone')}</label>
                     <input name="contactPhone" value={form.contactPhone} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="+1 (555) 123-4567" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Store Description / About</label>
-                    <textarea name="about" value={form.about} onChange={onChange} rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Tell customers about your store, products, and what makes you unique." />
-                    <p className="text-[10px] text-gray-500 mt-1">maximum 500 characters</p>
+                    <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeDescription')}</label>
+                    <textarea name="about" value={form.about} onChange={onChange} rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('tellCustomersAboutStore')} />
+                    <p className="text-[10px] text-gray-500 mt-1">{t('maximum500Characters')}</p>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Store Address</label>
-                    <textarea name="address" value={form.address} onChange={onChange} rows={2} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Enter your complete store address including street, city, state, and postal code." />
+                    <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeAddress')}</label>
+                    <textarea name="address" value={form.address} onChange={onChange} rows={2} className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('enterCompleteAddress')} />
                   </div>
                 </div>
               </div>
@@ -200,8 +202,8 @@ export default function StoreSettingsPage() {
                       <Share2 className="w-5 h-5 text-pink-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">Social Media Links</h3>
-                      <p className="text-sm text-gray-600">Connect your social media accounts (Optional)</p>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">{t('socialMediaLinks')}</h3>
+                      <p className="text-sm text-gray-600">{t('connectSocialMedia')}</p>
                     </div>
                   </div>
                 </div>
@@ -241,12 +243,12 @@ export default function StoreSettingsPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
                 <div className="flex items-center gap-2 text-xs text-gray-600">
                   <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                  <span>Changes are automatically saved as draft. Click 'Save Changes' to publish.</span>
+                  <span>{t('changesAutoSaved')}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Cancel</button>
+                  <button className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">{t('cancel')}</button>
                   <button onClick={onSave} disabled={saving} className="px-4 py-2 text-sm font-medium rounded-lg bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 transition-colors">
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? t('saving') : t('saveChanges')}
                   </button>
                 </div>
               </div>
@@ -254,7 +256,7 @@ export default function StoreSettingsPage() {
               {/* Danger zone */}
               <div className="flex justify-end mb-6">
                 <button className="px-4 py-2 text-sm font-medium text-red-700 border border-red-200 rounded-lg bg-red-50 hover:bg-red-100 transition-colors">
-                  Delete My Store
+                  {t('deleteMyStore')}
                 </button>
               </div>
             </div>
@@ -279,17 +281,17 @@ export default function StoreSettingsPage() {
         <main className="p-4 space-y-4">
           {/* Page header */}
           <div className="mb-4">
-            <h1 className="text-xl font-bold text-gray-900">Store Setting</h1>
-            <p className="text-xs text-gray-500 mt-1">Dashboard - Store Setting</p>
+            <h1 className="text-xl font-bold text-gray-900">{t('storeSetting')}</h1>
+            <p className="text-xs text-gray-500 mt-1">{t('dashboard')} - {t('storeSetting')}</p>
           </div>
 
           {/* Tabs - mobile */}
           <div>
             <TabsBar
               tabs={[
-                { label: 'Store Settings', href: '/settings/store', active: true },
-                { label: 'Policy Settings', href: '/settings/policy' },
-                { label: 'Notification', href: '/settings/notifications' },
+                { label: t('storeSettings'), href: '/settings/store', active: true },
+                { label: t('policySettings'), href: '/settings/policy' },
+                { label: t('notifications'), href: '/settings/notifications' },
               ]}
               variant="underline"
             />
@@ -297,8 +299,8 @@ export default function StoreSettingsPage() {
 
           {/* Section Header */}
           <div className="mt-4 mb-3">
-            <h2 className="text-base font-bold text-gray-900 mb-1">Store Settings</h2>
-            <p className="text-xs text-gray-600">Customize and manage your storefront information.</p>
+            <h2 className="text-base font-bold text-gray-900 mb-1">{t('storeSettings')}</h2>
+            <p className="text-xs text-gray-600">{t('customizeStorefront')}</p>
           </div>
 
           {/* Store Branding */}
@@ -306,27 +308,27 @@ export default function StoreSettingsPage() {
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center gap-2 mb-1">
                 <ShoppingBag className="w-4 h-4 text-primary-500" />
-                <h2 className="text-sm font-semibold text-gray-900">Store Branding</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{t('storeBranding')}</h2>
               </div>
-              <p className="text-xs text-gray-600 ml-6">Upload your store logo and banner to showcase your form!</p>
+              <p className="text-xs text-gray-600 ml-6">{t('uploadStoreLogoBanner')}</p>
             </div>
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Store Logo</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeLogo')}</label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => logoInputRef.current?.click()}>
                   <Upload className="mx-auto text-gray-400 mb-2" size={24} />
-                  <p className="text-xs text-gray-600 mt-2">Click to upload or drag and drop</p>
-                  <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 200x200px</p>
-                  <input ref={logoInputRef} type="file" accept="image/*" className="hidden" title="Upload store logo" />
+                  <p className="text-xs text-gray-600 mt-2">{t('clickToUpload')}</p>
+                  <p className="text-[10px] text-gray-500 mt-1">{t('pngJpgUpTo1MB')}</p>
+                  <input ref={logoInputRef} type="file" accept="image/*" className="hidden" title={t('storeLogo')} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Store Banner</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeBanner')}</label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => bannerInputRef.current?.click()}>
                   <ImageIcon className="mx-auto text-gray-400 mb-2" size={24} />
-                  <p className="text-xs text-gray-600 mt-2">Click to upload banner</p>
-                  <p className="text-[10px] text-gray-500 mt-1">PNG, JPG up to 1MB recommended 1200x400px</p>
-                  <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" title="Upload store banner" />
+                  <p className="text-xs text-gray-600 mt-2">{t('clickToUpload')}</p>
+                  <p className="text-[10px] text-gray-500 mt-1">{t('pngJpgUpTo1MBBanner')}</p>
+                  <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" title={t('storeBanner')} />
                 </div>
               </div>
             </div>
@@ -337,31 +339,31 @@ export default function StoreSettingsPage() {
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center gap-2 mb-1">
                 <FileText className="w-4 h-4 text-primary-500" />
-                <h2 className="text-sm font-semibold text-gray-900">Store Information</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{t('storeInformation')}</h2>
               </div>
-              <p className="text-xs text-gray-600 ml-6">Provide essential details about your store</p>
+              <p className="text-xs text-gray-600 ml-6">{t('provideEssentialDetails')}</p>
             </div>
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Store Name *</label>
-                <input name="storeName" value={form.storeName} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Enter your store name" />
+                <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeNameRequired')}</label>
+                <input name="storeName" value={form.storeName} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder={t('enterStoreName')} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Contact Email *</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">{t('contactEmailRequired')}</label>
                 <input name="contactEmail" type="email" value={form.contactEmail} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="store@example.com" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Contact Phone</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">{t('contactPhone')}</label>
                 <input name="contactPhone" value={form.contactPhone} onChange={onChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="+1 (555) 123-4567" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Store Description / About</label>
-                <textarea name="about" value={form.about} onChange={onChange} rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder="Tell customers about your store, products, and what makes you unique." />
-                <p className="text-[10px] text-gray-500 mt-1">maximum 500 characters</p>
+                <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeDescription')}</label>
+                <textarea name="about" value={form.about} onChange={onChange} rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder={t('tellCustomersAboutStore')} />
+                <p className="text-[10px] text-gray-500 mt-1">{t('maximum500Characters')}</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Store Address</label>
-                <textarea name="address" value={form.address} onChange={onChange} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder="Enter your complete store address including street, city, state, and postal code." />
+                <label className="block text-xs font-medium text-gray-700 mb-2">{t('storeAddress')}</label>
+                <textarea name="address" value={form.address} onChange={onChange} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder={t('enterCompleteAddress')} />
               </div>
             </div>
           </div>
@@ -371,9 +373,9 @@ export default function StoreSettingsPage() {
             <div className="px-4 py-3 border-b border-gray-200">
               <div className="flex items-center gap-2 mb-1">
                 <Share2 className="w-4 h-4 text-pink-500" />
-                <h2 className="text-sm font-semibold text-gray-900">Social Media Links</h2>
+                <h2 className="text-sm font-semibold text-gray-900">{t('socialMediaLinks')}</h2>
               </div>
-              <p className="text-xs text-gray-600 ml-6">Connect your social media accounts (Optional)</p>
+              <p className="text-xs text-gray-600 ml-6">{t('connectSocialMedia')}</p>
             </div>
             <div className="p-4 space-y-4">
               <div>
@@ -411,12 +413,12 @@ export default function StoreSettingsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2 text-xs text-gray-600">
               <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-              <span>Changes are automatically saved as draft. Click 'Save Changes' to publish.</span>
+              <span>{t('changesAutoSaved')}</span>
             </div>
             <div className="flex items-center gap-3 justify-end">
-              <button className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">Cancel</button>
+              <button className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">{t('cancel')}</button>
               <button onClick={onSave} disabled={saving} className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-colors">
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? t('saving') : t('saveChanges')}
               </button>
             </div>
           </div>
@@ -424,7 +426,7 @@ export default function StoreSettingsPage() {
           {/* Danger zone */}
           <div className="flex justify-end mb-4">
             <button className="px-4 py-2 text-sm font-medium text-red-700 border border-red-200 rounded-lg bg-red-50 hover:bg-red-100 transition-colors">
-              Delete My Store
+              {t('deleteMyStore')}
             </button>
           </div>
         </main>

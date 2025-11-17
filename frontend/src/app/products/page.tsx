@@ -2,14 +2,14 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState, Fragment, useEffect } from 'react'
+import { useState, Fragment, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, ChevronLeft, ChevronRight, Search, Plus, Edit, Trash2, ChevronDown, Filter, AlertTriangle, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function ProductsPage() {
   const router = useRouter()
-  const { t, language } = useLanguage()
+  const { t, language, translateProduct } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
@@ -21,13 +21,18 @@ export default function ProductsPage() {
   const totalPages = 8
 
   // Mock product data - matching the image EXACTLY
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200, orders: 5, stock: 752, status: false },
-    { id: 2, name: 'Premium T-Shirt', sku: 'TS-002', category: 'Clothing', price: 200, orders: 55, stock: 554, status: true },
-    { id: 3, name: 'Running Shoes', sku: 'YM-003', category: 'Sports', price: 200, orders: 6, stock: 156, status: true },
-    { id: 4, name: 'Yoga Mat Pro', sku: 'RS-004', category: 'Sports', price: 200, orders: 45, stock: 528, status: true },
-    { id: 5, name: 'Coffee Mug Set', sku: 'CM-005', category: 'Home & Garden', price: 200, orders: 23, stock: 276, status: false },
+  const [rawProducts, setRawProducts] = useState([
+    { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200, orders: 5, stock: 752, status: false, slug: 'apple-airpods-pro-2nd' },
+    { id: 2, name: 'Premium T-Shirt', sku: 'TS-002', category: 'Clothing', price: 200, orders: 55, stock: 554, status: true, slug: 'premium-t-shirt' },
+    { id: 3, name: 'Running Shoes', sku: 'YM-003', category: 'Sports', price: 200, orders: 6, stock: 156, status: true, slug: 'running-shoes' },
+    { id: 4, name: 'Yoga Mat Pro', sku: 'RS-004', category: 'Sports', price: 200, orders: 45, stock: 528, status: true, slug: 'yoga-mat-pro' },
+    { id: 5, name: 'Coffee Mug Set', sku: 'CM-005', category: 'Home & Garden', price: 200, orders: 23, stock: 276, status: false, slug: 'coffee-mug-set' },
   ])
+
+  // Automatically translate products based on current language
+  const products = useMemo(() => {
+    return rawProducts.map(product => translateProduct(product))
+  }, [rawProducts, translateProduct, language])
 
   const activeCount = products.filter(p => p.status).length
   const inactiveCount = products.filter(p => !p.status).length
@@ -46,7 +51,7 @@ export default function ProductsPage() {
 
   // Toggle product status
   const handleToggleStatus = (productId: number) => {
-    setProducts(products.map(p => 
+    setRawProducts(rawProducts.map(p => 
       p.id === productId ? { ...p, status: !p.status } : p
     ))
   }
@@ -75,7 +80,7 @@ export default function ProductsPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500))
     
-    setProducts(products.filter(p => p.id !== productToDelete))
+    setRawProducts(rawProducts.filter(p => p.id !== productToDelete))
     setDeleteModalOpen(false)
     setProductToDelete(null)
     setIsDeleting(false)

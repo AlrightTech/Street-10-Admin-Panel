@@ -5,9 +5,11 @@ import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Upload, X, ChevronDown, Info } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AddProductPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
@@ -36,7 +38,7 @@ export default function AddProductPage() {
   }
 
   const handlePublish = () => {
-    alert('Product published!')
+    alert(t('productPublished'))
     router.push('/products')
   }
 
@@ -96,22 +98,22 @@ export default function AddProductPage() {
             <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
               {/* Header */}
               <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">All Products</h1>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard <span className="font-semibold text-gray-700">/ Add New Product</span></p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('allProducts')}</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} <span className="font-semibold text-gray-700">/ {t('addNewProduct')}</span></p>
               </div>
 
               {/* Form */}
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
                 {/* Product Details */}
                 <div className="space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Product Details</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('productDetails')}</h2>
                   
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Title</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('productTitle')}</label>
                     <input
                       name="title"
                       type="text"
-                      placeholder="Enter Product Title"
+                      placeholder={t('enterProductTitle')}
                       value={formData.title}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
@@ -120,7 +122,7 @@ export default function AddProductPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Category</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('category')}</label>
                       <div className="relative">
                         <select
                           name="category"
@@ -128,7 +130,7 @@ export default function AddProductPage() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
                         >
-                          <option value="">Select Category</option>
+                          <option value="">{t('selectCategory')}</option>
                           <option>Electronic</option>
                           <option>Clothing</option>
                           <option>Sports</option>
@@ -138,7 +140,7 @@ export default function AddProductPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Condition</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('condition')}</label>
                       <div className="relative">
                         <select
                           name="condition"
@@ -146,7 +148,7 @@ export default function AddProductPage() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
                         >
-                          <option value="">Select Condition</option>
+                          <option value="">{t('selectCondition')}</option>
                           <option>Excellent</option>
                           <option>Good</option>
                           <option>Fair</option>
@@ -158,13 +160,13 @@ export default function AddProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Description</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('productDescription')}</label>
                     <textarea
                       name="description"
                       value={formData.description}
                       onChange={handleInputChange}
                       rows={4}
-                      placeholder="Enter Product Description"
+                      placeholder={t('enterDescription')}
                       className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
                     />
                   </div>
@@ -172,46 +174,46 @@ export default function AddProductPage() {
 
                 {/* Upload Media */}
                 <div className="border-t pt-4 sm:pt-6">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Upload Media</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">{t('uploadMedia')}</h3>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center">
                     <div className="flex justify-center mb-3 sm:mb-4">
                       <Upload size={48} className="text-amber-600" />
                     </div>
-                    <p className="text-gray-700 text-sm sm:text-base mb-1">Drag & drop for image</p>
+                    <p className="text-gray-700 text-sm sm:text-base mb-1">{t('dragDropImage')}</p>
                     <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
-                      Support JPG, PNG, WEBP up to 10MB each. Max 10 images.
+                      {t('supportFormats')}
                     </p>
                     <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      + Add Another Media
+                      {t('addAnotherMedia')}
                     </a>
                   </div>
                 </div>
 
                 {/* Upload Doc */}
                 <div className="border-t pt-4 sm:pt-6">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Upload Doc</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">{t('uploadDoc')}</h3>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center">
                     <div className="flex justify-center mb-3 sm:mb-4">
                       <Upload size={48} className="text-amber-600" />
                     </div>
-                    <p className="text-gray-700 text-sm sm:text-base mb-1">Drag & drop for Document</p>
+                    <p className="text-gray-700 text-sm sm:text-base mb-1">{t('dragDropDocument')}</p>
                     <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      + Add Another Doc And Title
+                      {t('addAnotherDoc')}
                     </a>
                   </div>
                 </div>
 
                 {/* SEO & Marketing */}
                 <div className="border-t pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">SEO & Marketing</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('seoMarketing')}</h2>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Meta Title</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('metaTitle')}</label>
                       <input
                         name="metaTitle"
                         type="text"
-                        placeholder="Enter Meta Title"
+                        placeholder={t('enterMetaTitle')}
                         value={formData.metaTitle}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
@@ -219,11 +221,11 @@ export default function AddProductPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('metaDescription')}</label>
                       <input
                         name="metaDescription"
                         type="text"
-                        placeholder="Enter Description"
+                        placeholder={t('enterMetaDescription')}
                         value={formData.metaDescription}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
@@ -232,11 +234,11 @@ export default function AddProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product URL Slug</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('productUrlSlug')}</label>
                     <input
                       name="slug"
                       type="text"
-                      placeholder="Product URL Slug"
+                      placeholder={t('enterSlug')}
                       value={formData.slug}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
@@ -246,10 +248,10 @@ export default function AddProductPage() {
 
                 {/* Pricing & Stock */}
                 <div className="border-t pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Pricing & Stock</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('pricingStock')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('price')} ($)</label>
                       <input
                         name="price"
                         type="text"
@@ -260,7 +262,7 @@ export default function AddProductPage() {
                     </div>
                     <div>
                       <label className="flex items-center gap-1 text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Discount Price ($)
+                        {t('discountPrice')} ($)
                         <Info size={14} className="text-gray-400" />
                       </label>
                       <input
@@ -272,7 +274,7 @@ export default function AddProductPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('stockQuantity')}</label>
                       <input
                         name="stockQuantity"
                         type="text"
@@ -283,7 +285,7 @@ export default function AddProductPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Stock Status</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('stockStatus')}</label>
                     <input
                       name="stockStatus"
                       type="text"
@@ -296,10 +298,10 @@ export default function AddProductPage() {
 
                 {/* Additional Information */}
                 <div className="border-t pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Additional Information</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('additionalInformation')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Brand</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('brand')}</label>
                       <input
                         name="brand"
                         type="text"
@@ -309,7 +311,7 @@ export default function AddProductPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Weight</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('weight')}</label>
                       <input
                         name="weight"
                         type="text"
@@ -319,7 +321,7 @@ export default function AddProductPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Dimensions</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('dimensions')}</label>
                       <input
                         name="dimensions"
                         type="text"
@@ -337,13 +339,13 @@ export default function AddProductPage() {
                     onClick={handleCancel}
                     className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm sm:text-base"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     onClick={handlePublish}
                     className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm sm:text-base"
                   >
-                    Publish Product
+                    {t('publishProduct')}
                   </button>
                 </div>
               </div>

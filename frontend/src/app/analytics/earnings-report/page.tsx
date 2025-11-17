@@ -4,8 +4,10 @@ import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { Menu, Calendar, ChevronDown, Download, DollarSign, Clock, ArrowDown, Percent } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function EarningsReportPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeDateRange, setActiveDateRange] = useState('Today')
@@ -119,7 +121,7 @@ export default function EarningsReportPage() {
               className="font-medium"
               transform={`rotate(-90, 20, ${padding.top + graphHeight / 2})`}
             >
-              Earnings ($)
+              {t('amount')}
             </text>
 
             {/* Grid lines */}
@@ -205,7 +207,7 @@ export default function EarningsReportPage() {
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#6366F1' }}></div>
             <span className="text-sm text-gray-700 font-medium">
-              {tab === 'Daily' ? 'Daily Earnings' : tab === 'Weekly' ? 'Weekly Earnings' : 'Monthly Earnings'}
+              {tab === 'Daily' ? t('dailyEarnings') : tab === 'Weekly' ? t('weeklyEarnings') : t('monthlyEarnings')}
             </span>
           </div>
         </div>
@@ -242,15 +244,15 @@ export default function EarningsReportPage() {
             <div className="max-w-7xl mx-auto space-y-6">
               {/* Header Section */}
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900">Analytics & Reports</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Dashboard &gt; <span className="font-semibold">Earnings Report</span></p>
+                <h2 className="text-lg font-bold text-gray-900">{t('analyticsReports')}</h2>
+                <p className="text-sm text-gray-500 mt-0.5">{t('dashboard')} &gt; <span className="font-semibold">{t('earningsReport')}</span></p>
               </div>
 
               {/* Title and actions */}
               <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-1">Earnings Report</h1>
-                  <p className="text-sm text-gray-500">Monitor your revenue performance and financial insights</p>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-1">{t('earningsReport')}</h1>
+                  <p className="text-sm text-gray-500">{t('monitorRevenuePerformance')}</p>
                 </div>
                 <div className="bg-gray-100 rounded-lg p-2 flex items-center gap-2 flex-wrap">
                   {['Today', 'Last 7 Days', 'This Month', 'Custom'].map((range) => (
@@ -263,12 +265,12 @@ export default function EarningsReportPage() {
                           : 'text-gray-600 hover:text-gray-700'
                       }`}
                     >
-                      {range}
+                      {range === 'Today' ? t('today') : range === 'Last 7 Days' ? t('last7Days') : range === 'This Month' ? t('thisMonth') : t('custom')}
                     </button>
                   ))}
                   <button className="px-4 py-2 text-sm rounded-md bg-gray-800 text-white flex items-center gap-2 hover:bg-gray-900 shadow-sm">
                     <Download size={16} />
-                    Export
+                    {t('export')}
                   </button>
                 </div>
               </div>
@@ -277,9 +279,9 @@ export default function EarningsReportPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { 
-                    label: 'Total Earnings', 
+                    label: t('totalEarnings'), 
                     value: '$18,750', 
-                    chip: '+12.5% from last month',
+                    chip: `+12.5% ${t('fromLastMonth')}`,
                     chipColor: '#22c55e',
                     labelColor: '#22c55e',
                     icon: DollarSign,
@@ -288,9 +290,9 @@ export default function EarningsReportPage() {
                     valueColor: '#22c55e'
                   },
                   { 
-                    label: 'Pending Balance', 
+                    label: t('pendingBalance'), 
                     value: '$2,150', 
-                    chip: 'Awaiting clearance',
+                    chip: t('awaitingClearance'),
                     chipColor: '#ea580c',
                     labelColor: '#ea580c',
                     icon: Clock,
@@ -299,9 +301,9 @@ export default function EarningsReportPage() {
                     valueColor: '#ea580c'
                   },
                   { 
-                    label: 'Withdrawn Amount', 
+                    label: t('withdrawnAmount'), 
                     value: '$16,200', 
-                    chip: 'Successfully withdrawn',
+                    chip: t('successfullyWithdrawn'),
                     chipColor: '#2563eb',
                     labelColor: '#2563eb',
                     icon: ArrowDown,
@@ -310,9 +312,9 @@ export default function EarningsReportPage() {
                     valueColor: '#2563eb'
                   },
                   { 
-                    label: 'Platform Fees', 
+                    label: t('platformFees'), 
                     value: '$400', 
-                    chip: '2.1% of total earnings',
+                    chip: `2.1% ${t('ofTotalEarnings')}`,
                     chipColor: '#9333ea',
                     labelColor: '#9333ea',
                     icon: Percent,
@@ -344,7 +346,7 @@ export default function EarningsReportPage() {
               {/* Earnings trend */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-sm font-semibold text-gray-900">Earnings Trend</h2>
+                  <h2 className="text-sm font-semibold text-gray-900">{t('earningsTrend')}</h2>
                   <div className="flex items-center gap-1">
                     {['Daily', 'Weekly', 'Monthly'].map((tab) => (
                       <button
@@ -357,7 +359,7 @@ export default function EarningsReportPage() {
                         }`}
                         style={activeTrendTab === tab ? { backgroundColor: '#6366F1' } : {}}
                       >
-                        {tab}
+                        {t(tab.toLowerCase())}
                       </button>
                     ))}
                   </div>
@@ -370,7 +372,7 @@ export default function EarningsReportPage() {
               {/* Best products and earnings by category */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Best Performing Products</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('bestPerformingProducts')}</h3>
                   <div className="space-y-3">
                     {[
                       { name: 'iPhone 14', units: 120, revenue: '$12,000', percentage: 35, iconBg: 'from-purple-100 to-purple-200', borderColor: 'border-purple-200', emoji: '📱' },
@@ -387,12 +389,12 @@ export default function EarningsReportPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-gray-900 mb-1">{p.name}</p>
-                              <p className="text-xs text-gray-500">{p.units} units sold</p>
+                              <p className="text-xs text-gray-500">{p.units} {t('unitsSold')}</p>
                             </div>
                           </div>
                           <div className="text-right ml-4">
                             <p className="text-sm font-bold text-gray-900 mb-1">{p.revenue}</p>
-                            <p className="text-xs font-medium text-green-600">{p.percentage}% revenue</p>
+                            <p className="text-xs font-medium text-green-600">{p.percentage}% {t('revenue')}</p>
                           </div>
                         </div>
                       </div>
@@ -401,7 +403,7 @@ export default function EarningsReportPage() {
                 </div>
 
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Earnings by Category</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('earningsByCategory')}</h3>
                   <div className="flex flex-col items-center justify-center">
                     {/* Donut Chart */}
                     <svg viewBox="0 0 200 200" className="w-48 h-48 sm:w-56 sm:h-56" preserveAspectRatio="xMidYMid meet">
@@ -431,9 +433,9 @@ export default function EarningsReportPage() {
                     {/* Legend */}
                     <div className="mt-4 w-full space-y-2">
                       {[
-                        { category: 'Electronics', earnings: '$10,000', percentage: 54, color: '#3b82f6' },
-                        { category: 'Fashion', earnings: '$5,200', percentage: 28, color: '#22c55e' },
-                        { category: 'Home', earnings: '$3,550', percentage: 18, color: '#f97316' }
+                        { category: t('electronics'), earnings: '$10,000', percentage: 54, color: '#3b82f6' },
+                        { category: t('fashion'), earnings: '$5,200', percentage: 28, color: '#22c55e' },
+                        { category: t('home'), earnings: '$3,550', percentage: 18, color: '#f97316' }
                       ].map((item) => (
                         <div key={item.category} className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -453,68 +455,68 @@ export default function EarningsReportPage() {
 
               {/* Customer insights */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Customer Insights</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-4">{t('customerInsights')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Average Revenue per Customer */}
                   <div className="rounded-lg p-4 text-center shadow-sm" style={{ backgroundColor: '#F0F5FF' }}>
                     <p className="text-2xl font-bold mb-1" style={{ color: '#3b82f6' }}>$78.40</p>
-                    <p className="text-xs text-gray-500">Average Revenue per Customer</p>
+                    <p className="text-xs text-gray-500">{t('averageRevenuePerCustomer')}</p>
                   </div>
                   {/* Highest Spending Customer */}
                   <div className="rounded-lg p-4 text-center shadow-sm" style={{ backgroundColor: '#F0FFF0' }}>
                     <p className="text-base font-semibold mb-1" style={{ color: '#22c55e' }}>John Smith</p>
                     <p className="text-2xl font-bold mb-1" style={{ color: '#22c55e' }}>$1,240</p>
-                    <p className="text-xs text-gray-500">Highest Spending Customer</p>
+                    <p className="text-xs text-gray-500">{t('highestSpendingCustomer')}</p>
                   </div>
                   {/* Repeat Purchase Rate */}
                   <div className="rounded-lg p-4 text-center shadow-sm" style={{ backgroundColor: '#F8F0FF' }}>
                     <p className="text-2xl font-bold mb-1" style={{ color: '#a855f7' }}>32%</p>
-                    <p className="text-xs text-gray-500">Repeat Purchase Rate</p>
+                    <p className="text-xs text-gray-500">{t('repeatPurchaseRate')}</p>
                   </div>
                 </div>
               </div>
 
               {/* Recent transactions */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-4">{t('recentTransactions')}</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left border-b border-gray-200">
-                        <th className="py-3 text-xs font-semibold text-gray-900">Transaction ID</th>
-                        <th className="py-3 text-xs font-semibold text-gray-900">Date</th>
-                        <th className="py-3 text-xs font-semibold text-gray-900">Type</th>
-                        <th className="py-3 text-xs font-semibold text-gray-900">Amount</th>
-                        <th className="py-3 text-xs font-semibold text-gray-900">Status</th>
+                        <th className="py-3 text-xs font-semibold text-gray-900">{t('transactionId')}</th>
+                        <th className="py-3 text-xs font-semibold text-gray-900">{t('date')}</th>
+                        <th className="py-3 text-xs font-semibold text-gray-900">{t('type')}</th>
+                        <th className="py-3 text-xs font-semibold text-gray-900">{t('amount')}</th>
+                        <th className="py-3 text-xs font-semibold text-gray-900">{t('status')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {[
-                        {id:'#TXN-2024-001',date:'Dec 15, 2024',type:'Earning',amount:'+$1,200',amountColor:'text-green-600',status:'Completed'},
-                        {id:'#TXN-2024-002',date:'Dec 14, 2024',type:'Withdrawal',amount:'-$5,000',amountColor:'text-red-600',status:'Completed'},
-                        {id:'#TXN-2024-003',date:'Dec 13, 2024',type:'Earning',amount:'+$850',amountColor:'text-green-600',status:'Completed'},
-                        {id:'#TXN-2024-004',date:'Dec 12, 2024',type:'Refund',amount:'-$150',amountColor:'text-red-600',status:'Processing'},
-                        {id:'#TXN-2024-005',date:'Dec 11, 2024',type:'Earning',amount:'+$2,100',amountColor:'text-green-600',status:'Completed'}
-                      ].map((t)=> (
-                        <tr key={t.id} className="text-gray-700 hover:bg-gray-50">
-                          <td className="py-3 text-sm">{t.id}</td>
-                          <td className="py-3 text-sm text-gray-600">{t.date}</td>
+                        {id:'#TXN-2024-001',date:'Dec 15, 2024',type:t('earning'),amount:'+$1,200',amountColor:'text-green-600',status:t('completed')},
+                        {id:'#TXN-2024-002',date:'Dec 14, 2024',type:t('withdrawal'),amount:'-$5,000',amountColor:'text-red-600',status:t('completed')},
+                        {id:'#TXN-2024-003',date:'Dec 13, 2024',type:t('earning'),amount:'+$850',amountColor:'text-green-600',status:t('completed')},
+                        {id:'#TXN-2024-004',date:'Dec 12, 2024',type:t('refund'),amount:'-$150',amountColor:'text-red-600',status:t('processing')},
+                        {id:'#TXN-2024-005',date:'Dec 11, 2024',type:t('earning'),amount:'+$2,100',amountColor:'text-green-600',status:t('completed')}
+                      ].map((trans)=> (
+                        <tr key={trans.id} className="text-gray-700 hover:bg-gray-50">
+                          <td className="py-3 text-sm">{trans.id}</td>
+                          <td className="py-3 text-sm text-gray-600">{trans.date}</td>
                           <td className="py-3">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              t.type === 'Earning' ? 'bg-green-100 text-green-700' :
-                              t.type === 'Withdrawal' ? 'bg-blue-100 text-blue-700' :
+                              trans.type === t('earning') ? 'bg-green-100 text-green-700' :
+                              trans.type === t('withdrawal') ? 'bg-blue-100 text-blue-700' :
                               'bg-red-100 text-red-700'
                             }`}>
-                              {t.type}
+                              {trans.type}
                             </span>
                           </td>
-                          <td className={`py-3 text-sm font-semibold ${t.amountColor}`}>{t.amount}</td>
+                          <td className={`py-3 text-sm font-semibold ${trans.amountColor}`}>{trans.amount}</td>
                           <td className="py-3">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              t.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                              trans.status === t('completed') ? 'bg-green-100 text-green-700' :
                               'bg-orange-100 text-orange-700'
                             }`}>
-                              {t.status}
+                              {trans.status}
                             </span>
                           </td>
                         </tr>
@@ -797,26 +799,26 @@ export default function EarningsReportPage() {
                     {id:'#TXN-2024-003',date:'Dec 13, 2024',type:'Earning',amount:'+$850',amountColor:'text-green-600',status:'Completed'},
                     {id:'#TXN-2024-004',date:'Dec 12, 2024',type:'Refund',amount:'-$150',amountColor:'text-red-600',status:'Processing'},
                     {id:'#TXN-2024-005',date:'Dec 11, 2024',type:'Earning',amount:'+$2,100',amountColor:'text-green-600',status:'Completed'}
-                  ].map((t)=> (
-                    <tr key={t.id} className="text-gray-700 hover:bg-gray-50">
-                      <td className="py-3 text-sm">{t.id}</td>
-                      <td className="py-3 text-sm text-gray-600">{t.date}</td>
+                  ].map((trans)=> (
+                    <tr key={trans.id} className="text-gray-700 hover:bg-gray-50">
+                      <td className="py-3 text-sm">{trans.id}</td>
+                      <td className="py-3 text-sm text-gray-600">{trans.date}</td>
                       <td className="py-3">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                          t.type === 'Earning' ? 'bg-green-100 text-green-700' :
-                          t.type === 'Withdrawal' ? 'bg-blue-100 text-blue-700' :
+                          trans.type === t('earning') ? 'bg-green-100 text-green-700' :
+                          trans.type === t('withdrawal') ? 'bg-blue-100 text-blue-700' :
                           'bg-red-100 text-red-700'
                         }`}>
-                          {t.type}
+                          {trans.type}
                         </span>
                       </td>
-                      <td className={`py-3 text-sm font-semibold ${t.amountColor}`}>{t.amount}</td>
+                      <td className={`py-3 text-sm font-semibold ${trans.amountColor}`}>{trans.amount}</td>
                       <td className="py-3">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                          t.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                          trans.status === t('completed') ? 'bg-green-100 text-green-700' :
                           'bg-orange-100 text-orange-700'
                         }`}>
-                          {t.status}
+                          {trans.status}
                         </span>
                       </td>
                     </tr>

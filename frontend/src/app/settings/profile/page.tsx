@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Menu, Camera, Upload, Download, Check, X, Eye, EyeOff, Plus, Trash2, Edit, Search, MoreVertical, ChevronDown, ChevronLeft, ChevronRight, Clock, Bold, Italic, Underline, FileText, Image } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 type SubVendor = {
   id: number
@@ -15,6 +16,7 @@ type SubVendor = {
 }
 
 export default function SettingsProfilePage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -194,12 +196,12 @@ export default function SettingsProfilePage() {
     if (file) {
       // Validate file type
       if (!file.type.match('image/(jpeg|jpg|png|gif)')) {
-        alert('Please select a valid image file (JPG, PNG, or GIF)')
+        alert(t('pleaseSelectValidImage'))
         return
       }
       // Validate file size (1MB max)
       if (file.size > 1024 * 1024) {
-        alert('File size must be less than 1MB')
+        alert(t('fileSizeMustBeLessThan1MB'))
         return
       }
       
@@ -217,12 +219,12 @@ export default function SettingsProfilePage() {
       // Validate file type
       const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
       if (!validTypes.includes(file.type)) {
-        alert('Please select a valid file (PDF, JPG, or PNG)')
+        alert(t('pleaseSelectValidFile'))
         return
       }
       // Validate file size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB')
+        alert(t('fileSizeMustBeLessThan10MB'))
         return
       }
       
@@ -268,27 +270,27 @@ export default function SettingsProfilePage() {
     
     if (activeTab === 'personal') {
       if (!formData.fullName.trim()) {
-        newErrors.fullName = 'Full name is required'
+        newErrors.fullName = t('fullNameRequired')
       }
       if (!formData.email.trim()) {
-        newErrors.email = 'Email is required'
+        newErrors.email = t('emailRequired')
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = 'Invalid email format'
+        newErrors.email = t('invalidEmailFormat')
       }
       if (!formData.phone.trim()) {
-        newErrors.phone = 'Phone number is required'
+        newErrors.phone = t('phoneRequired')
       }
     } else if (activeTab === 'password') {
       if (!passwordData.currentPassword) {
-        newErrors.currentPassword = 'Current password is required'
+        newErrors.currentPassword = t('currentPasswordRequired')
       }
       if (!passwordData.newPassword) {
-        newErrors.newPassword = 'New password is required'
+        newErrors.newPassword = t('newPasswordRequired')
       } else if (passwordData.newPassword.length < 8) {
-        newErrors.newPassword = 'Password must be at least 8 characters'
+        newErrors.newPassword = t('passwordMinLength')
       }
       if (passwordData.newPassword !== passwordData.confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match'
+        newErrors.confirmPassword = t('passwordsDoNotMatch')
       }
     }
     
@@ -327,7 +329,7 @@ export default function SettingsProfilePage() {
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (error) {
       console.error('Error saving:', error)
-      alert('Failed to save changes. Please try again.')
+      alert(t('failedToSave') || 'Failed to save changes. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -338,7 +340,7 @@ export default function SettingsProfilePage() {
   }
 
   const handleDeleteSubVendor = (id: number) => {
-    if (confirm('Are you sure you want to delete this sub vendor?')) {
+    if (confirm(t('confirmDeleteVendor') || 'Are you sure you want to delete this sub vendor?')) {
       setSubVendors(subVendors.filter(v => v.id !== id))
     }
   }
@@ -387,8 +389,8 @@ export default function SettingsProfilePage() {
   const renderPersonalInfo = () => (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Personal Information</h2>
-        <p className="text-sm text-gray-500">Update your profile details and personal information.</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">{t('personalInformation')}</h2>
+        <p className="text-sm text-gray-500">{t('updateProfileDetails') || 'Update your profile details and personal information.'}</p>
       </div>
 
       {/* Profile Picture */}
@@ -402,7 +404,7 @@ export default function SettingsProfilePage() {
           <button 
             onClick={() => profileImageRef.current?.click()}
             className="absolute bottom-0 right-0 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center border-4 border-white hover:bg-primary-600 transition-colors"
-            aria-label="Change profile picture"
+            aria-label={t('changeProfilePicture')}
           >
             <Camera size={18} />
           </button>
@@ -411,7 +413,7 @@ export default function SettingsProfilePage() {
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/gif"
             onChange={handleProfileImageUpload}
-            title="Upload profile image"
+            title={t('uploadProfilePicture')}
             className="hidden"
           />
         </div>
@@ -420,7 +422,7 @@ export default function SettingsProfilePage() {
             onClick={() => profileImageRef.current?.click()}
             className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium mb-2"
           >
-            Upload New Photo
+            {t('uploadNew')}
           </button>
           <p className="text-xs text-gray-500">JPG, GIF or PNG. 1MB max.</p>
         </div>
@@ -429,7 +431,7 @@ export default function SettingsProfilePage() {
       {/* Form Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="fullName">Full Name</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="fullName">{t('fullName')}</label>
           <input
             id="fullName"
             type="text"
@@ -443,7 +445,7 @@ export default function SettingsProfilePage() {
           {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">Email Address</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">{t('email')}</label>
           <input
             id="email"
             type="email"
@@ -457,7 +459,7 @@ export default function SettingsProfilePage() {
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">Phone Number</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">{t('phone')}</label>
           <input
             id="phone"
             type="tel"
@@ -471,7 +473,7 @@ export default function SettingsProfilePage() {
           {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">{t('password')}</label>
           <div className="flex items-center gap-3">
             <input
               id="password"
@@ -484,7 +486,7 @@ export default function SettingsProfilePage() {
               onClick={() => setActiveTab('password')}
               className="text-purple-600 hover:text-purple-700 font-medium text-sm whitespace-nowrap"
             >
-              Change
+              {t('changePassword')}
             </button>
           </div>
         </div>
@@ -492,10 +494,10 @@ export default function SettingsProfilePage() {
 
       {/* Address Information */}
       <div className="pt-6 border-t border-gray-200">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Address Information</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">{t('addressInformation') || 'Address Information'}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="streetAddress">Street Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="streetAddress">{t('streetAddress')}</label>
             <input
               id="streetAddress"
               type="text"
@@ -506,7 +508,7 @@ export default function SettingsProfilePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="city">City</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="city">{t('city')}</label>
             <input
               id="city"
               type="text"
@@ -517,7 +519,7 @@ export default function SettingsProfilePage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="country">Country</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="country">{t('country')}</label>
             <select
               id="country"
               name="country"
@@ -538,18 +540,18 @@ export default function SettingsProfilePage() {
 
       {/* ID Verification */}
       <div className="pt-6 border-t border-gray-200">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">ID Verification</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">{t('idVerification') || 'ID Verification'}</h3>
         
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-12 text-center mb-4">
           <div className="flex flex-col items-center justify-center mb-4">
             <Upload className="text-gray-400 mb-2" size={48} />
-            <p className="text-lg font-medium text-gray-900 mb-1">Upload ID Document</p>
-            <p className="text-sm text-gray-500 mb-4">Upload your CNIC, Passport or any valid government ID.</p>
+            <p className="text-lg font-medium text-gray-900 mb-1">{t('uploadIdDocument')}</p>
+            <p className="text-sm text-gray-500 mb-4">{t('uploadIdDocumentDescription') || 'Upload your CNIC, Passport or any valid government ID.'}</p>
             <button 
               onClick={() => idDocumentRef.current?.click()}
               className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium"
             >
-              Choose File
+              {t('chooseFile') || 'Choose File'}
             </button>
             <p className="text-xs text-gray-500 mt-3">PDF, JPG, PNG up to 10MB.</p>
           </div>
@@ -559,7 +561,7 @@ export default function SettingsProfilePage() {
           type="file"
           accept="application/pdf,image/jpeg,image/jpg,image/png"
           onChange={handleIdDocumentUpload}
-          title="Upload ID document"
+          title={t('uploadIdDocument')}
           className="hidden"
         />
         
@@ -592,7 +594,7 @@ export default function SettingsProfilePage() {
                 <p className={`text-sm ${
                   idDocument.verified ? 'text-teal-600' : 'text-yellow-600'
                 }`}>
-                  {idDocument.verified ? 'Verified' : 'Pending Verification'} - Uploaded on {idDocument.uploadedDate}
+                  {idDocument.verified ? t('verified') : t('pendingVerification') || 'Pending Verification'} - {t('uploadedOn')} {idDocument.uploadedDate}
                 </p>
               </div>
             </div>
@@ -604,7 +606,7 @@ export default function SettingsProfilePage() {
                   ? 'bg-green-100 text-teal-600' 
                   : 'bg-yellow-100 text-yellow-600'
               }`}>
-                {idDocument.verified ? 'Verified' : 'Pending'}
+                {idDocument.verified ? t('verified') : t('pending')}
               </span>
               {idDocument.file && (
                 <button 
@@ -636,11 +638,11 @@ export default function SettingsProfilePage() {
   const renderPasswordChange = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Update Your Password</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-6">{t('updateYourPassword') || 'Update Your Password'}</h2>
 
         <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="currentPassword">Current Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="currentPassword">{t('currentPassword')}</label>
           <div className="relative">
             <input
               id="currentPassword"
@@ -648,14 +650,14 @@ export default function SettingsProfilePage() {
               name="currentPassword"
               value={passwordData.currentPassword}
               onChange={handlePasswordChange}
-              placeholder="Enter Your Current Password"
+              placeholder={t('enterCurrentPassword') || 'Enter Your Current Password'}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10 bg-white"
             />
             <button
               type="button"
               onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              aria-label="Toggle password visibility"
+              aria-label={showPasswords.current ? t('hidePassword') : t('showPassword')}
             >
               {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -664,7 +666,7 @@ export default function SettingsProfilePage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="newPassword">New Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="newPassword">{t('newPassword')}</label>
           <div className="relative">
             <input
               id="newPassword"
@@ -672,14 +674,14 @@ export default function SettingsProfilePage() {
               name="newPassword"
               value={passwordData.newPassword}
               onChange={handlePasswordChange}
-              placeholder="Enter New Password"
+              placeholder={t('enterNewPassword') || 'Enter New Password'}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10 bg-white"
             />
             <button
               type="button"
               onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              aria-label="Toggle password visibility"
+              aria-label={showPasswords.new ? t('hidePassword') : t('showPassword')}
             >
               {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -688,7 +690,7 @@ export default function SettingsProfilePage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="confirmPassword">Confirm Password</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="confirmPassword">{t('confirmPassword')}</label>
           <div className="relative">
             <input
               id="confirmPassword"
@@ -696,14 +698,14 @@ export default function SettingsProfilePage() {
               name="confirmPassword"
               value={passwordData.confirmPassword}
               onChange={handlePasswordChange}
-              placeholder="Confirm New Password"
+              placeholder={t('confirmNewPassword') || 'Confirm New Password'}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10 bg-white"
             />
             <button
               type="button"
               onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              aria-label="Toggle password visibility"
+              aria-label={showPasswords.confirm ? t('hidePassword') : t('showPassword')}
             >
               {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -721,13 +723,13 @@ export default function SettingsProfilePage() {
             }}
             className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            {t('cancel')}
           </button>
           <button
             onClick={handleSave}
             className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
           >
-            Save Password
+            {t('savePassword') || 'Save Password'}
           </button>
         </div>
       </div>
@@ -757,7 +759,7 @@ export default function SettingsProfilePage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
-              placeholder="Search by Name"
+              placeholder={t('searchVendors')}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -771,14 +773,14 @@ export default function SettingsProfilePage() {
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
           >
             <Plus size={18} />
-            <span>Add New</span>
+            <span>{t('addVendor')}</span>
           </button>
         </div>
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {vendorLoading ? (
-            <div className="py-10 text-center text-gray-500 text-sm">Loading vendors...</div>
+            <div className="py-10 text-center text-gray-500 text-sm">{t('loading') || 'Loading vendors...'}</div>
           ) : vendorError ? (
             <div className="py-10 px-4 text-center space-y-4">
               <p className="text-sm text-red-600">{vendorError}</p>
@@ -787,18 +789,18 @@ export default function SettingsProfilePage() {
                 onClick={fetchSubVendors}
                 className="inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
               >
-                Retry
+                {t('retry') || 'Retry'}
               </button>
             </div>
           ) : filteredVendors.length === 0 ? (
             <div className="py-10 px-4 text-center space-y-4">
-              <p className="text-sm text-gray-500">No vendors found.</p>
+              <p className="text-sm text-gray-500">{t('noVendorsFound')}</p>
               <button
                 type="button"
                 onClick={handleAddSubVendor}
                 className="inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
               >
-                Add Vendor
+                {t('addVendor')}
               </button>
             </div>
           ) : (
@@ -813,13 +815,13 @@ export default function SettingsProfilePage() {
                           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                           className="flex items-center gap-1 hover:text-gray-900"
                         >
-                          Name
+                          {t('name')}
                           <ChevronDown size={14} className={sortOrder === 'desc' ? 'transform rotate-180' : ''} />
                         </button>
                       </th>
-                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Role</th>
-                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Status</th>
-                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Action</th>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">{t('role')}</th>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">{t('status')}</th>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">{t('actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1544,9 +1546,9 @@ export default function SettingsProfilePage() {
             <div className="w-full space-y-6">
               {/* Header */}
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+                <h1 className="text-3xl font-bold text-gray-900">{t('settings')}</h1>
                 <p className="text-sm text-gray-500 mt-1">
-                  Dashboard {activeTab === 'vendors' ? '> Manage Sub Vendors' : activeTab === 'password' ? '> Change Password' : activeTab === 'policies' ? '> Vendor & Information' : '- Personal Information'}
+                  {t('dashboard')} {activeTab === 'vendors' ? `> ${t('manageSubVendors') || 'Manage Sub Vendors'}` : activeTab === 'password' ? `> ${t('changePassword')}` : activeTab === 'policies' ? `> ${t('vendorInformation') || 'Vendor & Information'}` : `- ${t('personalInformation')}`}
                 </p>
               </div>
 
@@ -1554,7 +1556,7 @@ export default function SettingsProfilePage() {
               {saveSuccess && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
                   <Check className="text-green-600" size={20} />
-                  <p className="text-green-800 font-medium">Settings saved successfully!</p>
+                  <p className="text-green-800 font-medium">{t('settingsSavedSuccessfully') || 'Settings saved successfully!'}</p>
                 </div>
               )}
 
@@ -1569,7 +1571,7 @@ export default function SettingsProfilePage() {
                         : 'border-transparent text-gray-600 hover:text-gray-900'
                     }`}
                   >
-                    Personal Information
+                    {t('personalInformation')}
                   </button>
                   <button
                     onClick={() => setActiveTab('vendors')}
@@ -1579,7 +1581,7 @@ export default function SettingsProfilePage() {
                         : 'border-transparent text-gray-600 hover:text-gray-900'
                     }`}
                   >
-                    Manage Sub Vendors
+                    {t('manageSubVendors') || 'Manage Sub Vendors'}
                   </button>
                   <button
                     onClick={() => setActiveTab('password')}
@@ -1589,7 +1591,7 @@ export default function SettingsProfilePage() {
                         : 'border-transparent text-gray-600 hover:text-gray-900'
                     }`}
                   >
-                    Change Password
+                    {t('changePassword')}
                   </button>
                   <button
                     onClick={() => setActiveTab('policies')}
@@ -1599,7 +1601,7 @@ export default function SettingsProfilePage() {
                         : 'border-transparent text-gray-600 hover:text-gray-900'
                     }`}
                   >
-                    Vendor & Information
+                    {t('vendorInformation') || 'Vendor & Information'}
                   </button>
                 </div>
               </div>
@@ -1615,7 +1617,7 @@ export default function SettingsProfilePage() {
                       onClick={() => router.back()}
                       className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                     >
-                      Cancel
+                      {t('cancel')}
                     </button>
                     <button
                       onClick={handleSave}
@@ -1626,7 +1628,7 @@ export default function SettingsProfilePage() {
                           : 'bg-orange-500 text-white hover:bg-orange-600'
                       }`}
                     >
-                      {isSaving ? 'Saving...' : 'Save Changes'}
+                      {isSaving ? t('saving') : t('saveChanges')}
                     </button>
                   </div>
                 )}

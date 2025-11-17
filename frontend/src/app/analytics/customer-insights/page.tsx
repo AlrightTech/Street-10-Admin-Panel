@@ -4,8 +4,10 @@ import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { Menu, Calendar, ChevronDown, Download, Users, UserPlus, RotateCcw, TrendingUp, MoreVertical, AlignJustify, User, ShoppingCart, Star } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function CustomerInsightsPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
@@ -71,8 +73,8 @@ export default function CustomerInsightsPage() {
             <div className="max-w-7xl mx-auto">
               {/* Header Section - Outside white card */}
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900">Analytics & Reports</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Dashboard - Customer Insights</p>
+                <h2 className="text-lg font-bold text-gray-900">{t('analyticsReports')}</h2>
+                <p className="text-sm text-gray-500 mt-0.5">{t('dashboard')} - {t('customerInsights')}</p>
               </div>
 
               {/* Main White Card Container */}
@@ -80,19 +82,19 @@ export default function CustomerInsightsPage() {
               {/* Title and actions */}
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Customer Insights</h1>
-                    <p className="text-sm text-gray-500">Understand your customer base and behaviors</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-1">{t('customerInsights')}</h1>
+                    <p className="text-sm text-gray-500">{t('understandCustomerBase')}</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="relative">
                       <button className="px-4 py-2 text-sm rounded-md border border-gray-300 bg-white text-gray-700 flex items-center gap-2 hover:bg-gray-50">
-                    Last 7 Days
+                    {t('last7Days')}
                     <ChevronDown size={16} className="text-gray-500" />
                   </button>
                     </div>
                     <button className="px-4 py-2 text-sm rounded-md bg-orange-500 text-white flex items-center gap-2 hover:bg-orange-600 shadow-sm">
                     <Download size={16} />
-                    Export
+                    {t('export')}
                   </button>
                 </div>
               </div>
@@ -100,10 +102,10 @@ export default function CustomerInsightsPage() {
               {/* KPI cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   {[
-                    {label:'Total Customers', value:'1,850', icon: Users, iconColor:'text-blue-500', iconBg:'bg-blue-50'},
-                    {label:'New Customers', value:'320', icon: UserPlus, iconColor:'text-green-500', iconBg:'bg-green-50'},
-                    {label:'Returning Customers', value:'540', icon: RotateCcw, iconColor:'text-purple-500', iconBg:'bg-purple-50'},
-                    {label:'Retention Rate', value:'38%', icon: TrendingUp, iconColor:'text-orange-500', iconBg:'bg-orange-50'},
+                    {label:t('totalCustomers'), value:'1,850', icon: Users, iconColor:'text-blue-500', iconBg:'bg-blue-50'},
+                    {label:t('newCustomers'), value:'320', icon: UserPlus, iconColor:'text-green-500', iconBg:'bg-green-50'},
+                    {label:t('returningCustomers'), value:'540', icon: RotateCcw, iconColor:'text-purple-500', iconBg:'bg-purple-50'},
+                    {label:t('retentionRate'), value:'38%', icon: TrendingUp, iconColor:'text-orange-500', iconBg:'bg-orange-50'},
                   ].map((k,i)=> (
                     <div key={i} className="bg-white rounded-lg border border-gray-200 shadow-sm p-5 hover:shadow-md transition-shadow">
                       <div className={`w-10 h-10 ${k.iconBg} rounded-lg flex items-center justify-center mb-3`}>
@@ -120,7 +122,7 @@ export default function CustomerInsightsPage() {
                   {/* New vs Returning Customers */}
                   <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-sm font-semibold text-gray-900">New vs Returning Customers</h3>
+                      <h3 className="text-sm font-semibold text-gray-900">{t('newVsReturningCustomers')}</h3>
                       <button className="text-gray-500 hover:text-gray-700" aria-label="More options">
                         <AlignJustify size={18} />
                       </button>
@@ -149,7 +151,7 @@ export default function CustomerInsightsPage() {
                         {/* Center text */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                           <p className="text-2xl font-bold text-gray-900">1,850</p>
-                          <p className="text-xs text-gray-500 mt-1">Total Customers</p>
+                          <p className="text-xs text-gray-500 mt-1">{t('totalCustomers')}</p>
                         </div>
                       </div>
                       
@@ -159,20 +161,20 @@ export default function CustomerInsightsPage() {
                           <div className="w-4 h-4 rounded-full bg-[#4285F4] flex-shrink-0"></div>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-700">New Customers</span>
+                              <span className="text-sm font-medium text-gray-700">{t('newCustomers')}</span>
                               <span className="text-sm font-bold text-gray-900 ml-2">62%</span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">1,147 customers</p>
+                            <p className="text-xs text-gray-500 mt-0.5">1,147 {t('customers')}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-4 h-4 rounded-full bg-[#34A853] flex-shrink-0"></div>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-700">Returning Customers</span>
+                              <span className="text-sm font-medium text-gray-700">{t('returningCustomers')}</span>
                               <span className="text-sm font-bold text-gray-900 ml-2">38%</span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-0.5">703 customers</p>
+                            <p className="text-xs text-gray-500 mt-0.5">703 {t('customers')}</p>
                           </div>
                         </div>
                       </div>
@@ -181,7 +183,7 @@ export default function CustomerInsightsPage() {
 
                   {/* Geographic Distribution */}
                   <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-6">Geographic Distribution</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-6">{t('geographicDistribution')}</h3>
                     <div className="space-y-4">
                       {[
                         { city: 'Karachi', value: 420, color: '#4285F4', width: 75 },
@@ -210,16 +212,16 @@ export default function CustomerInsightsPage() {
 
               {/* Top Customers table */}
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
-                <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Customers</h3>
+                <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('topCustomers')}</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-xs text-gray-500 border-b border-gray-200">
-                        <th className="py-3 px-2 font-medium">Customer</th>
+                        <th className="py-3 px-2 font-medium">{t('customer')}</th>
                         <th className="py-3 px-2 font-medium">Email</th>
-                        <th className="py-3 px-2 font-medium">Orders</th>
-                        <th className="py-3 px-2 font-medium">Total Spent</th>
-                        <th className="py-3 px-2 font-medium">Last Order</th>
+                        <th className="py-3 px-2 font-medium">{t('orders')}</th>
+                        <th className="py-3 px-2 font-medium">{t('totalSpend')}</th>
+                        <th className="py-3 px-2 font-medium">{t('lastOrder')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -247,14 +249,14 @@ export default function CustomerInsightsPage() {
               {/* Bottom grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('recentActivity')}</h3>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                         <User size={18} className="text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">Ali Raza placed his 5th order</p>
+                        <p className="text-sm font-medium text-gray-900">Ali Raza {t('placedOrder')}</p>
                         <p className="text-xs text-gray-500 mt-1">Jan 12, 2025</p>
                       </div>
                     </li>
@@ -263,7 +265,7 @@ export default function CustomerInsightsPage() {
                         <ShoppingCart size={18} className="text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">New customer signup</p>
+                        <p className="text-sm font-medium text-gray-900">{t('newCustomerSignup')}</p>
                         <p className="text-xs text-gray-500 mt-1">Jan 11, 2025</p>
                       </div>
                     </li>
@@ -271,7 +273,7 @@ export default function CustomerInsightsPage() {
                 </div>
 
                   <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Customer Feedback</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('customerFeedback')}</h3>
                   <div>
                     <div className="flex items-baseline gap-2 mb-2">
                       <p className="text-3xl font-semibold text-gray-900">4.6</p>
@@ -281,18 +283,18 @@ export default function CustomerInsightsPage() {
                         ))}
                       </div>
                     </div>
-                    <p className="text-sm text-gray-700 mb-4">240 Total Reviews</p>
+                    <p className="text-sm text-gray-700 mb-4">240 {t('totalReviews')}</p>
                     <div className="space-y-2">
                       <div>
-                        <p className="text-sm font-medium text-green-600">Positive</p>
+                        <p className="text-sm font-medium text-green-600">{t('positive')}</p>
                         <p className="text-xs text-gray-500">75%</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-orange-500">Neutral</p>
+                        <p className="text-sm font-medium text-orange-500">{t('neutral')}</p>
                         <p className="text-xs text-gray-500">15%</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-red-600">Negative</p>
+                        <p className="text-sm font-medium text-red-600">{t('negative')}</p>
                         <p className="text-xs text-gray-500">10%</p>
                       </div>
                     </div>
@@ -300,18 +302,18 @@ export default function CustomerInsightsPage() {
                 </div>
 
                   <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Loyalty Metrics</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('loyaltyMetrics')}</h3>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-gray-700 mb-1">Average CLV</p>
+                      <p className="text-sm text-gray-700 mb-1">{t('averageCLV')}</p>
                       <p className="text-xl font-semibold text-gray-900">$82.50</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-700 mb-1">Top Spender</p>
+                      <p className="text-sm text-gray-700 mb-1">{t('topSpender')}</p>
                       <p className="text-sm font-medium text-gray-900">John Doe - $3,200</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-700 mb-1">Repeat Purchase Rate</p>
+                      <p className="text-sm text-gray-700 mb-1">{t('repeatPurchaseRate')}</p>
                       <p className="text-sm font-medium text-gray-900">32%</p>
                     </div>
                   </div>
@@ -340,8 +342,8 @@ export default function CustomerInsightsPage() {
         <main className="p-4 sm:p-6 bg-gray-50 min-h-screen pt-20 sm:pt-4">
           {/* Header Section - Outside white card */}
           <div className="mb-4 sm:mb-6">
-            <h2 className="text-base sm:text-lg font-bold text-gray-900">Analytics & Reports</h2>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Dashboard - Customer Insights</p>
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('analyticsReports')}</h2>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{t('dashboard')} - {t('customerInsights')}</p>
           </div>
 
           {/* Main White Card Container */}
@@ -349,19 +351,19 @@ export default function CustomerInsightsPage() {
             {/* Title and actions */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Customer Insights</h1>
-                <p className="text-xs sm:text-sm text-gray-500">Understand your customer base and behaviors</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{t('customerInsights')}</h1>
+                <p className="text-xs sm:text-sm text-gray-500">{t('understandCustomerBase')}</p>
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <button className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md border border-gray-300 bg-white text-gray-700 flex items-center gap-2 hover:bg-gray-50">
-                    Last 7 Days
+                    {t('last7Days')}
                     <ChevronDown size={16} className="text-gray-500" />
                   </button>
                 </div>
                 <button className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md bg-orange-500 text-white flex items-center gap-2 hover:bg-orange-600 shadow-sm">
                   <Download size={16} />
-                  Export
+                  {t('export')}
                 </button>
               </div>
             </div>
@@ -369,10 +371,10 @@ export default function CustomerInsightsPage() {
             {/* KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 sm:mb-6">
               {[
-                {label:'Total Customers', value:'1,850', icon: Users, iconColor:'text-blue-500', iconBg:'bg-blue-50'},
-                {label:'New Customers', value:'320', icon: UserPlus, iconColor:'text-green-500', iconBg:'bg-green-50'},
-                {label:'Returning Customers', value:'540', icon: RotateCcw, iconColor:'text-purple-500', iconBg:'bg-purple-50'},
-                {label:'Retention Rate', value:'38%', icon: TrendingUp, iconColor:'text-orange-500', iconBg:'bg-orange-50'},
+                {label:t('totalCustomers'), value:'1,850', icon: Users, iconColor:'text-blue-500', iconBg:'bg-blue-50'},
+                {label:t('newCustomers'), value:'320', icon: UserPlus, iconColor:'text-green-500', iconBg:'bg-green-50'},
+                {label:t('returningCustomers'), value:'540', icon: RotateCcw, iconColor:'text-purple-500', iconBg:'bg-purple-50'},
+                {label:t('retentionRate'), value:'38%', icon: TrendingUp, iconColor:'text-orange-500', iconBg:'bg-orange-50'},
               ].map((k,i)=> (
                 <div key={i} className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-5 hover:shadow-md transition-shadow">
                   <div className={`w-10 h-10 ${k.iconBg} rounded-lg flex items-center justify-center mb-3`}>
@@ -389,7 +391,7 @@ export default function CustomerInsightsPage() {
               {/* New vs Returning Customers */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h3 className="text-sm font-semibold text-gray-900">New vs Returning Customers</h3>
+                  <h3 className="text-sm font-semibold text-gray-900">{t('newVsReturningCustomers')}</h3>
                   <button className="text-gray-500 hover:text-gray-700" aria-label="More options">
                     <AlignJustify size={18} />
                   </button>
@@ -418,7 +420,7 @@ export default function CustomerInsightsPage() {
                     {/* Center text */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                       <p className="text-xl sm:text-2xl font-bold text-gray-900">1,850</p>
-                      <p className="text-xs text-gray-500 mt-1">Total Customers</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('totalCustomers')}</p>
                     </div>
                   </div>
                   
@@ -428,20 +430,20 @@ export default function CustomerInsightsPage() {
                       <div className="w-4 h-4 rounded-full bg-[#4285F4] flex-shrink-0"></div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">New Customers</span>
+                          <span className="text-sm font-medium text-gray-700">{t('newCustomers')}</span>
                           <span className="text-sm font-bold text-gray-900 ml-2">62%</span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-0.5">1,147 customers</p>
+                        <p className="text-xs text-gray-500 mt-0.5">1,147 {t('customers')}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-4 h-4 rounded-full bg-[#34A853] flex-shrink-0"></div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">Returning Customers</span>
+                          <span className="text-sm font-medium text-gray-700">{t('returningCustomers')}</span>
                           <span className="text-sm font-bold text-gray-900 ml-2">38%</span>
                         </div>
-                        <p className="text-xs text-gray-500 mt-0.5">703 customers</p>
+                        <p className="text-xs text-gray-500 mt-0.5">703 {t('customers')}</p>
                       </div>
                     </div>
                   </div>
@@ -450,7 +452,7 @@ export default function CustomerInsightsPage() {
 
               {/* Geographic Distribution */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 sm:mb-6">Geographic Distribution</h3>
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 sm:mb-6">{t('geographicDistribution')}</h3>
                 <div className="space-y-4">
                   {[
                     { city: 'Karachi', value: 420, color: '#4285F4', width: 75 },
@@ -479,16 +481,16 @@ export default function CustomerInsightsPage() {
 
           {/* Top Customers table */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Customers</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('topCustomers')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-gray-500 border-b border-gray-200">
-                    <th className="py-3 px-2 font-medium">Customer</th>
+                    <th className="py-3 px-2 font-medium">{t('customer')}</th>
                     <th className="py-3 px-2 font-medium">Email</th>
-                    <th className="py-3 px-2 font-medium">Orders</th>
-                    <th className="py-3 px-2 font-medium">Total Spent</th>
-                    <th className="py-3 px-2 font-medium">Last Order</th>
+                    <th className="py-3 px-2 font-medium">{t('orders')}</th>
+                    <th className="py-3 px-2 font-medium">{t('totalSpend')}</th>
+                    <th className="py-3 px-2 font-medium">{t('lastOrder')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -516,14 +518,14 @@ export default function CustomerInsightsPage() {
           {/* Bottom grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Activity</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('recentActivity')}</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                     <User size={18} className="text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Ali Raza placed his 5th order</p>
+                    <p className="text-sm font-medium text-gray-900">Ali Raza {t('placedOrder')}</p>
                     <p className="text-xs text-gray-500 mt-1">Jan 12, 2025</p>
                   </div>
                 </li>
@@ -532,7 +534,7 @@ export default function CustomerInsightsPage() {
                     <ShoppingCart size={18} className="text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">New customer signup</p>
+                    <p className="text-sm font-medium text-gray-900">{t('newCustomerSignup')}</p>
                     <p className="text-xs text-gray-500 mt-1">Jan 11, 2025</p>
                   </div>
                 </li>
@@ -540,7 +542,7 @@ export default function CustomerInsightsPage() {
             </div>
 
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Customer Feedback</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('customerFeedback')}</h3>
               <div>
                 <div className="flex items-baseline gap-2 mb-2">
                   <p className="text-3xl font-semibold text-gray-900">4.6</p>
@@ -550,18 +552,18 @@ export default function CustomerInsightsPage() {
                     ))}
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 mb-4">240 Total Reviews</p>
+                <p className="text-sm text-gray-700 mb-4">240 {t('totalReviews')}</p>
                 <div className="space-y-2">
                   <div>
-                    <p className="text-sm font-medium text-green-600">Positive</p>
+                    <p className="text-sm font-medium text-green-600">{t('positive')}</p>
                     <p className="text-xs text-gray-500">75%</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-orange-500">Neutral</p>
+                    <p className="text-sm font-medium text-orange-500">{t('neutral')}</p>
                     <p className="text-xs text-gray-500">15%</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-red-600">Negative</p>
+                    <p className="text-sm font-medium text-red-600">{t('negative')}</p>
                     <p className="text-xs text-gray-500">10%</p>
                   </div>
                 </div>
@@ -569,18 +571,18 @@ export default function CustomerInsightsPage() {
             </div>
 
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Loyalty Metrics</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('loyaltyMetrics')}</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-700 mb-1">Average CLV</p>
+                  <p className="text-sm text-gray-700 mb-1">{t('averageCLV')}</p>
                   <p className="text-xl font-semibold text-gray-900">$82.50</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-700 mb-1">Top Spender</p>
+                  <p className="text-sm text-gray-700 mb-1">{t('topSpender')}</p>
                   <p className="text-sm font-medium text-gray-900">John Doe - $3,200</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-700 mb-1">Repeat Purchase Rate</p>
+                  <p className="text-sm text-gray-700 mb-1">{t('repeatPurchaseRate')}</p>
                   <p className="text-sm font-medium text-gray-900">32%</p>
                 </div>
               </div>

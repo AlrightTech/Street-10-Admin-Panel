@@ -14,7 +14,7 @@ export default function ViewProductPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-  const { t } = useLanguage()
+  const { t, language, translateProduct } = useLanguage()
 
   // Product images array - different images for carousel
   const productImages = [
@@ -53,7 +53,8 @@ export default function ViewProductPage() {
     }
   }
 
-  const product = mockProducts[productId] || mockProducts['1']
+  const rawProduct = mockProducts[productId] || mockProducts['1']
+  const product = translateProduct(rawProduct)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -111,7 +112,7 @@ export default function ViewProductPage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <div>
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('allProducts')}</h1>
-                  <div className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard <span className="font-semibold text-gray-700">/ View Product</span></div>
+                  <div className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} <span className="font-semibold text-gray-700">/ {t('viewProduct')}</span></div>
                 </div>
                 <button
                   onClick={() => router.push('/products/add')}
@@ -176,9 +177,9 @@ export default function ViewProductPage() {
                         
                         {/* Additional Documents */}
                         <div className="mb-6">
-                          <h3 className="text-sm font-bold text-gray-900 mb-2">Additional Documents</h3>
+                          <h3 className="text-sm font-bold text-gray-900 mb-2">{t('additionalDocuments')}</h3>
                           <a href="#" className="text-sm text-gray-900 hover:underline flex items-center gap-1">
-                            <span>Watch Video</span>
+                            <span>{t('watchVideo')}</span>
                           </a>
                         </div>
                         
@@ -186,23 +187,23 @@ export default function ViewProductPage() {
                         <div className="border-t border-gray-200 pt-4 mb-6">
                           <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Condition</span>
+                              <span className="text-sm font-medium text-gray-700">{t('condition')}</span>
                               <span className="text-sm text-gray-900">{product.condition}</span>
                             </div>
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Brand</span>
+                              <span className="text-sm font-medium text-gray-700">{t('brand')}</span>
                               <span className="text-sm text-gray-900">{product.brand}</span>
                             </div>
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Regular Price</span>
+                              <span className="text-sm font-medium text-gray-700">{t('regularPrice')}</span>
                               <span className="text-sm text-gray-600 line-through">${product.price}</span>
                             </div>
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Sale Price</span>
+                              <span className="text-sm font-medium text-gray-700">{t('discountPrice')}</span>
                               <span className="text-sm font-bold text-green-600">${product.salePrice}</span>
                             </div>
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">Stock Quantity</span>
+                              <span className="text-sm font-medium text-gray-700">{t('stockQuantity')}</span>
                               <span className="text-sm text-gray-900">{product.stock}</span>
                             </div>
                           </div>
@@ -211,7 +212,7 @@ export default function ViewProductPage() {
                         {/* Product Slug */}
                         <div className="pt-4 border-t border-gray-200">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-500">Product Slug</span>
+                            <span className="text-sm text-gray-500">{t('productUrlSlug')}</span>
                             <span className="text-sm text-gray-900">{product.slug}</span>
                           </div>
                         </div>
@@ -224,51 +225,51 @@ export default function ViewProductPage() {
                 <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-6">
                   {/* Admin Actions */}
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">Admin Actions</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-4">{t('adminActions')}</h3>
                     <div className="space-y-3">
                       <button
                         onClick={() => router.push(`/products/${productId}/edit`)}
                         className="w-full px-4 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 font-medium"
                       >
                         <Edit size={18} />
-                        <span>Edit Product</span>
+                        <span>{t('editProduct')}</span>
                       </button>
                       <button 
-                        onClick={() => { if (confirm('Delete this product?')) router.push('/products') }}
+                        onClick={() => { if (confirm(language === 'ar' ? 'حذف هذا المنتج؟' : 'Delete this product?')) router.push('/products') }}
                         className="w-full px-4 py-2.5 border-2 border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 font-medium"
                       >
                         <Trash2 size={18} />
-                        <span>Delete Product</span>
+                        <span>{t('deleteProduct')}</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Performance */}
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">Performance</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-4">{t('performance')}</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Total Views</span>
+                        <span className="text-sm text-gray-700">{t('totalViews')}</span>
                         <span className="text-sm font-medium text-gray-900">{product.totalViews}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Total Orders</span>
+                        <span className="text-sm text-gray-700">{t('totalOrders')}</span>
                         <span className="text-sm font-medium text-gray-900">{product.totalOrders}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Revenue</span>
+                        <span className="text-sm text-gray-700">{t('revenue')}</span>
                         <span className="text-sm font-medium text-gray-900">{product.revenue}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Conversion Rate</span>
+                        <span className="text-sm text-gray-700">{t('conversionRate')}</span>
                         <span className="text-sm font-medium text-gray-900">{product.conversionRate}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Total Saved</span>
+                        <span className="text-sm text-gray-700">{t('totalSaved')}</span>
                         <span className="text-sm font-medium text-gray-900">{product.totalSaved}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-700">Total Shared</span>
+                        <span className="text-sm text-gray-700">{t('totalShared')}</span>
                         <span className="text-sm font-medium text-gray-900">{product.totalShared}</span>
                       </div>
                     </div>
@@ -285,7 +286,7 @@ export default function ViewProductPage() {
               >
                 <div className="flex items-center gap-3">
                   <Youtube size={20} className="text-red-500" />
-                  <span className="text-sm font-medium text-gray-900">YouTube review</span>
+                  <span className="text-sm font-medium text-gray-900">{t('youtubeReview')}</span>
                   <Circle size={8} className="text-red-500 fill-red-500 ml-auto" />
                 </div>
               </a>
@@ -295,14 +296,14 @@ export default function ViewProductPage() {
                 {/* Additional Information */}
                 <div className="col-span-12 lg:col-span-6">
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">Additional Information</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-4">{t('additionalInformation')}</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-700">Weight</span>
+                        <span className="text-sm font-medium text-gray-700">{t('weight')}</span>
                         <span className="text-sm text-gray-900">{product.weight}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-700">Dimensions</span>
+                        <span className="text-sm font-medium text-gray-700">{t('dimensions')}</span>
                         <span className="text-sm text-gray-900">{product.dimensions}</span>
                       </div>
                     </div>
@@ -312,14 +313,14 @@ export default function ViewProductPage() {
                 {/* SEO & Marketing */}
                 <div className="col-span-12 lg:col-span-6">
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-4">SEO & Marketing</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-4">{t('seoMarketing')}</h3>
                     <div className="space-y-4">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Meta Title</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('metaTitle')}</p>
                         <p className="text-sm text-gray-900">{product.metaTitle}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Meta Description</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('metaDescription')}</p>
                         <p className="text-sm text-gray-900">{product.metaDescription}</p>
                       </div>
                     </div>

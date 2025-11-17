@@ -4,8 +4,10 @@ import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { Menu, Calendar, ChevronDown, Download, ShoppingCart, CheckCircle2, Clock, X } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function OrdersReportPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeDateRange, setActiveDateRange] = useState('Last 7 Days')
@@ -191,15 +193,15 @@ export default function OrdersReportPage() {
             <div className="max-w-7xl mx-auto space-y-6">
               {/* Header Section */}
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900">Analytics & Reports</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Dashboard - Orders Report</p>
+                <h2 className="text-lg font-bold text-gray-900">{t('analyticsReports')}</h2>
+                <p className="text-sm text-gray-500 mt-0.5">{t('dashboard')} - {t('ordersReport')}</p>
               </div>
 
               {/* Title and actions */}
               <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-1">Orders Report</h1>
-                  <p className="text-sm text-gray-500">Deep insights into order volume, performance, and fulfillment rates</p>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-1">{t('ordersReport')}</h1>
+                  <p className="text-sm text-gray-500">{t('deepInsightsOrderVolume')}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {['Today', 'Last 7 Days', 'This Month', 'Custom'].map((range) => (
@@ -212,12 +214,12 @@ export default function OrdersReportPage() {
                           : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      {range}
+                      {range === 'Today' ? t('today') : range === 'Last 7 Days' ? t('last7Days') : range === 'This Month' ? t('thisMonth') : t('customRange')}
                   </button>
                   ))}
                   <button className="px-4 py-2 text-sm rounded-md bg-orange-500 text-white flex items-center gap-2 hover:bg-orange-600 shadow-sm">
                     <Download size={16} />
-                    Export
+                    {t('export')}
                   </button>
                 </div>
               </div>
@@ -226,36 +228,36 @@ export default function OrdersReportPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { 
-                    label: 'Total Orders', 
+                    label: t('totalOrders'), 
                     value: '780', 
-                    chip: '+12% from last month', 
+                    chip: `+12% ${t('fromLastMonth')}`, 
                     chipColor: 'text-green-600',
                     icon: ShoppingCart, 
                     iconBg: 'bg-blue-100',
                     iconColor: 'text-blue-600'
                   },
                   { 
-                    label: 'Completed Orders', 
+                    label: t('completedOrders'), 
                     value: '620', 
-                    chip: '+8% from last month', 
+                    chip: `+8% ${t('fromLastMonth')}`, 
                     chipColor: 'text-green-600',
                     icon: CheckCircle2, 
                     iconBg: 'bg-green-100',
                     iconColor: 'text-green-600'
                   },
                   { 
-                    label: 'Pending Orders', 
+                    label: t('pendingOrders'), 
                     value: '110', 
-                    chip: '-5% from last month', 
+                    chip: `-5% ${t('fromLastMonth')}`, 
                     chipColor: 'text-red-600',
                     icon: Clock, 
                     iconBg: 'bg-yellow-100',
                     iconColor: 'text-yellow-600'
                   },
                   { 
-                    label: 'Cancelled Orders', 
+                    label: t('cancelledOrders'), 
                     value: '50', 
-                    chip: '+3% from last month', 
+                    chip: `+3% ${t('fromLastMonth')}`, 
                     chipColor: 'text-red-600',
                     icon: X, 
                     iconBg: 'bg-red-100',
@@ -279,7 +281,7 @@ export default function OrdersReportPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 shadow-sm">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-sm font-semibold text-gray-900">Order Trends</h2>
+                    <h2 className="text-sm font-semibold text-gray-900">{t('orderTrends')}</h2>
                     <div className="flex items-center gap-1 w-full sm:w-auto">
                       {['Daily', 'Weekly', 'Monthly'].map((tab) => (
                         <button
@@ -291,7 +293,7 @@ export default function OrdersReportPage() {
                               : 'bg-transparent text-gray-500 hover:text-gray-700'
                           }`}
                         >
-                          {tab}
+                          {t(tab.toLowerCase())}
                         </button>
                       ))}
                     </div>
@@ -302,7 +304,7 @@ export default function OrdersReportPage() {
                 </div>
 
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Order Fulfillment Rate</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('orderFulfillmentRate')}</h3>
                   <div className="flex flex-col items-center justify-center">
                     {/* Gauge Chart */}
                     <div className="relative w-full max-w-[280px] mb-4">
@@ -354,7 +356,7 @@ export default function OrdersReportPage() {
                     {/* Percentage value */}
                     <p className="text-4xl sm:text-5xl font-bold text-[#f59e0b] mb-2">92%</p>
                     {/* Contextual text */}
-                    <p className="text-sm text-gray-600">Fulfillment Rate This Month</p>
+                    <p className="text-sm text-gray-600">{t('fulfillmentRateThisMonth')}</p>
                   </div>
                 </div>
               </div>
@@ -362,22 +364,22 @@ export default function OrdersReportPage() {
               {/* Top customers & refunds */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Customers</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('topCustomers')}</h3>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-left border-b border-gray-200">
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Customer Name</th>
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Total Orders</th>
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Total Spend</th>
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Last Order</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('customerName')}</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('totalOrders')}</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('totalSpend')}</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('lastOrder')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
                         {[
-                          { name: 'John Smith', orders: 45, total: '$3,200', last: '2 days ago' },
-                          { name: 'Sarah Johnson', orders: 38, total: '$2,850', last: '1 day ago' },
-                          { name: 'Mike Davis', orders: 32, total: '$2,400', last: '3 days ago' }
+                          { name: 'John Smith', orders: 45, total: '$3,200', last: `2 ${t('daysAgo')}` },
+                          { name: 'Sarah Johnson', orders: 38, total: '$2,850', last: `1 ${t('daysAgo')}` },
+                          { name: 'Mike Davis', orders: 32, total: '$2,400', last: `3 ${t('daysAgo')}` }
                         ].map((c) => (
                           <tr key={c.name} className="hover:bg-gray-50 transition-colors">
                             <td className="py-3 px-2">
@@ -397,22 +399,22 @@ export default function OrdersReportPage() {
                 </div>
 
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Refunds & Returns</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('refundsReturns')}</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Total Refund Requests</span>
+                      <span className="text-sm text-gray-700">{t('totalRefundRequests')}</span>
                       <span className="text-sm font-medium text-gray-900">30</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Approved Refunds</span>
+                      <span className="text-sm text-gray-700">{t('approvedRefunds')}</span>
                       <span className="text-sm font-medium text-green-600">24</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Refund Amount</span>
+                      <span className="text-sm text-gray-700">{t('refundAmount')}</span>
                       <span className="text-sm font-medium text-gray-900">$1,450</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">Approval Rate</span>
+                      <span className="text-sm text-gray-700">{t('approvalRate')}</span>
                       <span className="text-sm font-medium text-gray-900">80%</span>
                     </div>
                     {/* Progress bar */}
@@ -426,7 +428,7 @@ export default function OrdersReportPage() {
               {/* Status breakdown & recent orders */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Order Status Breakdown</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('orderStatusBreakdown')}</h3>
                   <div className="flex flex-col items-center justify-center">
                     {/* Donut Chart */}
                     <svg viewBox="0 0 200 200" className="w-48 h-48 sm:w-56 sm:h-56" preserveAspectRatio="xMidYMid meet">
@@ -457,31 +459,31 @@ export default function OrdersReportPage() {
                     <div className="mt-4 flex flex-row items-center justify-center gap-4 sm:gap-6 flex-wrap">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-700">Completed</span>
+                        <span className="text-sm text-gray-700">{t('completed')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-orange-500 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-700">Pending</span>
+                        <span className="text-sm text-gray-700">{t('pending')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-500 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-700">Cancelled</span>
+                        <span className="text-sm text-gray-700">{t('cancelled')}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Orders</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('recentOrders')}</h3>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-left border-b border-gray-200">
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Order ID</th>
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Date</th>
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Customer</th>
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Amount</th>
-                          <th className="py-3 px-2 text-xs font-medium text-gray-500">Status</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('orderId')}</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('date')}</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('customer')}</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('amount')}</th>
+                          <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('status')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
@@ -507,7 +509,7 @@ export default function OrdersReportPage() {
                                   ? 'bg-yellow-100 text-yellow-700'
                                   : 'bg-red-100 text-red-700'
                               }`}>
-                                {o.status}
+                                {o.status === 'Completed' ? t('completed') : o.status === 'Pending' ? t('pending') : t('cancelled')}
                               </span>
                             </td>
                           </tr>
@@ -539,14 +541,14 @@ export default function OrdersReportPage() {
         <main className="mt-14 p-4 sm:p-6 space-y-6">
           {/* Header Section */}
           <div className="mb-4">
-            <h2 className="text-base sm:text-lg font-bold text-gray-900">Analytics & Reports</h2>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Dashboard - Orders Report</p>
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('analyticsReports')}</h2>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{t('dashboard')} - {t('ordersReport')}</p>
           </div>
 
           {/* Title and actions */}
           <div className="mb-6">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Orders Report</h1>
-            <p className="text-xs sm:text-sm text-gray-500">Deep insights into order volume, performance, and fulfillment rates</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{t('ordersReport')}</h1>
+            <p className="text-xs sm:text-sm text-gray-500">{t('deepInsightsOrderVolume')}</p>
           </div>
 
           {/* Date Range Buttons */}
@@ -561,12 +563,12 @@ export default function OrdersReportPage() {
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                {range}
+                {range === 'Today' ? t('today') : range === 'Last 7 Days' ? t('last7Days') : range === 'This Month' ? t('thisMonth') : t('customRange')}
               </button>
             ))}
             <button className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md bg-orange-500 text-white flex items-center gap-2 hover:bg-orange-600 shadow-sm">
               <Download size={16} />
-              Export
+              {t('export')}
             </button>
           </div>
 
@@ -574,36 +576,36 @@ export default function OrdersReportPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
               { 
-                label: 'Total Orders', 
+                label: t('totalOrders'), 
                 value: '780', 
-                chip: '+12% from last month', 
+                chip: `+12% ${t('fromLastMonth')}`, 
                 chipColor: 'text-green-600',
                 icon: ShoppingCart, 
                 iconBg: 'bg-blue-100',
                 iconColor: 'text-blue-600'
               },
               { 
-                label: 'Completed Orders', 
+                label: t('completedOrders'), 
                 value: '620', 
-                chip: '+8% from last month', 
+                chip: `+8% ${t('fromLastMonth')}`, 
                 chipColor: 'text-green-600',
                 icon: CheckCircle2, 
                 iconBg: 'bg-green-100',
                 iconColor: 'text-green-600'
               },
               { 
-                label: 'Pending Orders', 
+                label: t('pendingOrders'), 
                 value: '110', 
-                chip: '-5% from last month', 
+                chip: `-5% ${t('fromLastMonth')}`, 
                 chipColor: 'text-red-600',
                 icon: Clock, 
                 iconBg: 'bg-yellow-100',
                 iconColor: 'text-yellow-600'
               },
               { 
-                label: 'Cancelled Orders', 
+                label: t('cancelledOrders'), 
                 value: '50', 
-                chip: '+3% from last month', 
+                chip: `+3% ${t('fromLastMonth')}`, 
                 chipColor: 'text-red-600',
                 icon: X, 
                 iconBg: 'bg-red-100',
@@ -626,7 +628,7 @@ export default function OrdersReportPage() {
           {/* Order Trends */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
-              <h2 className="text-sm font-semibold text-gray-900">Order Trends</h2>
+              <h2 className="text-sm font-semibold text-gray-900">{t('orderTrends')}</h2>
               <div className="flex items-center gap-1 w-full sm:w-auto">
                 {['Daily', 'Weekly', 'Monthly'].map((tab) => (
                   <button
@@ -638,7 +640,7 @@ export default function OrdersReportPage() {
                         : 'bg-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
-                    {tab}
+                    {t(tab.toLowerCase())}
                   </button>
                 ))}
               </div>
@@ -650,7 +652,7 @@ export default function OrdersReportPage() {
 
           {/* Fulfillment Rate */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Order Fulfillment Rate</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('orderFulfillmentRate')}</h3>
             <div className="flex flex-col items-center justify-center">
               {/* Gauge Chart */}
               <div className="relative w-full max-w-[280px] mb-4">
@@ -700,28 +702,28 @@ export default function OrdersReportPage() {
               {/* Percentage value */}
               <p className="text-4xl sm:text-5xl font-bold text-[#f59e0b] mb-2">92%</p>
               {/* Contextual text */}
-              <p className="text-sm text-gray-600">Fulfillment Rate This Month</p>
+              <p className="text-sm text-gray-600">{t('fulfillmentRateThisMonth')}</p>
             </div>
           </div>
 
           {/* Top Customers */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Top Customers</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('topCustomers')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left border-b border-gray-200">
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Customer Name</th>
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Total Orders</th>
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Total Spend</th>
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Last Order</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('customerName')}</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('totalOrders')}</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('totalSpend')}</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('lastOrder')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {[
-                    { name: 'John Smith', orders: 45, total: '$3,200', last: '2 days ago' },
-                    { name: 'Sarah Johnson', orders: 38, total: '$2,850', last: '1 day ago' },
-                    { name: 'Mike Davis', orders: 32, total: '$2,400', last: '3 days ago' }
+                    { name: 'John Smith', orders: 45, total: '$3,200', last: `2 ${t('daysAgo')}` },
+                    { name: 'Sarah Johnson', orders: 38, total: '$2,850', last: `1 ${t('daysAgo')}` },
+                    { name: 'Mike Davis', orders: 32, total: '$2,400', last: `3 ${t('daysAgo')}` }
                   ].map((c) => (
                     <tr key={c.name} className="hover:bg-gray-50 transition-colors">
                       <td className="py-3 px-2">
@@ -742,22 +744,22 @@ export default function OrdersReportPage() {
 
           {/* Refunds & Returns */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Refunds & Returns</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('refundsReturns')}</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Total Refund Requests</span>
+                <span className="text-sm text-gray-700">{t('totalRefundRequests')}</span>
                 <span className="text-sm font-medium text-gray-900">30</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Approved Refunds</span>
+                <span className="text-sm text-gray-700">{t('approvedRefunds')}</span>
                 <span className="text-sm font-medium text-green-600">24</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Refund Amount</span>
+                <span className="text-sm text-gray-700">{t('refundAmount')}</span>
                 <span className="text-sm font-medium text-gray-900">$1,450</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Approval Rate</span>
+                <span className="text-sm text-gray-700">{t('approvalRate')}</span>
                 <span className="text-sm font-medium text-gray-900">80%</span>
               </div>
               {/* Progress bar */}
@@ -769,7 +771,7 @@ export default function OrdersReportPage() {
 
           {/* Status breakdown */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Order Status Breakdown</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('orderStatusBreakdown')}</h3>
             <div className="flex flex-col items-center justify-center">
               {/* Donut Chart */}
               <svg viewBox="0 0 200 200" className="w-48 h-48 sm:w-56 sm:h-56" preserveAspectRatio="xMidYMid meet">
@@ -800,15 +802,15 @@ export default function OrdersReportPage() {
               <div className="mt-4 flex flex-row items-center justify-center gap-4 sm:gap-6 flex-wrap">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></div>
-                  <span className="text-sm text-gray-700">Completed</span>
+                  <span className="text-sm text-gray-700">{t('completed')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-orange-500 flex-shrink-0"></div>
-                  <span className="text-sm text-gray-700">Pending</span>
+                  <span className="text-sm text-gray-700">{t('pending')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-500 flex-shrink-0"></div>
-                  <span className="text-sm text-gray-700">Cancelled</span>
+                  <span className="text-sm text-gray-700">{t('cancelled')}</span>
                 </div>
               </div>
             </div>
@@ -816,16 +818,16 @@ export default function OrdersReportPage() {
 
           {/* Recent Orders */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Orders</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('recentOrders')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left border-b border-gray-200">
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Order ID</th>
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Date</th>
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Customer</th>
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Amount</th>
-                    <th className="py-3 px-2 text-xs font-medium text-gray-500">Status</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('orderId')}</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('date')}</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('customer')}</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('amount')}</th>
+                    <th className="py-3 px-2 text-xs font-medium text-gray-500">{t('status')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -851,7 +853,7 @@ export default function OrdersReportPage() {
                             ? 'bg-yellow-100 text-yellow-700'
                             : 'bg-red-100 text-red-700'
                         }`}>
-                          {o.status}
+                          {o.status === 'Completed' ? t('completed') : o.status === 'Pending' ? t('pending') : t('cancelled')}
                         </span>
                       </td>
                     </tr>
