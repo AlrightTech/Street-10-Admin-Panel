@@ -2,9 +2,17 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Menu, Camera, Upload, Download, Check, X, Eye, EyeOff, Plus, Trash2, Edit, Search, MoreVertical, ChevronDown, ChevronLeft, ChevronRight, Clock, Bold, Italic, Underline, FileText, Image } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+
+type SubVendor = {
+  id: number
+  name: string
+  email?: string
+  status: string
+  role?: string
+}
 
 export default function SettingsProfilePage() {
   const router = useRouter()
@@ -51,32 +59,70 @@ export default function SettingsProfilePage() {
   })
 
   // Sub vendors state
-  const [subVendors, setSubVendors] = useState([
-    { id: 1, name: 'Touseef Ahmed', role: 'Math', status: 'Active' },
-    { id: 2, name: 'Qasim Muneer', role: 'Math', status: 'Active' },
-    { id: 3, name: 'Yasir Hafeez', role: 'Math', status: 'Pending' },
-    { id: 4, name: 'Junaid Akhtar Butt', role: 'Math', status: 'Active' },
-    { id: 5, name: 'Tariq Iqbal', role: 'Math', status: 'Active' },
-    { id: 6, name: 'Muhammed Saeed', role: 'Math', status: 'Blocked' },
-    { id: 7, name: 'Abdurrahman', role: 'Math', status: 'Active' },
-    { id: 8, name: 'Ahmed Ali', role: 'Math', status: 'Pending' },
-    { id: 9, name: 'Hassan Khan', role: 'Math', status: 'Active' },
-    { id: 10, name: 'Usman Malik', role: 'Math', status: 'Active' },
-    { id: 11, name: 'Bilal Sheikh', role: 'Math', status: 'Blocked' },
-    { id: 12, name: 'Zain Abbas', role: 'Math', status: 'Active' },
-    { id: 13, name: 'Faisal Iqbal', role: 'Math', status: 'Pending' },
-    { id: 14, name: 'Imran Khan', role: 'Math', status: 'Active' },
-    { id: 15, name: 'Nadeem Ali', role: 'Math', status: 'Active' },
-    { id: 16, name: 'Rashid Ahmad', role: 'Math', status: 'Blocked' },
-    { id: 17, name: 'Sajid Mahmood', role: 'Math', status: 'Active' },
-    { id: 18, name: 'Tahir Hussain', role: 'Math', status: 'Pending' }
-  ])
+  const [subVendors, setSubVendors] = useState<SubVendor[]>([])
+  const [vendorLoading, setVendorLoading] = useState(false)
+  const [vendorError, setVendorError] = useState<string | null>(null)
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedRow, setSelectedRow] = useState<number | null>(5)
+  const [selectedRow, setSelectedRow] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const itemsPerPage = 3 // Show 3 vendors per page (can be adjusted)
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+
+  const fetchSubVendors = useCallback(async () => {
+    setVendorLoading(true)
+    setVendorError(null)
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/sub-admin/users`)
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch vendors')
+      }
+
+      const data = await response.json()
+      const users = Array.isArray(data?.users) ? data.users : []
+
+      const mappedVendors: SubVendor[] = users.map((user: any, index: number) => {
+        const rawId = user?.id ?? user?._id
+        let numericId: number
+
+        if (typeof rawId === 'number') {
+          numericId = rawId
+        } else if (typeof rawId === 'string') {
+          const parsed = parseInt(rawId, 10)
+          numericId = Number.isNaN(parsed) ? index + 1 : parsed
+        } else {
+          numericId = index + 1
+        }
+
+        return {
+          id: numericId,
+          name: user?.name || user?.fullName || 'Unknown Vendor',
+          email: user?.email || '',
+          status: user?.status || 'Pending',
+          role: user?.role || user?.username || ''
+        }
+      })
+
+      setSubVendors(mappedVendors)
+      setSelectedRow(mappedVendors.length ? mappedVendors[0].id : null)
+      setCurrentPage(1)
+    } catch (error) {
+      console.error('Error fetching vendors:', error)
+      setVendorError(error instanceof Error ? error.message : 'Unable to load vendors right now.')
+      setSubVendors([])
+      setSelectedRow(null)
+    } finally {
+      setVendorLoading(false)
+    }
+  }, [apiBaseUrl])
+
+  useEffect(() => {
+    fetchSubVendors()
+  }, [fetchSubVendors])
 
   // Refs for textareas
   const termsTextareaRef = useRef<HTMLTextAreaElement>(null)
@@ -297,17 +343,28 @@ export default function SettingsProfilePage() {
     }
   }
 
-  const filteredVendors = subVendors.filter(vendor =>
-    vendor.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredVendors = subVendors.filter(vendor => {
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return true
+
+    return (
+      vendor.name.toLowerCase().includes(query) ||
+      (vendor.email ? vendor.email.toLowerCase().includes(query) : false) ||
+      (vendor.role ? vendor.role.toLowerCase().includes(query) : false)
+    )
+  })
 
   const getStatusBadgeColor = (status: string) => {
-    switch(status) {
-      case 'Active':
+    const normalized = status?.toLowerCase?.() || ''
+
+    switch(normalized) {
+      case 'active':
+      case 'verified':
         return 'bg-green-100 text-green-700'
-      case 'Pending':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-700'
-      case 'Blocked':
+      case 'blocked':
+      case 'inactive':
         return 'bg-red-100 text-red-700'
       default:
         return 'bg-gray-100 text-gray-700'
@@ -702,7 +759,10 @@ export default function SettingsProfilePage() {
               type="text"
               placeholder="Search by Name"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setCurrentPage(1)
+              }}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -717,125 +777,160 @@ export default function SettingsProfilePage() {
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-white border-b border-gray-200">
-                <tr>
-                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">ID:</th>
-                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
-                    <button
-                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                      className="flex items-center gap-1 hover:text-gray-900"
-                    >
-                      Name
-                      <ChevronDown size={14} className={sortOrder === 'desc' ? 'transform rotate-180' : ''} />
-                    </button>
-                  </th>
-                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Role</th>
-                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Status</th>
-                  <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedVendors.map((vendor, index) => {
-                  // Calculate sequential ID number based on current page
-                  const sequentialId = startIndex + index + 1
-                  const isEven = sequentialId % 2 === 0
-                  const isSelected = selectedRow === vendor.id
-                  
-                  return (
-                  <tr
-                    key={vendor.id}
-                    onClick={() => {
-                      setSelectedRow(vendor.id)
-                      router.push(`/settings/profile/vendors/${vendor.id}`)
-                    }}
-                    className={`cursor-pointer transition-colors ${
-                      isSelected
-                        ? 'bg-gray-100'
-                        : isEven
-                        ? 'bg-white'
-                        : 'bg-gray-50'
-                    } ${isSelected ? 'font-medium' : ''}`}
-                  >
-                    <td className={`py-3 px-6 text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{sequentialId}</td>
-                    <td className={`py-3 px-6 ${isSelected ? 'bg-gray-100' : ''}`}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white text-xs font-semibold">
-                          {vendor.name.charAt(0)}
-                        </div>
-                        <span className={`text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{vendor.name}</span>
-                      </div>
-                    </td>
-                    <td className={`py-3 px-6 text-sm ${isSelected ? 'bg-gray-100 text-gray-900' : 'text-gray-700'}`}>{vendor.role}</td>
-                    <td className={`py-3 px-6 ${isSelected ? 'bg-gray-100' : ''}`}>
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(vendor.status)} ${isSelected ? 'bg-gray-100' : ''}`}>
-                        {vendor.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-6">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
+          {vendorLoading ? (
+            <div className="py-10 text-center text-gray-500 text-sm">Loading vendors...</div>
+          ) : vendorError ? (
+            <div className="py-10 px-4 text-center space-y-4">
+              <p className="text-sm text-red-600">{vendorError}</p>
+              <button
+                type="button"
+                onClick={fetchSubVendors}
+                className="inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredVendors.length === 0 ? (
+            <div className="py-10 px-4 text-center space-y-4">
+              <p className="text-sm text-gray-500">No vendors found.</p>
+              <button
+                type="button"
+                onClick={handleAddSubVendor}
+                className="inline-flex items-center justify-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                Add Vendor
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-white border-b border-gray-200">
+                    <tr>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">ID:</th>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
+                        <button
+                          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                          className="flex items-center gap-1 hover:text-gray-900"
+                        >
+                          Name
+                          <ChevronDown size={14} className={sortOrder === 'desc' ? 'transform rotate-180' : ''} />
+                        </button>
+                      </th>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Role</th>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Status</th>
+                      <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedVendors.map((vendor, index) => {
+                      // Calculate sequential ID number based on current page
+                      const sequentialId = startIndex + index + 1
+                      const isEven = sequentialId % 2 === 0
+                      const isSelected = selectedRow === vendor.id
+
+                      const roleDisplay = vendor.role || vendor.email || '—'
+
+                      return (
+                      <tr
+                        key={vendor.id}
+                        onClick={() => {
+                          setSelectedRow(vendor.id)
                           router.push(`/settings/profile/vendors/${vendor.id}`)
                         }}
-                        className="text-gray-500 hover:text-gray-700"
-                        aria-label="More options"
+                        className={`cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-gray-100'
+                            : isEven
+                            ? 'bg-white'
+                            : 'bg-gray-50'
+                        } ${isSelected ? 'font-medium' : ''}`}
                       >
-                        <MoreVertical size={18} />
+                        <td className={`py-3 px-6 text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{sequentialId}</td>
+                        <td className={`py-3 px-6 ${isSelected ? 'bg-gray-100' : ''}`}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white text-xs font-semibold">
+                              {vendor.name.charAt(0)}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className={`text-sm ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}>{vendor.name}</span>
+                              {vendor.email && (
+                                <span className="text-xs text-gray-500">{vendor.email}</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className={`py-3 px-6 text-sm ${isSelected ? 'bg-gray-100 text-gray-900' : 'text-gray-700'}`}>{roleDisplay}</td>
+                        <td className={`py-3 px-6 ${isSelected ? 'bg-gray-100' : ''}`}>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(vendor.status)} ${isSelected ? 'bg-gray-100' : ''}`}>
+                            {vendor.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-6">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              router.push(`/settings/profile/vendors/${vendor.id}`)
+                            }}
+                            className="text-gray-500 hover:text-gray-700"
+                            aria-label="More options"
+                          >
+                            <MoreVertical size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="border-t border-gray-200 bg-white px-4 py-3 flex flex-wrap items-center justify-center sm:justify-end gap-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  type="button"
+                  className="flex items-center gap-1 text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1 rounded"
+                >
+                  <ChevronLeft size={16} />
+                  <span>Back</span>
+                </button>
+
+                {visiblePages.map((page, index) => {
+                  if (page === null) return null
+                  const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
+
+                  return (
+                    <div key={page} className="flex items-center gap-2">
+                      {showEllipsis && <span className="text-gray-500">...</span>}
+                      <button
+                        onClick={() => setCurrentPage(page)}
+                        type="button"
+                        className={`min-w-[32px] px-3 py-1 rounded text-sm ${
+                          currentPage === page
+                            ? 'bg-primary-500 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
                       </button>
-                    </td>
-                  </tr>
+                    </div>
                   )
                 })}
-              </tbody>
-            </table>
-          </div>
 
-          {/* Pagination */}
-          <div className="border-t border-gray-200 bg-white px-4 py-3 flex flex-wrap items-center justify-center sm:justify-end gap-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              type="button"
-              className="flex items-center gap-1 text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1 rounded"
-            >
-              <ChevronLeft size={16} />
-              <span>Back</span>
-            </button>
-
-            {visiblePages.map((page, index) => {
-              if (page === null) return null
-              const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
-              
-              return (
-                <div key={page} className="flex items-center gap-2">
-                  {showEllipsis && <span className="text-gray-500">...</span>}
-            <button
-              onClick={() => setCurrentPage(page)}
-              type="button"
-              className={`min-w-[32px] px-3 py-1 rounded text-sm ${
-                currentPage === page
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-                    {page}
-                  </button>
-                </div>
-              )
-            })}
-
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              type="button"
-              className="flex items-center gap-1 text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1 rounded"
-            >
-              <span>Next</span>
-              <ChevronRight size={16} />
-            </button>
-          </div>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  type="button"
+                  className="flex items-center gap-1 text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1 rounded"
+                >
+                  <span>Next</span>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     )

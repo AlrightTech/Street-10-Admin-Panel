@@ -4,23 +4,27 @@ import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, Search, Filter, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Menu, Search, Filter, MoreVertical, ChevronLeft, ChevronRight, Eye, Edit, X, RefreshCw, FileText, Trash2 } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function OrdersPage() {
   const router = useRouter()
+  const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-
-  const allOrders = [
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
+  const [orders, setOrders] = useState([
     { id: 1, orderNo: 'ORD-1562792771583', placedOn: '26/04/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'Online', status: 'Pending' },
     { id: 2, orderNo: 'ORD-1562792771584', placedOn: '26/04/2020', type: 'Order', items: 5, amount: 200, paymentMethod: 'COD', status: 'Completed' },
     { id: 3, orderNo: 'ORD-1562792771585', placedOn: '27/02/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'Wallet', status: 'Cancelled' },
     { id: 4, orderNo: 'ORD-1562792771586', placedOn: '26/04/2020', type: 'Order', items: 5, amount: 200, paymentMethod: 'Online', status: 'Refunded' },
     { id: 5, orderNo: 'ORD-1562792771587', placedOn: '27/02/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'COD', status: 'Pending' },
-  ]
+  ])
+
+  const allOrders = orders
 
   // Filter orders based on active tab
   const getFilteredByTab = () => {
@@ -115,6 +119,171 @@ export default function OrdersPage() {
     router.push(`/orders/${orderId}`)
   }
 
+  const handleViewDetails = (orderId: number) => {
+    setOpenDropdownId(null)
+    router.push(`/orders/${orderId}`)
+  }
+
+  const handleEditOrder = (orderId: number) => {
+    setOpenDropdownId(null)
+    // Navigate to order details page where user can edit
+    router.push(`/orders/${orderId}`)
+  }
+
+  const handleCancelOrder = async (orderId: number) => {
+    setOpenDropdownId(null)
+    if (confirm(language === 'ar' ? 'هل أنت متأكد أنك تريد إلغاء هذا الطلب؟' : 'Are you sure you want to cancel this order?')) {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Update order status to Cancelled
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.id === orderId 
+              ? { ...order, status: 'Cancelled' as const }
+              : order
+          )
+        )
+        
+        // Show success message
+        alert(language === 'ar' ? 'تم إلغاء الطلب بنجاح.' : 'Order has been cancelled successfully.')
+        
+        // Reset to page 1 if current page becomes empty
+        const updatedOrders = orders.map(order => 
+          order.id === orderId ? { ...order, status: 'Cancelled' as const } : order
+        )
+        const filtered = updatedOrders.filter(order => {
+          if (activeTab === 'all') return true
+          const statusMap: { [key: string]: string } = {
+            'pending': 'Pending',
+            'completed': 'Completed',
+            'cancelled': 'Cancelled',
+            'refunded': 'Refunded'
+          }
+          return order.status === statusMap[activeTab]
+        })
+        if (currentPage > Math.ceil(filtered.length / 5) && filtered.length > 0) {
+          setCurrentPage(1)
+        }
+      } catch (error) {
+        console.error('Error cancelling order:', error)
+        alert(language === 'ar' ? 'فشل إلغاء الطلب. يرجى المحاولة مرة أخرى.' : 'Failed to cancel order. Please try again.')
+      }
+    }
+  }
+
+  const handleRefundOrder = async (orderId: number) => {
+    setOpenDropdownId(null)
+    if (confirm(language === 'ar' ? 'هل أنت متأكد أنك تريد استرجاع هذا الطلب؟' : 'Are you sure you want to refund this order?')) {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Update order status to Refunded
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.id === orderId 
+              ? { ...order, status: 'Refunded' as const }
+              : order
+          )
+        )
+        
+        // Show success message
+        alert(language === 'ar' ? 'تم معالجة الاسترجاع بنجاح.' : 'Refund has been processed successfully.')
+        
+        // Reset to page 1 if current page becomes empty
+        const updatedOrders = orders.map(order => 
+          order.id === orderId ? { ...order, status: 'Refunded' as const } : order
+        )
+        const filtered = updatedOrders.filter(order => {
+          if (activeTab === 'all') return true
+          const statusMap: { [key: string]: string } = {
+            'pending': 'Pending',
+            'completed': 'Completed',
+            'cancelled': 'Cancelled',
+            'refunded': 'Refunded'
+          }
+          return order.status === statusMap[activeTab]
+        })
+        if (currentPage > Math.ceil(filtered.length / 5) && filtered.length > 0) {
+          setCurrentPage(1)
+        }
+      } catch (error) {
+        console.error('Error processing refund:', error)
+        alert(language === 'ar' ? 'فشل معالجة الاسترجاع. يرجى المحاولة مرة أخرى.' : 'Failed to process refund. Please try again.')
+      }
+    }
+  }
+
+  const handleDownloadInvoice = (orderId: number) => {
+    setOpenDropdownId(null)
+    router.push(`/orders/${orderId}/invoice`)
+  }
+
+  const handleDeleteOrder = async (orderId: number) => {
+    setOpenDropdownId(null)
+    if (confirm(language === 'ar' ? 'هل أنت متأكد أنك تريد حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete this order? This action cannot be undone.')) {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Remove order from list
+        setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId))
+        
+        // Show success message
+        alert(language === 'ar' ? 'تم حذف الطلب بنجاح.' : 'Order has been deleted successfully.')
+        
+        // Reset to page 1 if current page becomes empty
+        const remainingOrders = orders.filter(order => order.id !== orderId)
+        const filtered = remainingOrders.filter(order => {
+          if (activeTab === 'all') return true
+          const statusMap: { [key: string]: string } = {
+            'pending': 'Pending',
+            'completed': 'Completed',
+            'cancelled': 'Cancelled',
+            'refunded': 'Refunded'
+          }
+          return order.status === statusMap[activeTab]
+        })
+        if (currentPage > Math.ceil(filtered.length / 5) && filtered.length > 0) {
+          setCurrentPage(1)
+        } else if (filtered.length === 0 && currentPage > 1) {
+          setCurrentPage(1)
+        }
+      } catch (error) {
+        console.error('Error deleting order:', error)
+        alert(language === 'ar' ? 'فشل حذف الطلب. يرجى المحاولة مرة أخرى.' : 'Failed to delete order. Please try again.')
+      }
+    }
+  }
+
+  // Close dropdown when clicking outside and prevent body scroll when dropdown is open
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdownId !== null) {
+        const target = event.target as HTMLElement
+        if (!target.closest('.order-dropdown-container')) {
+          setOpenDropdownId(null)
+        }
+      }
+    }
+
+    // Prevent body scroll when dropdown is open
+    if (openDropdownId !== null) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      // Reset body overflow when component unmounts
+      document.body.style.overflow = ''
+    }
+  }, [openDropdownId])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="hidden lg:flex h-screen overflow-hidden">
@@ -143,8 +312,8 @@ export default function OrdersPage() {
             <div className="space-y-4 sm:space-y-6">
               {/* Header */}
               <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Orders</h1>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard - Orders</p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('orders')}</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboardOrders')}</p>
               </div>
 
               {/* Status Tabs and Search */}
@@ -158,7 +327,7 @@ export default function OrdersPage() {
                           onClick={() => handleTabChange('all')}
                           className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-xs sm:text-sm whitespace-nowrap"
                         >
-                          All <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                          {t('all')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
                             activeTab === 'all' ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-700'
                           }`}>{allCount}</span>
                         </button>
@@ -169,7 +338,7 @@ export default function OrdersPage() {
                           onClick={() => handleTabChange('pending')}
                           className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-xs sm:text-sm whitespace-nowrap"
                         >
-                          Pending <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                          {t('pending')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
                             activeTab === 'pending' ? 'bg-yellow-600 text-white' : 'bg-yellow-100 text-yellow-700'
                           }`}>{pendingCount}</span>
                         </button>
@@ -180,7 +349,7 @@ export default function OrdersPage() {
                           onClick={() => handleTabChange('completed')}
                           className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-xs sm:text-sm whitespace-nowrap"
                         >
-                          Completed <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                          {t('completed')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
                             activeTab === 'completed' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'
                           }`}>{completedCount}</span>
                         </button>
@@ -191,7 +360,7 @@ export default function OrdersPage() {
                           onClick={() => handleTabChange('cancelled')}
                           className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-xs sm:text-sm whitespace-nowrap"
                         >
-                          Cancelled <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                          {t('cancelled')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
                             activeTab === 'cancelled' ? 'bg-red-600 text-white' : 'bg-red-100 text-red-700'
                           }`}>{cancelledCount}</span>
                         </button>
@@ -202,7 +371,7 @@ export default function OrdersPage() {
                           onClick={() => handleTabChange('refunded')}
                           className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-xs sm:text-sm whitespace-nowrap"
                         >
-                          Refunded <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                          {t('refunded')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
                             activeTab === 'refunded' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700'
                           }`}>{refundedCount}</span>
                         </button>
@@ -217,7 +386,7 @@ export default function OrdersPage() {
                       <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                       <input
                         type="text"
-                        placeholder="Search Order #"
+                        placeholder={t('searchOrderPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         className="w-full lg:w-64 pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
@@ -228,7 +397,7 @@ export default function OrdersPage() {
                       aria-label="Filter orders"
                     >
                       <Filter size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      <span className="hidden sm:inline">Filter</span>
+                      <span className="hidden sm:inline">{t('filter')}</span>
                     </button>
                   </div>
                 </div>
@@ -240,13 +409,13 @@ export default function OrdersPage() {
                   <table className="w-full">
                     <thead className="bg-white border-b border-gray-300">
                       <tr>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Order #</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Placed on</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Type</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Items</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Amount</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Payment Method</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Status</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('orderNumber')}</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('placedOn')}</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('type')}</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('itemsCount')}</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('amount')}</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('paymentMethod')}</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('status')}</th>
                         <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap"></th>
                       </tr>
                     </thead>
@@ -262,7 +431,7 @@ export default function OrdersPage() {
                           >
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-900 whitespace-nowrap">{order.orderNo}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.placedOn}</td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.type}</td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.type === 'Subscription' ? t('subscription') : t('orderType')}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.items}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">${order.amount}</td>
                           <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-gray-700 whitespace-nowrap">{order.paymentMethod}</td>
@@ -271,17 +440,151 @@ export default function OrdersPage() {
                               {order.status}
                             </span>
                           </td>
-                          <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                          <td className="py-3 px-3 sm:px-4 whitespace-nowrap relative order-dropdown-container">
                               <button 
-                                className="text-gray-600 hover:text-gray-900"
+                                className="text-gray-600 hover:text-gray-900 p-1 rounded-md hover:bg-gray-100 transition-colors"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  alert('More options')
+                                  setOpenDropdownId(openDropdownId === order.id ? null : order.id)
                                 }}
                                 aria-label="More options"
                               >
                                 <MoreVertical size={16} />
                               </button>
+                              
+                              {/* Dropdown Menu */}
+                              {openDropdownId === order.id && (
+                                <>
+                                  {/* Backdrop for mobile */}
+                                  <div 
+                                    className="fixed inset-0 z-40 lg:hidden"
+                                    onClick={() => setOpenDropdownId(null)}
+                                  />
+                                  
+                                  {/* Dropdown */}
+                                  <div 
+                                    className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:left-auto lg:right-0 lg:top-full lg:mt-1 z-50 bg-white lg:rounded-lg lg:shadow-xl lg:border lg:border-gray-200 lg:w-56 flex flex-col max-h-[80vh] lg:max-h-[400px]"
+                                    onWheel={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {/* Mobile Header */}
+                                    <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+                                      <h3 className="text-lg font-semibold text-gray-900">{t('orderActions')}</h3>
+                                      <button
+                                        onClick={() => setOpenDropdownId(null)}
+                                        className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                                        aria-label="Close menu"
+                                      >
+                                        <X size={20} className="text-gray-600" />
+                                      </button>
+                                    </div>
+                                    
+                                    {/* Menu Items - Scrollable */}
+                                    <div 
+                                      className="overflow-y-auto overflow-x-hidden py-2 flex-1 min-h-0 scrollbar-hide" 
+                                      onWheel={(e) => {
+                                        e.stopPropagation()
+                                        const target = e.currentTarget
+                                        const { scrollTop, scrollHeight, clientHeight } = target
+                                        const isAtTop = scrollTop === 0
+                                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
+                                        
+                                        if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                                          e.preventDefault()
+                                        }
+                                      }} 
+                                      onTouchMove={(e) => {
+                                        e.stopPropagation()
+                                        const target = e.currentTarget
+                                        const { scrollTop, scrollHeight, clientHeight } = target
+                                        const touch = e.touches[0]
+                                        const rect = target.getBoundingClientRect()
+                                        const isAtTop = scrollTop === 0 && touch.clientY > rect.top
+                                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 && touch.clientY < rect.bottom
+                                        
+                                        if (isAtTop || isAtBottom) {
+                                          e.preventDefault()
+                                        }
+                                      }}
+                                    >
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleViewDetails(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <Eye size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('viewDetails')}</span>
+                                      </button>
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleEditOrder(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <Edit size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('editOrder')}</span>
+                                      </button>
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDownloadInvoice(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <FileText size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('downloadInvoice')}</span>
+                                      </button>
+                                      
+                                      <div className="border-t border-gray-200 my-2" />
+                                      
+                                      {order.status === 'Pending' && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleCancelOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                        >
+                                          <X size={18} />
+                                          <span className="text-sm font-medium">{t('cancelOrder')}</span>
+                                        </button>
+                                      )}
+                                      
+                                      {(order.status === 'Completed' || order.status === 'Pending') && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleRefundOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left"
+                                        >
+                                          <RefreshCw size={18} />
+                                          <span className="text-sm font-medium">{t('issueRefund')}</span>
+                                        </button>
+                                      )}
+                                      
+                                      <div className="border-t border-gray-200 my-2" />
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDeleteOrder(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                      >
+                                        <Trash2 size={18} />
+                                        <span className="text-sm font-medium">{t('deleteOrder')}</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
                             </td>
                           </tr>
                         )
@@ -289,7 +592,7 @@ export default function OrdersPage() {
                     ) : (
                       <tr>
                         <td colSpan={8} className="py-8 px-3 sm:px-4 text-center text-xs sm:text-sm text-gray-500">
-                          No orders found
+                          {t('noOrdersFound')}
                         </td>
                       </tr>
                     )}
@@ -306,7 +609,7 @@ export default function OrdersPage() {
                       className="flex items-center gap-1 text-xs sm:text-sm text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <ChevronLeft size={14} className="sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">Back</span>
+                      <span className="hidden sm:inline">{t('back')}</span>
                     </button>
                     
                     {visiblePages.map((page, index) => {
@@ -335,7 +638,7 @@ export default function OrdersPage() {
                       disabled={currentPage === totalPages || totalPages === 0}
                       className="flex items-center gap-1 text-xs sm:text-sm text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span className="hidden sm:inline">Next</span>
+                      <span className="hidden sm:inline">{t('next')}</span>
                       <ChevronRight size={14} className="sm:w-4 sm:h-4" />
                     </button>
                   </div>
@@ -354,16 +657,164 @@ export default function OrdersPage() {
                         className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer"
                       >
                         <div className="p-4 space-y-3">
-                          {/* Header */}
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 truncate">{order.orderNo}</p>
-                              <p className="text-xs text-gray-500">{order.placedOn}</p>
-                            </div>
+                        {/* Header */}
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{order.orderNo}</p>
+                            <p className="text-xs text-gray-500">{order.placedOn}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
                               {order.status}
                             </span>
+                            <div className="relative order-dropdown-container">
+                              <button 
+                                className="text-gray-600 hover:text-gray-900 p-1 rounded-md hover:bg-gray-100 transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenDropdownId(openDropdownId === order.id ? null : order.id)
+                                }}
+                                aria-label="More options"
+                              >
+                                <MoreVertical size={18} />
+                              </button>
+                              
+                              {/* Dropdown Menu for Mobile Cards */}
+                              {openDropdownId === order.id && (
+                                <>
+                                  {/* Backdrop */}
+                                  <div 
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setOpenDropdownId(null)}
+                                  />
+                                  
+                                  {/* Dropdown */}
+                                  <div 
+                                    className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-lg shadow-xl border-t border-gray-200 flex flex-col max-h-[80vh]"
+                                    onWheel={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {/* Mobile Header */}
+                                    <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+                                      <h3 className="text-lg font-semibold text-gray-900">{t('orderActions')}</h3>
+                                      <button
+                                        onClick={() => setOpenDropdownId(null)}
+                                        className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                                        aria-label="Close menu"
+                                      >
+                                        <X size={20} className="text-gray-600" />
+                                      </button>
+                                    </div>
+                                    
+                                    {/* Menu Items - Scrollable */}
+                                    <div 
+                                      className="overflow-y-auto overflow-x-hidden py-2 flex-1 min-h-0 scrollbar-hide" 
+                                      onWheel={(e) => {
+                                        e.stopPropagation()
+                                        const target = e.currentTarget
+                                        const { scrollTop, scrollHeight, clientHeight } = target
+                                        const isAtTop = scrollTop === 0
+                                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
+                                        
+                                        if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                                          e.preventDefault()
+                                        }
+                                      }} 
+                                      onTouchMove={(e) => {
+                                        e.stopPropagation()
+                                        const target = e.currentTarget
+                                        const { scrollTop, scrollHeight, clientHeight } = target
+                                        const touch = e.touches[0]
+                                        const rect = target.getBoundingClientRect()
+                                        const isAtTop = scrollTop === 0 && touch.clientY > rect.top
+                                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 && touch.clientY < rect.bottom
+                                        
+                                        if (isAtTop || isAtBottom) {
+                                          e.preventDefault()
+                                        }
+                                      }}
+                                    >
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleViewDetails(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <Eye size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('viewDetails')}</span>
+                                      </button>
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleEditOrder(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <Edit size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('editOrder')}</span>
+                                      </button>
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDownloadInvoice(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <FileText size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('downloadInvoice')}</span>
+                                      </button>
+                                      
+                                      <div className="border-t border-gray-200 my-2" />
+                                      
+                                      {order.status === 'Pending' && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleCancelOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                        >
+                                          <X size={18} />
+                                          <span className="text-sm font-medium">{t('cancelOrder')}</span>
+                                        </button>
+                                      )}
+                                      
+                                      {(order.status === 'Completed' || order.status === 'Pending') && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleRefundOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left"
+                                        >
+                                          <RefreshCw size={18} />
+                                          <span className="text-sm font-medium">{t('issueRefund')}</span>
+                                        </button>
+                                      )}
+                                      
+                                      <div className="border-t border-gray-200 my-2" />
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDeleteOrder(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                      >
+                                        <Trash2 size={18} />
+                                        <span className="text-sm font-medium">{t('deleteOrder')}</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           </div>
+                        </div>
 
                           {/* Details Grid */}
                           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -387,7 +838,7 @@ export default function OrdersPage() {
 
                           {/* Action Button */}
                           <button className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                            View Details
+                            {t('viewDetails')}
                           </button>
                         </div>
                       </div>
@@ -395,7 +846,7 @@ export default function OrdersPage() {
                   })
                 ) : (
                   <div className="bg-white rounded-lg shadow-sm p-8 text-center text-sm text-gray-500">
-                    No orders found
+                    {language === 'ar' ? 'لم يتم العثور على طلبات' : 'No orders found'}
                   </div>
                 )}
 
@@ -408,17 +859,17 @@ export default function OrdersPage() {
                       className="flex items-center gap-1 text-sm text-gray-700 disabled:opacity-50"
                     >
                       <ChevronLeft size={16} />
-                      Back
+                      {t('back')}
                     </button>
                     <span className="text-sm text-gray-600">
-                      Page {currentPage} of {totalPages}
+                      {language === 'ar' ? `صفحة ${currentPage} من ${totalPages}` : `Page ${currentPage} of ${totalPages}`}
                     </span>
                     <button
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages || totalPages === 0}
                       className="flex items-center gap-1 text-sm text-gray-700 disabled:opacity-50"
                     >
-                      Next
+                      {t('next')}
                       <ChevronRight size={16} />
                     </button>
                   </div>
@@ -559,9 +1010,157 @@ export default function OrdersPage() {
                             <p className="text-sm font-semibold text-gray-900 truncate">{order.orderNo}</p>
                             <p className="text-xs text-gray-500">{order.placedOn}</p>
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
-                            {order.status}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+                              {order.status}
+                            </span>
+                            <div className="relative order-dropdown-container">
+                              <button 
+                                className="text-gray-600 hover:text-gray-900 p-1 rounded-md hover:bg-gray-100 transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenDropdownId(openDropdownId === order.id ? null : order.id)
+                                }}
+                                aria-label="More options"
+                              >
+                                <MoreVertical size={18} />
+                              </button>
+                              
+                              {/* Dropdown Menu for Mobile Cards */}
+                              {openDropdownId === order.id && (
+                                <>
+                                  {/* Backdrop */}
+                                  <div 
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setOpenDropdownId(null)}
+                                  />
+                                  
+                                  {/* Dropdown */}
+                                  <div 
+                                    className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-lg shadow-xl border-t border-gray-200 flex flex-col max-h-[80vh]"
+                                    onWheel={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {/* Mobile Header */}
+                                    <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+                                      <h3 className="text-lg font-semibold text-gray-900">{t('orderActions')}</h3>
+                                      <button
+                                        onClick={() => setOpenDropdownId(null)}
+                                        className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                                        aria-label="Close menu"
+                                      >
+                                        <X size={20} className="text-gray-600" />
+                                      </button>
+                                    </div>
+                                    
+                                    {/* Menu Items - Scrollable */}
+                                    <div 
+                                      className="overflow-y-auto overflow-x-hidden py-2 flex-1 min-h-0 scrollbar-hide" 
+                                      onWheel={(e) => {
+                                        e.stopPropagation()
+                                        const target = e.currentTarget
+                                        const { scrollTop, scrollHeight, clientHeight } = target
+                                        const isAtTop = scrollTop === 0
+                                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
+                                        
+                                        if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                                          e.preventDefault()
+                                        }
+                                      }} 
+                                      onTouchMove={(e) => {
+                                        e.stopPropagation()
+                                        const target = e.currentTarget
+                                        const { scrollTop, scrollHeight, clientHeight } = target
+                                        const touch = e.touches[0]
+                                        const rect = target.getBoundingClientRect()
+                                        const isAtTop = scrollTop === 0 && touch.clientY > rect.top
+                                        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 && touch.clientY < rect.bottom
+                                        
+                                        if (isAtTop || isAtBottom) {
+                                          e.preventDefault()
+                                        }
+                                      }}
+                                    >
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleViewDetails(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <Eye size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('viewDetails')}</span>
+                                      </button>
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleEditOrder(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <Edit size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('editOrder')}</span>
+                                      </button>
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDownloadInvoice(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                      >
+                                        <FileText size={18} className="text-gray-500" />
+                                        <span className="text-sm font-medium">{t('downloadInvoice')}</span>
+                                      </button>
+                                      
+                                      <div className="border-t border-gray-200 my-2" />
+                                      
+                                      {order.status === 'Pending' && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleCancelOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                        >
+                                          <X size={18} />
+                                          <span className="text-sm font-medium">{t('cancelOrder')}</span>
+                                        </button>
+                                      )}
+                                      
+                                      {(order.status === 'Completed' || order.status === 'Pending') && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleRefundOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left"
+                                        >
+                                          <RefreshCw size={18} />
+                                          <span className="text-sm font-medium">{t('issueRefund')}</span>
+                                        </button>
+                                      )}
+                                      
+                                      <div className="border-t border-gray-200 my-2" />
+                                      
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDeleteOrder(order.id)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                      >
+                                        <Trash2 size={18} />
+                                        <span className="text-sm font-medium">{t('deleteOrder')}</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
 
                         {/* Details Grid */}

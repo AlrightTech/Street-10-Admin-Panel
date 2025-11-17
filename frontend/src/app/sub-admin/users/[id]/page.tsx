@@ -77,246 +77,146 @@ export default function UserDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-[45] bg-black bg-opacity-50 lg:hidden"
+        <div
+          className="fixed inset-0 z-[45] bg-black/50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
-      
-      <div className="hidden lg:flex h-screen overflow-hidden">
-        {!sidebarCollapsed && (
-          <div className="w-64 flex-shrink-0 bg-primary-500 h-screen overflow-y-auto">
-            <Sidebar onClose={() => setSidebarCollapsed(true)} currentPage="subAdminUsers" />
-          </div>
-        )}
-        
+
+      <div className="flex min-h-screen">
+        {/* Desktop sidebar */}
+        <div className="hidden lg:flex">
+          {!sidebarCollapsed && (
+            <div className="w-64 flex-shrink-0 bg-primary-500 min-h-screen overflow-y-auto">
+              <Sidebar onClose={() => setSidebarCollapsed(true)} currentPage="subAdminUsers" />
+            </div>
+          )}
+        </div>
+
         {sidebarCollapsed && (
           <button
             onClick={() => setSidebarCollapsed(false)}
-            className="fixed left-0 top-4 z-30 bg-primary-500 text-white p-2 rounded-r-lg hover:bg-primary-600 transition-colors"
+            className="hidden lg:flex fixed left-0 top-4 z-40 bg-primary-500 text-white p-2 rounded-r-lg hover:bg-primary-600 transition-colors"
             aria-label="Toggle sidebar"
           >
             <Menu size={24} />
           </button>
         )}
 
-        <div className={`flex-1 flex flex-col h-screen overflow-hidden bg-gray-50 ${sidebarCollapsed ? 'w-full' : ''}`}>
-          <div className="flex-shrink-0 sticky top-0 z-10 bg-white border-b border-gray-200">
-            <Header />
-          </div>
-          
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
-            {/* Breadcrumb */}
-            <div className="mb-4">
-              <button
-                onClick={() => router.push('/sub-admin/users')}
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-2"
-              >
-                <ArrowLeft size={16} />
-                <span>Back to Users</span>
-              </button>
-              <p className="text-sm text-gray-500">Dashboard &gt; Users</p>
-            </div>
-
-            {/* User Profile Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-              {/* Top Section - Profile and Interests */}
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-start justify-between">
-                  {/* Left Side - Profile Info */}
-                  <div className="flex items-start gap-4 flex-1">
-                    {/* Profile Picture */}
-                    <div className="relative">
-                      <img 
-                        src={mockUserData.profileImage} 
-                        alt={mockUserData.name}
-                        className="w-20 h-20 rounded-full object-cover border-4 border-orange-500"
-                      />
-                    </div>
-                    {/* User Info */}
-                    <div className="flex-1">
-                      <h1 className="text-2xl font-bold text-gray-900 mb-1">{mockUserData.name}</h1>
-                      <p className="text-sm text-gray-600 mb-1">@{mockUserData.username}</p>
-                      <p className="text-sm text-gray-600 mb-1">{mockUserData.email}</p>
-                      <p className="text-sm text-gray-600">{mockUserData.phone}</p>
-                    </div>
-                  </div>
-                  
-                  {/* Right Side - Interests */}
-                  <div className="ml-8 flex items-center gap-6">
-                    {/* Left - Text Content */}
-                    <div className="flex flex-col">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">Interests</h3>
-                      {mockUserData.interests.map((interest, idx) => (
-                        <span key={idx} className="text-lg text-gray-900 font-normal">
-                          {interest.name}
-                        </span>
-                      ))}
-                    </div>
-                    {/* Right - Visual Content */}
-                    <div className="flex-shrink-0">
-                      {mockUserData.interests.map((interest, idx) => (
-                        interest.image && (
-                          <img 
-                            key={idx}
-                            src={interest.image} 
-                            alt={interest.name}
-                            className="w-28 h-28 rounded-lg object-cover"
-                          />
-                        )
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Section - Statistics Table */}
-              <div className="p-6">
-                <div className="grid grid-cols-4 gap-6">
-                  {/* Orders Made */}
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">Orders Made</div>
-                    <div className="text-lg font-semibold text-gray-900">{mockUserData.orders}</div>
-                  </div>
-                  
-                  {/* Account Status */}
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">Account Status</div>
-                    <div>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-500 text-white">
-                        {mockUserData.status}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Number of bidding wins */}
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">Number of bidding wins</div>
-                    <div className="text-lg font-semibold text-gray-900">{mockUserData.biddingWins}</div>
-                  </div>
-                  
-                  {/* Action */}
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 uppercase mb-1">Action</div>
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <MoreVertical size={20} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Assign Role Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowAssignRoleModal(true)}
-                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
-              >
-                <UserPlus size={18} />
-                <span>Assign Role</span>
-              </button>
-            </div>
-          </main>
-        </div>
-      </div>
-
-      {/* Mobile Layout */}
-      <div className="lg:hidden">
-        {sidebarOpen && (
-          <div 
-            className="fixed inset-0 z-[45] bg-black bg-opacity-50 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-        
-        <div className={`
-          fixed inset-y-0 left-0 z-[60] w-64 transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}>
+        {/* Mobile sidebar */}
+        <div
+          className={`fixed inset-y-0 left-0 z-[60] w-64 transform border-r border-gray-200 bg-white shadow-lg transition-transform duration-300 ease-in-out lg:hidden ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
           <Sidebar onClose={() => setSidebarOpen(false)} currentPage="subAdminUsers" />
         </div>
 
-        <div className="flex-1 flex flex-col min-h-screen bg-gray-50 pt-20 lg:pt-0">
-          <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} isSidebarOpen={sidebarOpen} />
-          <main className="flex-1 overflow-x-hidden overflow-y-auto p-4">
-            <button
-              onClick={() => router.push('/sub-admin/users')}
-              className="flex items-center gap-2 text-xs text-gray-600 mb-2"
-            >
-              <ArrowLeft size={14} />
-              <span>Back to Users</span>
-            </button>
-            
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
-              <div className="p-4 border-b border-gray-200">
-                <div className="flex items-start gap-3">
-                  <img 
-                    src={mockUserData.profileImage} 
-                    alt={mockUserData.name}
-                    className="w-16 h-16 rounded-full object-cover border-4 border-orange-500 flex-shrink-0"
-                  />
-                  <div className="flex-1">
-                    <h1 className="text-lg font-bold text-gray-900 mb-1">{mockUserData.name}</h1>
-                    <p className="text-xs text-gray-600 mb-1">@{mockUserData.username}</p>
-                    <p className="text-xs text-gray-600 mb-1">{mockUserData.email}</p>
-                    <p className="text-xs text-gray-600">{mockUserData.phone}</p>
-                  </div>
-                  <div className="flex-shrink-0 flex items-center gap-3">
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-bold text-gray-900 mb-1">Interests</h3>
-                      {mockUserData.interests.map((interest, idx) => (
-                        <span key={idx} className="text-sm text-gray-900">
-                          {interest.name}
-                        </span>
-                      ))}
-                    </div>
-                    {mockUserData.interests.map((interest, idx) => (
-                      interest.image && (
-                        <img 
-                          key={idx}
-                          src={interest.image} 
-                          alt={interest.name}
-                          className="w-20 h-20 rounded-lg object-cover"
+        <div className="flex-1 flex flex-col bg-gray-50">
+          <div className="sticky top-0 z-30 lg:static">
+            <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} isSidebarOpen={sidebarOpen} />
+          </div>
+
+          <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-8 pt-24 sm:px-6 lg:px-10 lg:pt-6">
+            <div className="mx-auto w-full max-w-6xl space-y-6">
+              <div>
+                <button
+                  onClick={() => router.push('/sub-admin/users')}
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft size={16} />
+                  <span>Back to Users</span>
+                </button>
+                <p className="mt-1 text-xs text-gray-500 sm:text-sm">Dashboard &gt; Users</p>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex flex-col gap-6 border-b border-gray-200 p-4 sm:p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 lg:gap-6">
+                    <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                      <div className="relative flex-shrink-0">
+                        <img
+                          src={mockUserData.profileImage}
+                          alt={mockUserData.name}
+                          className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full object-cover border-4 border-orange-500"
                         />
-                      )
-                    ))}
+                      </div>
+                      <div className="flex-1 min-w-0 text-center sm:text-left">
+                        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1">
+                          {mockUserData.name}
+                        </h1>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1 break-all">@{mockUserData.username}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1 break-all">{mockUserData.email}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">{mockUserData.phone}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 lg:ml-8 lg:gap-6 lg:flex-shrink-0 w-full lg:w-auto">
+                      <div className="flex flex-col text-center sm:text-left">
+                        <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">Interests</h3>
+                        {mockUserData.interests.map((interest, idx) => (
+                          <span key={idx} className="text-sm sm:text-base lg:text-lg text-gray-900">
+                            {interest.name}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex justify-center sm:justify-start w-full sm:w-auto">
+                        {mockUserData.interests.map(
+                          (interest, idx) =>
+                            interest.image && (
+                              <img
+                                key={idx}
+                                src={interest.image}
+                                alt={interest.name}
+                                className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-lg object-cover"
+                              />
+                            )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 sm:p-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Orders Made</div>
+                      <div className="mt-1 text-lg font-semibold text-gray-900">{mockUserData.orders}</div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Account Status</div>
+                      <span className="mt-1 inline-flex items-center rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white">
+                        {mockUserData.status}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Bidding Wins</div>
+                      <div className="mt-1 text-lg font-semibold text-gray-900">{mockUserData.biddingWins}</div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium uppercase tracking-wide text-gray-500">Action</div>
+                      <button
+                        className="mt-1 text-gray-400 transition-colors hover:text-gray-600"
+                        aria-label="Open actions menu"
+                        title="Open actions menu"
+                      >
+                        <MoreVertical size={20} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="p-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Orders Made</div>
-                    <div className="text-base font-semibold">{mockUserData.orders}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Status</div>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-500 text-white">
-                      {mockUserData.status}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Bidding Wins</div>
-                    <div className="text-base font-semibold">{mockUserData.biddingWins}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Action</div>
-                    <button className="text-gray-400">
-                      <MoreVertical size={18} />
-                    </button>
-                  </div>
-                </div>
+
+              <div className="flex flex-col gap-3 border-t border-gray-200 p-4 sm:flex-row sm:justify-end sm:p-6">
+                <button
+                  onClick={() => setShowAssignRoleModal(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-orange-600 sm:w-auto"
+                >
+                  <UserPlus size={18} />
+                  <span>Assign Role</span>
+                </button>
               </div>
             </div>
-
-            <button
-              onClick={() => setShowAssignRoleModal(true)}
-              className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg text-sm flex items-center justify-center gap-2"
-            >
-              <UserPlus size={16} />
-              <span>Assign Role</span>
-            </button>
           </main>
         </div>
       </div>

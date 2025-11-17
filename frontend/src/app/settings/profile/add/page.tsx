@@ -58,22 +58,21 @@ export default function AddSubVendorPage() {
   const [showPasswordSetup, setShowPasswordSetup] = useState(false)
   const [showConfirmPasswordSetup, setShowConfirmPasswordSetup] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSubmitError(null)
     setBasicInfo({
       ...basicInfo,
       [e.target.name]: e.target.value
     })
   }
 
-  const handlePasswordSetupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPasswordSetup({
-      ...passwordSetup,
-      [e.target.name]: e.target.value === 'sendInviteLink' ? !passwordSetup.sendInviteLink : e.target.value
-    })
-  }
-
   const togglePermission = (permissionKey: string) => {
+    setSubmitError(null)
     setPermissions({
       ...permissions,
       [permissionKey]: !permissions[permissionKey]
@@ -81,6 +80,7 @@ export default function AddSubVendorPage() {
   }
 
   const toggleGroup = (groupKey: string) => {
+    setSubmitError(null)
     setExpandedGroups({
       ...expandedGroups,
       [groupKey]: !expandedGroups[groupKey]
@@ -88,6 +88,7 @@ export default function AddSubVendorPage() {
   }
 
   const toggleSelectAll = (groupKey: string, permissionKeys: string[]) => {
+    setSubmitError(null)
     const newSelectAll = !selectAllGroups[groupKey]
     setSelectAllGroups({
       ...selectAllGroups,
@@ -114,20 +115,92 @@ export default function AddSubVendorPage() {
   }
 
   const nextStep = () => {
+    setSubmitError(null)
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1)
     }
   }
 
   const previousStep = () => {
+    setSubmitError(null)
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
   }
 
-  const handleInviteUser = () => {
-    // Handle form submission
-    setShowSuccessModal(true)
+  const handleInviteUser = async () => {
+    setSubmitError(null)
+
+    const trimmedName = basicInfo.fullName.trim()
+    const trimmedEmail = basicInfo.email.trim()
+
+    if (!trimmedName) {
+      setSubmitError('Full name is required')
+      setCurrentStep(1)
+      return
+    }
+
+    if (!trimmedEmail) {
+      setSubmitError('Email is required')
+      setCurrentStep(1)
+      return
+    }
+
+    const passwordCandidate = passwordSetup.password || basicInfo.password
+    const confirmPasswordCandidate = passwordSetup.password
+      ? passwordSetup.confirmPassword
+      : basicInfo.confirmPassword
+
+    if (!passwordCandidate) {
+      setSubmitError('Password is required')
+      setCurrentStep(1)
+      return
+    }
+
+    if (passwordCandidate !== confirmPasswordCandidate) {
+      setSubmitError('Passwords do not match')
+      setCurrentStep(1)
+      return
+    }
+
+    if (!selectedRole) {
+      setSubmitError('Please select a role before inviting the user')
+      setCurrentStep(2)
+      return
+    }
+
+    const payload = {
+      fullName: trimmedName,
+      email: trimmedEmail,
+      password: passwordCandidate,
+      status: basicInfo.status,
+      role: selectedRole,
+      permissions
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/sub-admin/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.message || 'Failed to create vendor user')
+      }
+
+      setShowSuccessModal(true)
+    } catch (error) {
+      console.error('Failed to invite user:', error)
+      setSubmitError(error instanceof Error ? error.message : 'Failed to invite user. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleCloseSuccessModal = () => {
@@ -574,6 +647,12 @@ export default function AddSubVendorPage() {
                       )}
                     </div>
 
+                    {submitError && (
+                      <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-2">
+                        {submitError}
+                      </p>
+                    )}
+
                     <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 mt-6 md:mt-8">
                       <button
                         onClick={previousStep}
@@ -583,9 +662,14 @@ export default function AddSubVendorPage() {
                       </button>
                       <button
                         onClick={handleInviteUser}
-                        className="w-full sm:w-auto px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                        disabled={isSubmitting}
+                        className={`w-full sm:w-auto px-6 py-2 rounded-lg transition-colors ${
+                          isSubmitting
+                            ? 'bg-orange-400 text-white cursor-not-allowed opacity-70'
+                            : 'bg-orange-500 text-white hover:bg-orange-600'
+                        }`}
                       >
-                        Invite User
+                        {isSubmitting ? 'Inviting...' : 'Invite User'}
                       </button>
                     </div>
                   </div>
@@ -1025,6 +1109,12 @@ export default function AddSubVendorPage() {
                   )}
                 </div>
 
+                {submitError && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-2">
+                    {submitError}
+                  </p>
+                )}
+
                 <div className="flex flex-col gap-3 mt-6">
                   <button
                     onClick={previousStep}
@@ -1034,9 +1124,14 @@ export default function AddSubVendorPage() {
                   </button>
                   <button
                     onClick={handleInviteUser}
-                    className="w-full px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                    disabled={isSubmitting}
+                    className={`w-full px-6 py-2 rounded-lg transition-colors ${
+                      isSubmitting
+                        ? 'bg-orange-400 text-white cursor-not-allowed opacity-70'
+                        : 'bg-orange-500 text-white hover:bg-orange-600'
+                    }`}
                   >
-                    Invite User
+                    {isSubmitting ? 'Inviting...' : 'Invite User'}
                   </button>
                 </div>
               </div>

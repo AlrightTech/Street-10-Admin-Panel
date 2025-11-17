@@ -1,8 +1,11 @@
 'use client'
 
-import { Search, Bell, ChevronDown, Menu, X } from 'lucide-react'
+import { Search, Bell, ChevronDown, Menu, X, Package, Truck, Star, AlertTriangle, RefreshCcw, DollarSign, Loader2, User, Settings, LogOut, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useRole } from '@/contexts/RoleContext'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface HeaderProps {
   onToggleSidebar?: () => void
@@ -11,8 +14,17 @@ interface HeaderProps {
 
 export default function Header({ onToggleSidebar, isSidebarOpen = false }: HeaderProps) {
   const { language, changeLanguage, t } = useLanguage()
+  const { setRole } = useRole()
+  const router = useRouter()
   const [showLangDropdown, setShowLangDropdown] = useState(false)
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<'all' | 'orders' | 'payouts' | 'system'>('all')
+  const [displayCount, setDisplayCount] = useState(6)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set())
+  const [clearedNotifications, setClearedNotifications] = useState<Set<string>>(new Set())
 
   const languages = [
     { code: 'ar', name: 'Arabic', flag: '🇶🇦' },
@@ -24,6 +36,85 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
   const handleLanguageChange = (lang: Language) => {
     changeLanguage(lang.code)
     setShowLangDropdown(false)
+  }
+
+  const allNotifications = [
+    { id: '1', icon: Package, title: 'New order received', desc: 'Order #10425 has been placed by Sarah Johnson. Total amount: $129.99', tags: [{t:'New Order',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '2 minutes ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '2', icon: DollarSign, title: 'Withdrawal completed', desc: 'Your withdrawal request of $560.00 has been processed successfully to your bank account ending in 4567.', tags: [{t:'Payout',c:'bg-blue-100 text-blue-700'}], links: ['View Transaction'], time: '1 day ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+    { id: '3', icon: RefreshCcw, title: 'Refund policy updated', desc: 'Your refund policy has been successfully updated. The new policy will take effect immediately for all new orders.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['View Policy'], time: '5 days ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '4', icon: Truck, title: 'Order shipped', desc: 'Order #10198 has been shipped via FedEx. Tracking number: IZ999AA1234567890. Expected delivery: Jan 28, 2025', tags: [{t:'Order Update',c:'bg-orange-100 text-orange-700'}], links: ['Track Package'], time: '1 week ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '5', icon: AlertTriangle, title: 'Low stock alert', desc: 'Product "Wireless Bluetooth Headphones" is running low on stock. Only 3 units remaining. Consider restocking soon.', tags: [{t:'Stock Alert',c:'bg-red-100 text-red-700'}], links: ['Restock Now'], time: '1 week ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '6', icon: Star, title: 'New 5-star review', desc: 'Michael Davis left a 5-star review for "Premium Coffee Beans": "Excellent quality and fast shipping. Highly recommended!"', tags: [{t:'Review',c:'bg-yellow-100 text-yellow-700'}], links: ['View Review'], time: '2 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '7', icon: Package, title: 'Order #10420 delivered', desc: 'Order #10420 has been successfully delivered to John Smith. Customer confirmed receipt.', tags: [{t:'Order Delivered',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '2 weeks ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '8', icon: DollarSign, title: 'Payment received', desc: 'Payment of $89.50 has been received for Order #10418. Funds will be available in 2-3 business days.', tags: [{t:'Payment',c:'bg-blue-100 text-blue-700'}], links: ['View Transaction'], time: '3 weeks ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+    { id: '9', icon: RefreshCcw, title: 'System maintenance scheduled', desc: 'Scheduled maintenance will occur on January 30, 2025 from 2:00 AM to 4:00 AM EST. Some features may be temporarily unavailable.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['Learn More'], time: '3 weeks ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '10', icon: Truck, title: 'Order #10415 out for delivery', desc: 'Order #10415 is out for delivery. Expected to arrive today between 10:00 AM and 2:00 PM.', tags: [{t:'Order Update',c:'bg-orange-100 text-orange-700'}], links: ['Track Package'], time: '3 weeks ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '11', icon: AlertTriangle, title: 'Product review pending', desc: 'Order #10412 has been completed. Remind customer to leave a review to improve your store rating.', tags: [{t:'Review Request',c:'bg-yellow-100 text-yellow-700'}], links: ['Send Reminder'], time: '4 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '12', icon: Star, title: 'New 4-star review', desc: 'Emily Wilson left a 4-star review for "Organic Tea Collection": "Great product, fast delivery. Would order again!"', tags: [{t:'Review',c:'bg-yellow-100 text-yellow-700'}], links: ['View Review'], time: '4 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '13', icon: Package, title: 'Bulk order received', desc: 'A bulk order of 50 units has been placed for "Premium Coffee Beans" by Corporate Client Inc.', tags: [{t:'Bulk Order',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '1 month ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '14', icon: DollarSign, title: 'Monthly payout processed', desc: 'Your monthly payout of $2,450.00 has been processed and transferred to your bank account.', tags: [{t:'Payout',c:'bg-blue-100 text-blue-700'}], links: ['View Statement'], time: '1 month ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+    { id: '15', icon: RefreshCcw, title: 'New feature available', desc: 'We\'ve added a new analytics dashboard feature. Check it out to get better insights into your sales performance.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['Explore Feature'], time: '1 month ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '16', icon: Truck, title: 'Order #10405 returned', desc: 'Order #10405 has been returned by the customer. Reason: Item not as described. Refund will be processed within 5-7 business days.', tags: [{t:'Return',c:'bg-red-100 text-red-700'}], links: ['Process Refund'], time: '1 month ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '17', icon: AlertTriangle, title: 'Inventory sync completed', desc: 'Your inventory has been successfully synced with all sales channels. All product quantities are up to date.', tags: [{t:'Inventory',c:'bg-blue-100 text-blue-700'}], links: ['View Inventory'], time: '1 month ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '18', icon: Star, title: 'Store rating improved', desc: 'Your store rating has improved to 4.8 stars! Keep up the great work with excellent customer service.', tags: [{t:'Achievement',c:'bg-green-100 text-green-700'}], links: ['View Ratings'], time: '2 months ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+  ]
+
+  // Filter out cleared notifications and apply active filter
+  const filteredNotifications = allNotifications
+    .filter((n) => !clearedNotifications.has(n.id))
+    .filter((n) => activeFilter === 'all' || n.type === activeFilter)
+  
+  const displayedNotifications = filteredNotifications.slice(0, displayCount)
+  const hasMoreNotifications = displayCount < filteredNotifications.length
+
+  // Count unread notifications (not cleared and not read)
+  const unreadCount = allNotifications.filter(
+    (n) => !clearedNotifications.has(n.id) && !readNotifications.has(n.id)
+  ).length
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true)
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 800))
+    setDisplayCount(prev => prev + 6)
+    setIsLoadingMore(false)
+  }
+
+  // Reset display count when filter changes
+  const handleFilterChange = (filter: 'all' | 'orders' | 'payouts' | 'system') => {
+    setActiveFilter(filter)
+    setDisplayCount(6)
+  }
+
+  // Mark all notifications as read
+  const handleMarkAllAsRead = () => {
+    const allNotificationIds = filteredNotifications.map(n => n.id)
+    setReadNotifications(prev => {
+      const newSet = new Set(prev)
+      allNotificationIds.forEach(id => newSet.add(id))
+      return newSet
+    })
+  }
+
+  // Clear all notifications
+  const handleClearAll = () => {
+    const allNotificationIds = filteredNotifications.map(n => n.id)
+    setClearedNotifications(prev => {
+      const newSet = new Set(prev)
+      allNotificationIds.forEach(id => newSet.add(id))
+      return newSet
+    })
+    // Reset display count after clearing
+    setDisplayCount(6)
+  }
+
+  // Handle logout
+  const handleLogout = () => {
+    // Clear role from localStorage
+    setRole(null)
+    // Navigate to role-select page
+    router.push('/select-role')
+    setShowProfileDropdown(false)
   }
 
   return (
@@ -108,22 +199,269 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
           </div>
 
           {/* Notifications */}
-          <div className="relative cursor-pointer">
-            <button className="w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm" aria-label="Notifications">
+          <div className="relative">
+            <button 
+              onClick={() => {
+                setShowNotifications(!showNotifications)
+                setShowProfileDropdown(false)
+              }}
+              className="w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm relative" 
+              aria-label="Notifications"
+            >
               <Bell size={20} className="text-gray-600" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                  <span className="text-white text-xs font-bold">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                </span>
+              )}
             </button>
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-              <span className="text-white text-xs font-bold">34</span>
-            </span>
+
+            {/* Notifications Panel */}
+            {showNotifications && (
+              <>
+                {/* Backdrop */}
+                <div 
+                  className="fixed inset-0 z-40 bg-black/50 lg:bg-transparent"
+                  onClick={() => setShowNotifications(false)}
+                />
+                
+                {/* Notifications Panel - Mobile: Full Screen, Desktop: Dropdown */}
+                <div className="fixed inset-0 lg:absolute lg:inset-auto lg:right-0 lg:top-full lg:mt-2 z-50 lg:z-50 bg-white lg:rounded-lg lg:shadow-xl lg:border lg:border-gray-200 lg:w-[420px] lg:max-h-[600px] flex flex-col">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white lg:bg-white sticky top-0 z-10">
+                    <h2 className="text-lg font-semibold text-gray-900">{t('notifications')}</h2>
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+                      aria-label="Close notifications"
+                    >
+                      <X size={20} className="text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Filters */}
+                  <div className="p-3 border-b border-gray-200 bg-gray-50 sticky top-[57px] z-10">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                      <button 
+                        onClick={() => handleFilterChange('all')}
+                        className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                          activeFilter === 'all' 
+                            ? 'bg-[#5C50AE] text-white' 
+                            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        {t('all')}
+                      </button>
+                      <button 
+                        onClick={() => handleFilterChange('orders')}
+                        className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                          activeFilter === 'orders' 
+                            ? 'bg-[#5C50AE] text-white' 
+                            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        {t('orders')}
+                      </button>
+                      <button 
+                        onClick={() => handleFilterChange('payouts')}
+                        className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                          activeFilter === 'payouts' 
+                            ? 'bg-[#5C50AE] text-white' 
+                            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        {language === 'ar' ? 'المدفوعات' : 'Payouts'}
+                      </button>
+                      <button 
+                        onClick={() => handleFilterChange('system')}
+                        className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                          activeFilter === 'system' 
+                            ? 'bg-[#5C50AE] text-white' 
+                            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        {language === 'ar' ? 'النظام' : 'System'}
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+                      <button 
+                        onClick={handleMarkAllAsRead}
+                        disabled={filteredNotifications.length === 0 || filteredNotifications.every(n => readNotifications.has(n.id))}
+                        className="text-xs text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {language === 'ar' ? 'تعليم الكل كمقروء' : 'Mark all as read'}
+                      </button>
+                      <span className="h-3 w-px bg-gray-300" />
+                      <button 
+                        onClick={handleClearAll}
+                        disabled={filteredNotifications.length === 0}
+                        className="text-xs text-red-500 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {language === 'ar' ? 'مسح الكل' : 'Clear all'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Notifications List */}
+                  <div className="flex-1 overflow-y-auto">
+                    {displayedNotifications.length > 0 ? (
+                      displayedNotifications.map((n, idx) => {
+                        const isRead = readNotifications.has(n.id)
+                        return (
+                          <div key={n.id} className={`flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors ${idx !== displayedNotifications.length - 1 ? 'border-b border-gray-100' : ''} ${isRead ? 'opacity-75' : ''}`}>
+                            <div className={`w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 ${n.color}`}>
+                              <n.icon size={18} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <h3 className={`text-sm font-semibold ${isRead ? 'text-gray-600' : 'text-gray-900'}`}>{n.title}</h3>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <span className="text-[11px] text-gray-500 whitespace-nowrap">{n.time}</span>
+                                  {!isRead && <span className={`h-1.5 w-1.5 rounded-full ${n.dot}`} />}
+                                </div>
+                              </div>
+                            <p className="text-sm text-gray-600 mt-1 break-words">{n.desc}</p>
+                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                              {n.tags.map((tag) => (
+                                <span key={tag.t} className={`px-2 py-0.5 rounded-md text-[11px] ${tag.c} border border-gray-200`}>{tag.t}</span>
+                              ))}
+                              {n.links.map((a) => (
+                                <button key={a} className="text-xs text-orange-600 hover:underline whitespace-nowrap">{a}</button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                    ) : (
+                      <div className="p-8 text-center">
+                        <Bell size={48} className="mx-auto text-gray-300 mb-3" />
+                        <p className="text-sm text-gray-500">{language === 'ar' ? 'لم يتم العثور على إشعارات' : 'No notifications found'}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  {hasMoreNotifications && (
+                    <div className="p-4 border-t border-gray-200 bg-white sticky bottom-0">
+                      <button 
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        className="w-full px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoadingMore ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            {language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
+                          </>
+                        ) : (
+                          <>
+                            <Bell size={16} />
+                            {language === 'ar' ? 'تحميل المزيد من الإشعارات' : 'Load More Notifications'}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           {/* User Profile */}
-          <div className="cursor-pointer">
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowProfileDropdown(!showProfileDropdown)
+                setShowNotifications(false)
+              }}
+              className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-full"
+              aria-label="User profile menu"
+            >
             <img 
               src="https://ui-avatars.com/api/?name=abdulamin&size=40&background=random" 
               alt="User" 
-              className="w-10 h-10 rounded-full object-cover border-2 border-gray-300 shadow-sm"
-            />
+                className="w-10 h-10 rounded-full object-cover border-2 border-gray-300 shadow-sm hover:border-primary-500 transition-colors"
+              />
+            </button>
+
+            {/* Profile Dropdown Menu */}
+            {showProfileDropdown && (
+              <>
+                {/* Backdrop */}
+                <div 
+                  className="fixed inset-0 z-40 bg-black/50 lg:bg-transparent"
+                  onClick={() => setShowProfileDropdown(false)}
+                />
+                
+                {/* Profile Dropdown - Mobile: Full Screen, Desktop: Dropdown */}
+                <div className="fixed inset-0 lg:absolute lg:inset-auto lg:right-0 lg:top-full lg:mt-2 z-50 lg:z-50 bg-white lg:rounded-lg lg:shadow-xl lg:border lg:border-gray-200 lg:w-64 flex flex-col">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 p-4 border-b border-gray-200 bg-white lg:bg-white">
+                    <img 
+                      src="https://ui-avatars.com/api/?name=abdulamin&size=48&background=random" 
+                      alt="User" 
+                      className="w-12 h-12 rounded-full object-cover border-2 border-gray-300"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-gray-900 truncate">Abdul Amin</h3>
+                      <p className="text-xs text-gray-500 truncate">admin@example.com</p>
+                    </div>
+                    <button
+                      onClick={() => setShowProfileDropdown(false)}
+                      className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+                      aria-label="Close profile menu"
+                    >
+                      <X size={20} className="text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="flex-1 overflow-y-auto py-2">
+                    <Link
+                      href="/settings/profile"
+                      onClick={() => setShowProfileDropdown(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
+                    >
+                      <User size={18} className="text-gray-500" />
+                      <span className="text-sm font-medium">{language === 'ar' ? 'ملفي الشخصي' : 'My Profile'}</span>
+                    </Link>
+                    
+                    <Link
+                      href="/settings/store"
+                      onClick={() => setShowProfileDropdown(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
+                    >
+                      <Settings size={18} className="text-gray-500" />
+                      <span className="text-sm font-medium">{t('settings')}</span>
+                    </Link>
+                    
+                    <div className="border-t border-gray-200 my-2" />
+                    
+                    <button
+                      onClick={() => {
+                        setShowProfileDropdown(false)
+                        // Add help/support action
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
+                    >
+                      <HelpCircle size={18} className="text-gray-500" />
+                      <span className="text-sm font-medium">{language === 'ar' ? 'المساعدة والدعم' : 'Help & Support'}</span>
+                    </button>
+                    
+                    <div className="border-t border-gray-200 my-2" />
+                    
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600"
+                    >
+                      <LogOut size={18} />
+                      <span className="text-sm font-medium">{t('logout')}</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

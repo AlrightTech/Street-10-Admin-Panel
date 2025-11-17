@@ -5,11 +5,13 @@ import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Menu, Upload, X, ChevronDown } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function EditProductPage() {
   const router = useRouter()
   const params = useParams()
   const productId = params?.id as string
+  const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
@@ -50,7 +52,7 @@ export default function EditProductPage() {
   }
 
   const handleSave = () => {
-    alert('Product saved!')
+    alert(language === 'ar' ? 'تم حفظ المنتج!' : 'Product saved!')
     router.push(`/products/${productId}`)
   }
 
@@ -110,18 +112,18 @@ export default function EditProductPage() {
             <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
               {/* Header */}
               <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">All Products</h1>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard <span className="font-semibold text-gray-700">/ Edit Product</span></p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('allProducts')}</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} <span className="font-semibold text-gray-700">/ {t('editProduct')}</span></p>
               </div>
 
               {/* Form */}
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
                 {/* Product Details */}
                 <div className="space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Product Details</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('productDetails')}</h2>
                   
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Title</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('productTitle')}</label>
                     <input
                       name="title"
                       type="text"
@@ -133,7 +135,7 @@ export default function EditProductPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Category</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('category')}</label>
                       <div className="relative">
                         <select
                           name="category"
@@ -141,16 +143,16 @@ export default function EditProductPage() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
                         >
-                          <option>Electronic</option>
-                          <option>Clothing</option>
-                          <option>Sports</option>
-                          <option>Home & Garden</option>
+                          <option>{language === 'ar' ? 'إلكترونيات' : 'Electronic'}</option>
+                          <option>{language === 'ar' ? 'ملابس' : 'Clothing'}</option>
+                          <option>{language === 'ar' ? 'رياضة' : 'Sports'}</option>
+                          <option>{language === 'ar' ? 'المنزل والحديقة' : 'Home & Garden'}</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Condition</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('condition')}</label>
                       <div className="relative">
                         <select
                           name="condition"
@@ -158,10 +160,10 @@ export default function EditProductPage() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
                         >
-                          <option>Excellent</option>
-                          <option>Good</option>
-                          <option>Fair</option>
-                          <option>Poor</option>
+                          <option>{language === 'ar' ? 'ممتاز' : 'Excellent'}</option>
+                          <option>{language === 'ar' ? 'جيد' : 'Good'}</option>
+                          <option>{language === 'ar' ? 'متوسط' : 'Fair'}</option>
+                          <option>{language === 'ar' ? 'ضعيف' : 'Poor'}</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                       </div>
@@ -169,7 +171,7 @@ export default function EditProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product Description</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('productDescription')}</label>
                     <textarea
                       name="description"
                       value={formData.description}
@@ -181,7 +183,7 @@ export default function EditProductPage() {
 
                   {/* Product Images */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">{t('productImages')}</label>
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                       {[1, 2, 3].map((index) => (
                         <div key={index} className="relative w-20 h-20 sm:w-24 sm:h-24">
@@ -196,7 +198,7 @@ export default function EditProductPage() {
                           >
                             <X size={10} />
                           </button>
-                          <p className="text-xs text-center text-gray-400 mt-1">Replace</p>
+                          <p className="text-xs text-center text-gray-400 mt-1">{t('replace')}</p>
                       </div>
                       ))}
                     </div>
@@ -204,7 +206,7 @@ export default function EditProductPage() {
 
                   {/* Document */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Document</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">{t('document')}</label>
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                       {[1, 2].map((index) => (
                         <div key={index} className="flex flex-col">
@@ -212,7 +214,7 @@ export default function EditProductPage() {
                             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                             </svg>
-                            <span className="text-xs sm:text-sm text-gray-700 truncate">Document</span>
+                            <span className="text-xs sm:text-sm text-gray-700 truncate">{t('document')}</span>
                             <button
                               className="ml-auto w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors flex-shrink-0"
                               aria-label="Delete document"
@@ -220,7 +222,7 @@ export default function EditProductPage() {
                               <X size={10} />
                             </button>
                           </div>
-                          <p className="text-xs text-center text-gray-400 mt-1">Replace</p>
+                          <p className="text-xs text-center text-gray-400 mt-1">{t('replace')}</p>
                         </div>
                       ))}
                     </div>
@@ -229,10 +231,10 @@ export default function EditProductPage() {
 
                 {/* SEO & Marketing */}
                 <div className="border-t pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">SEO & Marketing</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('seoMarketing')}</h2>
                   
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Meta Title</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('metaTitle')}</label>
                     <input
                       name="metaTitle"
                       type="text"
@@ -243,7 +245,7 @@ export default function EditProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('metaDescription')}</label>
                     <input
                       name="metaDescription"
                       type="text"
@@ -254,7 +256,7 @@ export default function EditProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Product URL Slug</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('productUrlSlug')}</label>
                     <input
                       name="sku"
                       type="text"
@@ -267,10 +269,10 @@ export default function EditProductPage() {
 
                 {/* Pricing & Stock */}
                 <div className="border-t pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Pricing & Stock</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('pricingStock')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('price')} ($)</label>
                       <input
                         name="price"
                         type="text"
@@ -280,7 +282,7 @@ export default function EditProductPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Discount Price ($)</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('discountPrice')} ($)</label>
                       <input
                         name="discountPrice"
                         type="text"
@@ -290,7 +292,7 @@ export default function EditProductPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('stockQuantity')}</label>
                       <input
                         name="stockQuantity"
                         type="text"
@@ -304,10 +306,10 @@ export default function EditProductPage() {
 
                 {/* Additional Information */}
                 <div className="border-t pt-4 sm:pt-6 space-y-3 sm:space-y-4">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Additional Information</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('additionalInformation')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Brand</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('brand')}</label>
                       <input
                         name="brand"
                         type="text"
@@ -317,7 +319,7 @@ export default function EditProductPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Weight</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('weight')}</label>
                       <input
                         name="weight"
                         type="text"
@@ -327,7 +329,7 @@ export default function EditProductPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Dimensions</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('dimensions')}</label>
                       <input
                         name="dimensions"
                         type="text"
@@ -341,18 +343,18 @@ export default function EditProductPage() {
 
                 {/* Variant Combinations */}
                 <div className="border-t pt-4 sm:pt-6">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Variant Combinations</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">{t('variantCombinations')}</h2>
                   
                   {/* Desktop Table View */}
                   <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">Variant</th>
-                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">Price</th>
-                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">SKU / Code</th>
-                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">Stock Quantity</th>
-                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">Image</th>
+                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">{t('variant')}</th>
+                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">{t('price')}</th>
+                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">{t('skuCode')}</th>
+                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">{t('stockQuantity')}</th>
+                          <th className="px-3 py-2 text-left text-xs sm:text-sm font-medium text-gray-700">{t('image')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -401,7 +403,7 @@ export default function EditProductPage() {
                                 >
                                   <Upload size={12} />
                               </button>
-                                <p className="text-xs text-gray-400 mt-1">Replace</p>
+                                <p className="text-xs text-gray-400 mt-1">{t('replace')}</p>
                               </div>
                             </td>
                           </tr>
@@ -431,12 +433,12 @@ export default function EditProductPage() {
                             >
                               <Upload size={10} />
                             </button>
-                            <p className="text-xs text-gray-400 mt-1">Replace</p>
+                            <p className="text-xs text-gray-400 mt-1">{t('replace')}</p>
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs text-gray-600 mb-1">Price</label>
+                            <label className="block text-xs text-gray-600 mb-1">{t('price')}</label>
                             <input
                               type="text"
                               value={variant.price}
@@ -445,7 +447,7 @@ export default function EditProductPage() {
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-600 mb-1">Stock</label>
+                            <label className="block text-xs text-gray-600 mb-1">{t('stock')}</label>
                             <input
                               type="text"
                               value={variant.stock}
@@ -455,7 +457,7 @@ export default function EditProductPage() {
                           </div>
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-600 mb-1">SKU / Code</label>
+                          <label className="block text-xs text-gray-600 mb-1">{t('skuCode')}</label>
                           <input
                             type="text"
                             value={variant.sku}
@@ -474,13 +476,13 @@ export default function EditProductPage() {
                     onClick={handleCancel}
                     className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm sm:text-base"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     onClick={handleSave}
                     className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm sm:text-base"
                   >
-                    Save Changes
+                    {t('saveChanges')}
                   </button>
                 </div>
               </div>
