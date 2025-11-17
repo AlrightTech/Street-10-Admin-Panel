@@ -2,16 +2,18 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Download, Printer, Mail, Phone, Globe, Laptop, Mouse, Shield } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function InvoicePage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  const invoice = {
+  const rawInvoice = {
     invoiceNo: 'INV-2024-00047',
     date: 'September 20, 2024',
     dueDate: 'October 20, 2024',
@@ -52,6 +54,25 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
     }
   }
 
+  // Translate invoice data
+  const invoice = useMemo(() => {
+    if (language === 'ar') {
+      return {
+        ...rawInvoice,
+        company: {
+          ...rawInvoice.company,
+          tagline: t('premiumElectronics'),
+          country: t('unitedStates')
+        },
+        customer: {
+          ...rawInvoice.customer,
+          country: t('unitedStates')
+        }
+      }
+    }
+    return rawInvoice
+  }, [rawInvoice, language, t])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="hidden lg:flex h-screen overflow-hidden">
@@ -80,7 +101,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
             <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
               {/* Header */}
               <div>
-                <p className="text-xs sm:text-sm text-gray-500">Dashboard &gt; Order Details</p>
+                <p className="text-xs sm:text-sm text-gray-500">{t('dashboard')} &gt; {t('orderDetails')}</p>
               </div>
 
               {/* Invoice Card */}
@@ -97,11 +118,11 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                   <div className="text-left sm:text-right">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">INVOICE</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('invoice')}</h1>
                     <div className="text-xs sm:text-sm text-gray-600 mt-2 space-y-1">
-                      <p>Invoice #: {invoice.invoiceNo}</p>
-                      <p>Date: {invoice.date}</p>
-                      <p>Due Date: {invoice.dueDate}</p>
+                      <p>{t('invoiceNumber')}: {invoice.invoiceNo}</p>
+                      <p>{t('invoiceDate')}: {invoice.date}</p>
+                      <p>{t('dueDate')}: {invoice.dueDate}</p>
                     </div>
                   </div>
                 </div>
@@ -109,7 +130,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                 {/* From & To */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">From</h3>
+                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">{t('from')}</h3>
                     <p className="text-sm sm:text-base font-bold text-gray-900">{invoice.company.name}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.company.address}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.company.city}</p>
@@ -130,7 +151,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">To</h3>
+                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">{t('to')}</h3>
                     <p className="text-sm sm:text-base font-bold text-gray-900">{invoice.customer.name}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.customer.address}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.customer.city}</p>
@@ -150,7 +171,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
 
                 {/* Order Details Table */}
                 <div className="mb-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Order Details</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">{t('orderDetails')}</h3>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
@@ -194,23 +215,23 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                 <div className="flex justify-end mb-6 sm:mb-8">
                   <div className="w-full sm:w-64 space-y-2">
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="text-gray-600">{t('subtotal')}:</span>
                       <span className="text-gray-900">{invoice.summary.subtotal}</span>
                     </div>
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Shipping:</span>
+                      <span className="text-gray-600">{t('shipping')}:</span>
                       <span className="text-gray-900">{invoice.summary.shipping}</span>
                     </div>
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Tax (8.5%):</span>
+                      <span className="text-gray-600">{t('tax')} (8.5%):</span>
                       <span className="text-gray-900">{invoice.summary.tax}</span>
                     </div>
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Discount (5%):</span>
+                      <span className="text-gray-600">{t('discount')} (5%):</span>
                       <span className="text-red-600">{invoice.summary.discount}</span>
                     </div>
                     <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-gray-200">
-                      <span className="text-gray-900">Total:</span>
+                      <span className="text-gray-900">{t('total')}:</span>
                       <span className="text-gray-900">{invoice.summary.total}</span>
                     </div>
                   </div>
@@ -219,7 +240,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                 {/* Payment Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Payment Method</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('paymentMethod')}</h4>
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded flex-shrink-0"></div>
                       <div className="min-w-0">
@@ -229,33 +250,33 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Payment Status</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('status')}</h4>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex-shrink-0"></div>
-                      <p className="text-xs sm:text-sm font-medium text-gray-900">Paid</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900">{t('paid')}</p>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1 break-all">Transaction ID: {invoice.payment.transactionId}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1 break-all">{t('transactionId')}: {invoice.payment.transactionId}</p>
                   </div>
                 </div>
 
                 {/* Thank You Message */}
                 <div className="text-center mb-4 sm:mb-6">
-                  <p className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2">Thank you for shopping with us!</p>
-                  <p className="text-xs sm:text-sm text-gray-600">We appreciate your business and hope you enjoy your purchase.</p>
+                  <p className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2">{t('thankYouShopping')}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('appreciateBusiness')}</p>
                 </div>
 
                 {/* Terms & Support */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-4 sm:pt-6 border-t border-gray-200">
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Terms & Conditions</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('termsConditions')}</h4>
                     <p className="text-xs sm:text-sm text-gray-600">
-                      Payment is due within 30 days. Late payments may incur additional charges. All sales are final unless otherwise specified.
+                      {t('paymentDue')}
                     </p>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Support Contact</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('supportContact')}</h4>
                     <p className="text-xs sm:text-sm text-gray-600 break-words">
-                      For any questions or concerns, please contact our support team at support@techmart.com or call +1 (555) 123-4567.
+                      {t('supportMessage')}
                     </p>
                   </div>
                 </div>
@@ -265,11 +286,11 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-end gap-2 sm:gap-3">
                 <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-sm sm:text-base">
                   <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  Download PDF
+                  {t('downloadPdf')}
                 </button>
                 <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-sm sm:text-base">
                   <Printer size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  Print Invoice
+                  {t('printInvoice')}
                 </button>
               </div>
             </div>
@@ -301,7 +322,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
             <div className="max-w-full mx-auto space-y-4 sm:space-y-6">
               {/* Header */}
               <div>
-                <p className="text-xs sm:text-sm text-gray-500">Dashboard &gt; Order Details</p>
+                <p className="text-xs sm:text-sm text-gray-500">{t('dashboard')} &gt; {t('orderDetails')}</p>
               </div>
 
               {/* Invoice Card */}
@@ -318,11 +339,11 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                   <div className="text-left sm:text-right">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">INVOICE</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('invoice')}</h1>
                     <div className="text-xs sm:text-sm text-gray-600 mt-2 space-y-1">
-                      <p>Invoice #: {invoice.invoiceNo}</p>
-                      <p>Date: {invoice.date}</p>
-                      <p>Due Date: {invoice.dueDate}</p>
+                      <p>{t('invoiceNumber')}: {invoice.invoiceNo}</p>
+                      <p>{t('invoiceDate')}: {invoice.date}</p>
+                      <p>{t('dueDate')}: {invoice.dueDate}</p>
                     </div>
                   </div>
                 </div>
@@ -330,7 +351,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                 {/* From & To */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">From</h3>
+                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">{t('from')}</h3>
                     <p className="text-sm sm:text-base font-bold text-gray-900">{invoice.company.name}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.company.address}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.company.city}</p>
@@ -351,7 +372,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">To</h3>
+                    <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">{t('to')}</h3>
                     <p className="text-sm sm:text-base font-bold text-gray-900">{invoice.customer.name}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.customer.address}</p>
                     <p className="text-xs sm:text-sm text-gray-700">{invoice.customer.city}</p>
@@ -415,23 +436,23 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                 <div className="flex justify-end mb-6 sm:mb-8">
                   <div className="w-full sm:w-64 space-y-2">
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="text-gray-600">{t('subtotal')}:</span>
                       <span className="text-gray-900">{invoice.summary.subtotal}</span>
                     </div>
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Shipping:</span>
+                      <span className="text-gray-600">{t('shipping')}:</span>
                       <span className="text-gray-900">{invoice.summary.shipping}</span>
                     </div>
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Tax (8.5%):</span>
+                      <span className="text-gray-600">{t('tax')} (8.5%):</span>
                       <span className="text-gray-900">{invoice.summary.tax}</span>
                     </div>
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-gray-600">Discount (5%):</span>
+                      <span className="text-gray-600">{t('discount')} (5%):</span>
                       <span className="text-red-600">{invoice.summary.discount}</span>
                     </div>
                     <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-gray-200">
-                      <span className="text-gray-900">Total:</span>
+                      <span className="text-gray-900">{t('total')}:</span>
                       <span className="text-gray-900">{invoice.summary.total}</span>
                     </div>
                   </div>
@@ -440,7 +461,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                 {/* Payment Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Payment Method</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('paymentMethod')}</h4>
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded flex-shrink-0"></div>
                       <div className="min-w-0">
@@ -450,33 +471,33 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Payment Status</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('status')}</h4>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex-shrink-0"></div>
-                      <p className="text-xs sm:text-sm font-medium text-gray-900">Paid</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900">{t('paid')}</p>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1 break-all">Transaction ID: {invoice.payment.transactionId}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1 break-all">{t('transactionId')}: {invoice.payment.transactionId}</p>
                   </div>
                 </div>
 
                 {/* Thank You Message */}
                 <div className="text-center mb-4 sm:mb-6">
-                  <p className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2">Thank you for shopping with us!</p>
-                  <p className="text-xs sm:text-sm text-gray-600">We appreciate your business and hope you enjoy your purchase.</p>
+                  <p className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2">{t('thankYouShopping')}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('appreciateBusiness')}</p>
                 </div>
 
                 {/* Terms & Support */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-4 sm:pt-6 border-t border-gray-200">
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Terms & Conditions</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('termsConditions')}</h4>
                     <p className="text-xs sm:text-sm text-gray-600">
-                      Payment is due within 30 days. Late payments may incur additional charges. All sales are final unless otherwise specified.
+                      {t('paymentDue')}
                     </p>
                   </div>
                   <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">Support Contact</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-2">{t('supportContact')}</h4>
                     <p className="text-xs sm:text-sm text-gray-600 break-words">
-                      For any questions or concerns, please contact our support team at support@techmart.com or call +1 (555) 123-4567.
+                      {t('supportMessage')}
                     </p>
                   </div>
                 </div>
@@ -486,11 +507,11 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-end gap-2 sm:gap-3 pb-6">
                 <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-sm sm:text-base">
                   <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  Download PDF
+                  {t('downloadPdf')}
                 </button>
                 <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-sm sm:text-base">
                   <Printer size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  Print Invoice
+                  {t('printInvoice')}
                 </button>
               </div>
             </div>

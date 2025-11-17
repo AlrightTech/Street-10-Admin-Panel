@@ -27,8 +27,10 @@ import {
   Clock,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CustomReportsPage() {
+  const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   return (
@@ -60,17 +62,17 @@ export default function CustomReportsPage() {
                 {/* Header Section */}
                 <div className="mb-6">
                   <div className="mb-2">
-                    <h2 className="text-lg font-bold text-gray-900">Analytics & Reports</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">Dashboard - Custom Reports</p>
+                    <h2 className="text-lg font-bold text-gray-900">{t('analyticsReports')}</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">{t('dashboard')} - {t('customReports')}</p>
                   </div>
                   <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
                 <div>
-                      <h1 className="text-2xl font-bold text-gray-900 mb-1">Custom Reports</h1>
-                      <p className="text-sm text-gray-500">Generate personalized reports for sales, transactions, and customers.</p>
+                      <h1 className="text-2xl font-bold text-gray-900 mb-1">{t('customReports')}</h1>
+                      <p className="text-sm text-gray-500">{t('generatePersonalizedReports')}</p>
                 </div>
                 <Link href="/analytics/custom-reports/create">
                       <button className="px-4 py-2 rounded-md bg-orange-500 text-white flex items-center gap-2 font-medium hover:bg-orange-600 text-sm shadow-sm">
-                    <Plus size={18} /> Create New Report
+                    <Plus size={18} /> {t('createNewReport')}
                   </button>
                 </Link>
               </div>
@@ -81,65 +83,65 @@ export default function CustomReportsPage() {
               {/* Saved Reports - Full Row */}
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-0 overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-base font-bold text-gray-900">Saved Reports</h2>
+                  <h2 className="text-base font-bold text-gray-900">{t('savedReports')}</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm text-left">
                     <thead className="bg-gray-50">
                       <tr className="text-xs font-semibold text-gray-700">
-                        <th className="py-3 px-6">Report Name</th>
-                        <th className="py-3 px-3">Type</th>
-                        <th className="py-3 px-3">Created On</th>
-                        <th className="py-3 px-3">Last Run</th>
-                        <th className="py-3 px-3">Actions</th>
+                        <th className="py-3 px-6">{t('reportName')}</th>
+                        <th className="py-3 px-3">{t('reportType')}</th>
+                        <th className="py-3 px-3">{t('createdOn')}</th>
+                        <th className="py-3 px-3">{t('lastRun')}</th>
+                        <th className="py-3 px-3">{t('actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       <tr>
                         <td className="py-3 px-6 text-sm text-gray-900">Monthly Sales Report</td>
                         <td className="py-3 px-3">
-                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">Sales</span>
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">{t('sales')}</span>
                         </td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 01, 2023</td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-3 text-xs">
-                            <button className="text-blue-600 hover:underline">View</button>
-                            <button className="text-blue-600 hover:underline">Edit</button>
-                            <button className="text-blue-600 hover:underline">Export</button>
-                            <button className="text-red-600 hover:underline">Delete</button>
+                            <button className="text-blue-600 hover:underline">{t('view')}</button>
+                            <button className="text-blue-600 hover:underline">{t('edit')}</button>
+                            <button className="text-blue-600 hover:underline">{t('export')}</button>
+                            <button className="text-red-600 hover:underline">{t('delete')}</button>
                           </div>
                         </td>
                       </tr>
                       <tr>
                         <td className="py-3 px-6 text-sm text-gray-900">Customer Insights - Q1</td>
                         <td className="py-3 px-3">
-                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">Customers</span>
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">{t('customers')}</span>
                         </td>
                         <td className="py-3 px-3 text-sm text-gray-700">Dec 10, 2024</td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 17, 2023</td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-3 text-xs">
-                            <button className="text-blue-600 hover:underline">View</button>
-                            <button className="text-blue-600 hover:underline">Edit</button>
-                            <button className="text-blue-600 hover:underline">Export</button>
-                            <button className="text-red-600 hover:underline">Delete</button>
+                            <button className="text-blue-600 hover:underline">{t('view')}</button>
+                            <button className="text-blue-600 hover:underline">{t('edit')}</button>
+                            <button className="text-blue-600 hover:underline">{t('export')}</button>
+                            <button className="text-red-600 hover:underline">{t('delete')}</button>
                           </div>
                         </td>
                       </tr>
                       <tr>
                         <td className="py-3 px-6 text-sm text-gray-900">Transactional Summary</td>
                         <td className="py-3 px-3">
-                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Transactions</span>
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">{t('transactions')}</span>
                         </td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 15, 2023</td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-3 text-xs">
-                            <button className="text-blue-600 hover:underline">View</button>
-                            <button className="text-blue-600 hover:underline">Edit</button>
-                            <button className="text-blue-600 hover:underline">Export</button>
-                            <button className="text-red-600 hover:underline">Delete</button>
+                            <button className="text-blue-600 hover:underline">{t('view')}</button>
+                            <button className="text-blue-600 hover:underline">{t('edit')}</button>
+                            <button className="text-blue-600 hover:underline">{t('export')}</button>
+                            <button className="text-red-600 hover:underline">{t('delete')}</button>
                           </div>
                         </td>
                       </tr>
@@ -152,79 +154,79 @@ export default function CustomReportsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Report Builder */}
                 <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-                    <h2 className="text-base font-bold text-gray-900 mb-5">Report Builder</h2>
+                    <h2 className="text-base font-bold text-gray-900 mb-5">{t('reportBuilder')}</h2>
                     
                       {/* Select Report Type */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">Select Report Type</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">{t('selectReportType')}</label>
                       <div className="flex gap-2 flex-wrap">
                         <button className="bg-blue-600 border-2 border-blue-600 px-4 py-3 rounded-md flex flex-col items-center min-w-[70px] hover:bg-blue-700">
                           <LineChart className="mb-1.5 text-white" size={20} />
-                          <span className="text-xs font-medium text-white">Sales</span>
+                          <span className="text-xs font-medium text-white">{t('sales')}</span>
                           </button>
                         <button className="bg-gray-100 border border-gray-300 px-4 py-3 rounded-md flex flex-col items-center min-w-[70px] hover:bg-gray-50">
                           <ShoppingCart className="mb-1.5 text-gray-700" size={20} />
-                          <span className="text-xs font-medium text-gray-700">Transactions</span>
+                          <span className="text-xs font-medium text-gray-700">{t('transactions')}</span>
                           </button>
                         <button className="bg-gray-100 border border-gray-300 px-4 py-3 rounded-md flex flex-col items-center min-w-[70px] hover:bg-gray-50">
                           <Users className="mb-1.5 text-gray-700" size={20} />
-                          <span className="text-xs font-medium text-gray-700">Customers</span>
+                          <span className="text-xs font-medium text-gray-700">{t('customers')}</span>
                           </button>
                         <button className="bg-gray-100 border border-gray-300 px-4 py-3 rounded-md flex flex-col items-center min-w-[70px] hover:bg-gray-50">
                           <Package className="mb-1.5 text-gray-700" size={20} />
-                          <span className="text-xs font-medium text-gray-700">Inventory</span>
+                          <span className="text-xs font-medium text-gray-700">{t('inventory')}</span>
                           </button>
                         <button className="bg-gray-100 border border-gray-300 px-4 py-3 rounded-md flex flex-col items-center min-w-[70px] hover:bg-gray-50">
                           <RefreshCw className="mb-1.5 text-gray-700" size={20} />
-                          <span className="text-xs font-medium text-gray-700">Refunds</span>
+                          <span className="text-xs font-medium text-gray-700">{t('refunds')}</span>
                           </button>
                         </div>
                       </div>
-                    
+                      
                       {/* Date Range */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">Date Range</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">{t('dateRange')}</label>
                         <div className="flex gap-2 flex-wrap">
-                        <button className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium border border-blue-600">Today</button>
-                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">Last 7 Days</button>
-                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">This Month</button>
-                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">Last Month</button>
-                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">Custom</button>
+                        <button className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium border border-blue-600">{t('today')}</button>
+                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">{t('last7Days')}</button>
+                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">{t('thisMonth')}</button>
+                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">{t('lastMonth')}</button>
+                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">{t('customRange')}</button>
                       </div>
                     </div>
                     
                     {/* Filters */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">Filters</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">{t('filters')}</label>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="relative">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">All Products</label>
-                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Products">
-                              <option>All Products</option>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">{t('allProducts')}</label>
+                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allProducts')}>
+                              <option>{t('allProducts')}</option>
                               <option>Featured</option>
                             </select>
                           <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
                           </div>
                         <div className="relative">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">All Categories</label>
-                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Categories">
-                              <option>All Categories</option>
-                              <option>Electronics</option>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">{t('allCategories')}</label>
+                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allCategories')}>
+                              <option>{t('allCategories')}</option>
+                              <option>{t('electronics')}</option>
                             </select>
                           <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
                         </div>
                         <div className="relative">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">All Payment Methods</label>
-                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Payment Methods">
-                            <option>All Payment Methods</option>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">{t('allPaymentMethods')}</label>
+                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allPaymentMethods')}>
+                            <option>{t('allPaymentMethods')}</option>
                             <option>Cash</option>
                             </select>
                           <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
                           </div>
                         <div className="relative">
-                          <label className="block text-xs font-medium text-gray-700 mb-2">All Regions</label>
-                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Regions">
-                            <option>All Regions</option>
+                          <label className="block text-xs font-medium text-gray-700 mb-2">{t('allRegions')}</label>
+                          <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allRegions')}>
+                            <option>{t('allRegions')}</option>
                             <option>Riyadh</option>
                             </select>
                           <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
@@ -234,15 +236,15 @@ export default function CustomReportsPage() {
                     
                     {/* Metrics */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">Metrics</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">{t('metrics')}</label>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          {label:'Revenue', checked:true},
-                          {label:'Refunds'},
-                          {label:'Discounts'},
-                          {label:'Orders', checked:true},
-                          {label:'Customer Growth'},
-                          {label:'Conversion Rate'},
+                          {label:t('revenue'), checked:true},
+                          {label:t('refunds')},
+                          {label:t('discounts')},
+                          {label:t('orders'), checked:true},
+                          {label:t('customerGrowth')},
+                          {label:t('conversionRate')},
                         ].map(({label,checked}) => (
                           <label key={label} className={`flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer text-xs font-medium text-gray-700 transition-colors ${checked ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-300 hover:bg-gray-50'}`}>
                             <input type="checkbox" className={`w-4 h-4 rounded border-2 ${checked ? 'bg-blue-600 border-blue-600 text-white checked:bg-blue-600 checked:border-blue-600' : 'bg-white border-gray-300'}`} defaultChecked={checked} />
@@ -254,32 +256,32 @@ export default function CustomReportsPage() {
 
                     {/* Visualization */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-gray-700 mb-3">Visualization</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">{t('visualization')}</label>
                       <div className="flex gap-2">
-                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">Table</button>
-                        <button className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium">Chart</button>
-                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">Combined</button>
+                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">{t('table')}</button>
+                        <button className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium">{t('chart')}</button>
+                        <button className="px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-sm font-medium text-gray-700">{t('combined')}</button>
                       </div>
                     </div>
                     
                     {/* Generate Report Button */}
                     <div className="flex justify-end">
                       <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold text-sm shadow-sm">
-                        Generate Report
+                        {t('generateReport')}
                       </button>
                     </div>
                 </div>
 
                 {/* Smart Insights */}
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                  <h2 className="text-base font-bold text-gray-900 mb-5">Smart Insights</h2>
+                  <h2 className="text-base font-bold text-gray-900 mb-5">{t('smartInsights')}</h2>
                   <div className="space-y-4">
                     <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
                       <div className="flex items-start gap-3">
                         <TrendingUp className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
                         <div>
-                          <p className="text-sm font-semibold text-blue-700 mb-1">Sales Growth</p>
-                          <p className="text-xs text-gray-700">Data in Karachi grew 10% last month compared to Lahore.</p>
+                          <p className="text-sm font-semibold text-blue-700 mb-1">{t('salesGrowth')}</p>
+                          <p className="text-xs text-gray-700">{t('dataGrew')}</p>
                         </div>
                       </div>
                     </div>
@@ -287,8 +289,8 @@ export default function CustomReportsPage() {
                       <div className="flex items-start gap-3">
                         <Users className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
                         <div>
-                          <p className="text-sm font-semibold text-green-700 mb-1">Customer Loyalty</p>
-                          <p className="text-xs text-gray-700">Retaining customers generated 60% of revenue this month.</p>
+                          <p className="text-sm font-semibold text-green-700 mb-1">{t('customerLoyalty')}</p>
+                          <p className="text-xs text-gray-700">{t('retainingCustomersGenerated')}</p>
                         </div>
                       </div>
                     </div>
@@ -296,8 +298,8 @@ export default function CustomReportsPage() {
                       <div className="flex items-start gap-3">
                         <Clock className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
                         <div>
-                          <p className="text-sm font-semibold text-yellow-700 mb-1">Peak Hours</p>
-                          <p className="text-xs text-gray-700">Most orders occur between 2-4 PM, on weekdays.</p>
+                          <p className="text-sm font-semibold text-yellow-700 mb-1">{t('peakHoursOrders')}</p>
+                          <p className="text-xs text-gray-700">{t('mostOrdersOccur')}</p>
                         </div>
                       </div>
                     </div>
@@ -305,8 +307,8 @@ export default function CustomReportsPage() {
                       <div className="flex items-start gap-3">
                         <Star className="text-purple-600 flex-shrink-0 mt-0.5" size={20} />
                         <div>
-                          <p className="text-sm font-semibold text-purple-700 mb-1">Top Product</p>
-                          <p className="text-xs text-gray-700">Electronics category shows higher conversion rate of 52%.</p>
+                          <p className="text-sm font-semibold text-purple-700 mb-1">{t('topProduct')}</p>
+                          <p className="text-xs text-gray-700">{t('electronicsShowsHigher')}</p>
                         </div>
                       </div>
                     </div>
@@ -316,17 +318,17 @@ export default function CustomReportsPage() {
 
               {/* Report Preview - Below Report Builder and Smart Insights */}
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 max-w-2xl">
-                <h2 className="text-base font-bold text-gray-900 mb-5">Report Preview</h2>
+                <h2 className="text-base font-bold text-gray-900 mb-5">{t('reportPreview')}</h2>
                 
                 {/* Chart Section */}
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 mb-4">Sales Trend - Last 7 Days</h3>
+                  <h3 className="text-sm font-bold text-gray-900 mb-4">{t('salesTrend')} - {t('last7Days')}</h3>
                   
                   {/* Chart Container */}
                   <div className="relative">
                     {/* Y-axis Label */}
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-medium text-gray-600 whitespace-nowrap">
-                      Revenue (K)
+                      {t('revenueK')}
                     </div>
                     
                     {/* Chart Area */}
@@ -387,30 +389,30 @@ export default function CustomReportsPage() {
                   {/* Legend */}
                   <div className="flex items-center gap-2 mt-4">
                     <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                    <span className="text-xs text-gray-700">Sales</span>
+                    <span className="text-xs text-gray-700">{t('sales')}</span>
                   </div>
                 </div>
               </div>
 
               {/* Export Options - Below Report Preview */}
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 max-w-2xl">
-                <h2 className="text-base font-bold text-gray-900 mb-4">Export Options</h2>
+                <h2 className="text-base font-bold text-gray-900 mb-4">{t('exportOptions')}</h2>
                 <div className="flex gap-2 flex-wrap">
                   <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-green-700">
                     <FileSpreadsheet size={16} />
-                    Excel
+                    {t('excel')}
                   </button>
                   <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700">
                     <FileText size={16} />
-                    PDF
+                    {t('pdf')}
                   </button>
                   <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
                     <FileCode size={16} />
-                    CSV
+                    {t('csv')}
                   </button>
                   <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-purple-600 text-white text-sm font-medium hover:bg-purple-700">
                     <Clock size={16} />
-                    Schedule
+                    {t('schedule')}
                   </button>
                 </div>
               </div>
@@ -439,17 +441,17 @@ export default function CustomReportsPage() {
             {/* Header Section */}
             <div className="mb-4 sm:mb-6">
               <div className="mb-2">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900">Analytics & Reports</h2>
-                <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Dashboard - Custom Reports</p>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('analyticsReports')}</h2>
+                <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{t('dashboard')} - {t('customReports')}</p>
               </div>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mt-3 sm:mt-4">
             <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Custom Reports</h1>
-                  <p className="text-xs sm:text-sm text-gray-500">Generate personalized reports for sales, transactions, and customers.</p>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{t('customReports')}</h1>
+                  <p className="text-xs sm:text-sm text-gray-500">{t('generatePersonalizedReports')}</p>
             </div>
             <Link href="/analytics/custom-reports/create">
                   <button className="px-3 sm:px-4 py-2 rounded-md bg-orange-500 text-white flex items-center gap-2 font-medium hover:bg-orange-600 text-xs sm:text-sm shadow-sm">
-                <Plus size={16} /> Create New Report
+                <Plus size={16} /> {t('createNewReport')}
               </button>
             </Link>
           </div>
@@ -459,65 +461,65 @@ export default function CustomReportsPage() {
             {/* Saved Reports */}
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-0 overflow-hidden">
                 <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
-                  <h2 className="text-sm sm:text-base font-bold text-gray-900">Saved Reports</h2>
+                  <h2 className="text-sm sm:text-base font-bold text-gray-900">{t('savedReports')}</h2>
               </div>
               <div className="overflow-x-auto">
                   <table className="min-w-full text-xs sm:text-sm text-left">
                   <thead className="bg-gray-50">
                       <tr className="text-xs font-semibold text-gray-700">
-                        <th className="py-3 px-4 sm:px-6">Report Name</th>
-                        <th className="py-3 px-3">Type</th>
-                        <th className="py-3 px-3">Created On</th>
-                        <th className="py-3 px-3">Last Run</th>
-                        <th className="py-3 px-3">Actions</th>
+                        <th className="py-3 px-4 sm:px-6">{t('reportName')}</th>
+                        <th className="py-3 px-3">{t('reportType')}</th>
+                        <th className="py-3 px-3">{t('createdOn')}</th>
+                        <th className="py-3 px-3">{t('lastRun')}</th>
+                        <th className="py-3 px-3">{t('actions')}</th>
                     </tr>
                   </thead>
                     <tbody className="divide-y divide-gray-200">
                       <tr>
                         <td className="py-3 px-4 sm:px-6 text-sm text-gray-900">Monthly Sales Report</td>
                         <td className="py-3 px-3">
-                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">Sales</span>
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">{t('sales')}</span>
                       </td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 01, 2023</td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
-                        <button className="text-blue-600 hover:underline">View</button>
-                            <button className="text-blue-600 hover:underline">Edit</button>
-                            <button className="text-blue-600 hover:underline">Export</button>
-                            <button className="text-red-600 hover:underline">Delete</button>
+                        <button className="text-blue-600 hover:underline">{t('view')}</button>
+                            <button className="text-blue-600 hover:underline">{t('edit')}</button>
+                            <button className="text-blue-600 hover:underline">{t('export')}</button>
+                            <button className="text-red-600 hover:underline">{t('delete')}</button>
                           </div>
                       </td>
                     </tr>
                     <tr>
                         <td className="py-3 px-4 sm:px-6 text-sm text-gray-900">Customer Insights - Q1</td>
                         <td className="py-3 px-3">
-                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">Customers</span>
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">{t('customers')}</span>
                       </td>
                         <td className="py-3 px-3 text-sm text-gray-700">Dec 10, 2024</td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 17, 2023</td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
-                        <button className="text-blue-600 hover:underline">View</button>
-                            <button className="text-blue-600 hover:underline">Edit</button>
-                            <button className="text-blue-600 hover:underline">Export</button>
-                            <button className="text-red-600 hover:underline">Delete</button>
+                        <button className="text-blue-600 hover:underline">{t('view')}</button>
+                            <button className="text-blue-600 hover:underline">{t('edit')}</button>
+                            <button className="text-blue-600 hover:underline">{t('export')}</button>
+                            <button className="text-red-600 hover:underline">{t('delete')}</button>
                           </div>
                       </td>
                     </tr>
                     <tr>
                         <td className="py-3 px-4 sm:px-6 text-sm text-gray-900">Transactional Summary</td>
                         <td className="py-3 px-3">
-                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Transactions</span>
+                          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">{t('transactions')}</span>
                       </td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 15, 2023</td>
                         <td className="py-3 px-3 text-sm text-gray-700">Jan 25, 2023</td>
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
-                        <button className="text-blue-600 hover:underline">View</button>
-                            <button className="text-blue-600 hover:underline">Edit</button>
-                            <button className="text-blue-600 hover:underline">Export</button>
-                            <button className="text-red-600 hover:underline">Delete</button>
+                        <button className="text-blue-600 hover:underline">{t('view')}</button>
+                            <button className="text-blue-600 hover:underline">{t('edit')}</button>
+                            <button className="text-blue-600 hover:underline">{t('export')}</button>
+                            <button className="text-red-600 hover:underline">{t('delete')}</button>
                           </div>
                       </td>
                     </tr>
@@ -527,79 +529,79 @@ export default function CustomReportsPage() {
             </div>
               {/* Report Builder */}
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-6">
-                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5">Report Builder</h2>
+                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5">{t('reportBuilder')}</h2>
                 
                 {/* Select Report Type */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">Select Report Type</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">{t('selectReportType')}</label>
                   <div className="flex gap-2 flex-wrap">
                     <button className="bg-blue-600 border-2 border-blue-600 px-3 sm:px-4 py-2 sm:py-3 rounded-md flex flex-col items-center min-w-[60px] sm:min-w-[70px] hover:bg-blue-700">
                       <LineChart className="mb-1.5 text-white" size={18} />
-                      <span className="text-xs font-medium text-white">Sales</span>
+                      <span className="text-xs font-medium text-white">{t('sales')}</span>
                     </button>
                     <button className="bg-gray-100 border border-gray-300 px-3 sm:px-4 py-2 sm:py-3 rounded-md flex flex-col items-center min-w-[60px] sm:min-w-[70px] hover:bg-gray-50">
                       <ShoppingCart className="mb-1.5 text-gray-700" size={18} />
-                      <span className="text-xs font-medium text-gray-700">Transactions</span>
+                      <span className="text-xs font-medium text-gray-700">{t('transactions')}</span>
                     </button>
                     <button className="bg-gray-100 border border-gray-300 px-3 sm:px-4 py-2 sm:py-3 rounded-md flex flex-col items-center min-w-[60px] sm:min-w-[70px] hover:bg-gray-50">
                       <Users className="mb-1.5 text-gray-700" size={18} />
-                      <span className="text-xs font-medium text-gray-700">Customers</span>
+                      <span className="text-xs font-medium text-gray-700">{t('customers')}</span>
                     </button>
                     <button className="bg-gray-100 border border-gray-300 px-3 sm:px-4 py-2 sm:py-3 rounded-md flex flex-col items-center min-w-[60px] sm:min-w-[70px] hover:bg-gray-50">
                       <Package className="mb-1.5 text-gray-700" size={18} />
-                      <span className="text-xs font-medium text-gray-700">Inventory</span>
+                      <span className="text-xs font-medium text-gray-700">{t('inventory')}</span>
                     </button>
                     <button className="bg-gray-100 border border-gray-300 px-3 sm:px-4 py-2 sm:py-3 rounded-md flex flex-col items-center min-w-[60px] sm:min-w-[70px] hover:bg-gray-50">
                       <RefreshCw className="mb-1.5 text-gray-700" size={18} />
-                      <span className="text-xs font-medium text-gray-700">Refunds</span>
+                      <span className="text-xs font-medium text-gray-700">{t('refunds')}</span>
                     </button>
                   </div>
                 </div>
                 
                 {/* Date Range */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">Date Range</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">{t('dateRange')}</label>
                   <div className="flex gap-2 flex-wrap">
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-blue-600 text-white text-xs sm:text-sm font-medium border border-blue-600">Today</button>
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">Last 7 Days</button>
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">This Month</button>
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">Last Month</button>
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">Custom</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-blue-600 text-white text-xs sm:text-sm font-medium border border-blue-600">{t('today')}</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">{t('last7Days')}</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">{t('thisMonth')}</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">{t('lastMonth')}</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">{t('customRange')}</button>
                   </div>
                 </div>
                 
                 {/* Filters */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">Filters</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">{t('filters')}</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="relative">
-                      <label className="block text-xs font-medium text-gray-700 mb-2">All Products</label>
-                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Products">
-                      <option>All Products</option>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('allProducts')}</label>
+                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allProducts')}>
+                      <option>{t('allProducts')}</option>
                       <option>Featured</option>
                     </select>
                       <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
                   </div>
                     <div className="relative">
-                      <label className="block text-xs font-medium text-gray-700 mb-2">All Categories</label>
-                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Categories">
-                      <option>All Categories</option>
-                      <option>Electronics</option>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('allCategories')}</label>
+                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allCategories')}>
+                      <option>{t('allCategories')}</option>
+                      <option>{t('electronics')}</option>
                     </select>
                       <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
                     </div>
                     <div className="relative">
-                      <label className="block text-xs font-medium text-gray-700 mb-2">All Payment Methods</label>
-                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Payment Methods">
-                        <option>All Payment Methods</option>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('allPaymentMethods')}</label>
+                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allPaymentMethods')}>
+                        <option>{t('allPaymentMethods')}</option>
                         <option>Cash</option>
                       </select>
                       <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
                     </div>
                     <div className="relative">
-                      <label className="block text-xs font-medium text-gray-700 mb-2">All Regions</label>
-                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title="All Regions">
-                        <option>All Regions</option>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('allRegions')}</label>
+                      <select className="w-full rounded-md border border-gray-300 px-3 py-2 text-xs sm:text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" title={t('allRegions')}>
+                        <option>{t('allRegions')}</option>
                         <option>Riyadh</option>
                       </select>
                       <ChevronDown className="absolute right-3 top-9 h-4 w-4 text-gray-500 pointer-events-none" />
@@ -609,15 +611,15 @@ export default function CustomReportsPage() {
                 
                 {/* Metrics */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">Metrics</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">{t('metrics')}</label>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      {label:'Revenue', checked:true},
-                      {label:'Refunds'},
-                      {label:'Discounts'},
-                      {label:'Orders', checked:true},
-                      {label:'Customer Growth'},
-                      {label:'Conversion Rate'},
+                      {label:t('revenue'), checked:true},
+                      {label:t('refunds')},
+                      {label:t('discounts')},
+                      {label:t('orders'), checked:true},
+                      {label:t('customerGrowth')},
+                      {label:t('conversionRate')},
                     ].map(({label,checked}) => (
                       <label key={label} className={`flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer text-xs font-medium text-gray-700 transition-colors ${checked ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-300 hover:bg-gray-50'}`}>
                         <input type="checkbox" className={`w-4 h-4 rounded border-2 ${checked ? 'bg-blue-600 border-blue-600 text-white checked:bg-blue-600 checked:border-blue-600' : 'bg-white border-gray-300'}`} defaultChecked={checked} />
@@ -629,35 +631,35 @@ export default function CustomReportsPage() {
                 
                 {/* Visualization */}
                 <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">Visualization</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">{t('visualization')}</label>
                   <div className="flex gap-2">
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">Table</button>
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-blue-600 text-white text-xs sm:text-sm font-medium">Chart</button>
-                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">Combined</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">{t('table')}</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-blue-600 text-white text-xs sm:text-sm font-medium">{t('chart')}</button>
+                    <button className="px-3 sm:px-4 py-2 rounded-md bg-gray-100 border border-gray-300 text-xs sm:text-sm font-medium text-gray-700">{t('combined')}</button>
                   </div>
                 </div>
                 
                 {/* Generate Report Button */}
                 <div className="flex justify-end">
                   <button className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold text-xs sm:text-sm shadow-sm">
-                    Generate Report
+                    {t('generateReport')}
                   </button>
                 </div>
               </div>
 
               {/* Report Preview */}
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-6">
-                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5">Report Preview</h2>
+                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5">{t('reportPreview')}</h2>
                 
                 {/* Chart Section */}
                   <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-gray-900 mb-4">Sales Trend - Last 7 Days</h3>
+                  <h3 className="text-xs sm:text-sm font-bold text-gray-900 mb-4">{t('salesTrend')} - {t('last7Days')}</h3>
                   
                   {/* Chart Container */}
                   <div className="relative">
                     {/* Y-axis Label */}
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-medium text-gray-600 whitespace-nowrap">
-                      Revenue (K)
+                      {t('revenueK')}
                     </div>
                     
                     {/* Chart Area */}
@@ -718,44 +720,44 @@ export default function CustomReportsPage() {
                   {/* Legend */}
                   <div className="flex items-center gap-2 mt-4">
                     <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                    <span className="text-xs text-gray-700">Sales</span>
+                    <span className="text-xs text-gray-700">{t('sales')}</span>
                   </div>
                 </div>
                   </div>
 
               {/* Export Options - Separate Section */}
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-6">
-                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4">Export Options</h2>
+                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4">{t('exportOptions')}</h2>
                 <div className="flex gap-2 flex-wrap">
                   <button className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md bg-green-600 text-white text-xs sm:text-sm font-medium hover:bg-green-700">
                     <FileSpreadsheet size={16} />
-                    Excel
+                    {t('excel')}
                   </button>
                   <button className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md bg-red-600 text-white text-xs sm:text-sm font-medium hover:bg-red-700">
                     <FileText size={16} />
-                    PDF
+                    {t('pdf')}
                   </button>
                   <button className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md bg-blue-600 text-white text-xs sm:text-sm font-medium hover:bg-blue-700">
                     <FileCode size={16} />
-                    CSV
+                    {t('csv')}
                   </button>
                   <button className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md bg-purple-600 text-white text-xs sm:text-sm font-medium hover:bg-purple-700">
                     <Clock size={16} />
-                    Schedule
+                    {t('schedule')}
                   </button>
                 </div>
               </div>
 
               {/* Smart Insights */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5">Smart Insights</h2>
+                <h2 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5">{t('smartInsights')}</h2>
                 <div className="space-y-4">
                   <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
                     <div className="flex items-start gap-3">
                       <TrendingUp className="text-blue-600 flex-shrink-0 mt-0.5" size={18} />
                   <div>
-                        <p className="text-xs sm:text-sm font-semibold text-blue-700 mb-1">Sales Growth</p>
-                        <p className="text-xs text-gray-700">Data in Karachi grew 10% last month compared to Lahore.</p>
+                        <p className="text-xs sm:text-sm font-semibold text-blue-700 mb-1">{t('salesGrowth')}</p>
+                        <p className="text-xs text-gray-700">{t('dataGrew')}</p>
                       </div>
                     </div>
                   </div>
@@ -763,8 +765,8 @@ export default function CustomReportsPage() {
                     <div className="flex items-start gap-3">
                       <Users className="text-green-600 flex-shrink-0 mt-0.5" size={18} />
                       <div>
-                        <p className="text-xs sm:text-sm font-semibold text-green-700 mb-1">Customer Loyalty</p>
-                        <p className="text-xs text-gray-700">Retaining customers generated 60% of revenue this month.</p>
+                        <p className="text-xs sm:text-sm font-semibold text-green-700 mb-1">{t('customerLoyalty')}</p>
+                        <p className="text-xs text-gray-700">{t('retainingCustomersGenerated')}</p>
                       </div>
                   </div>
                 </div>
@@ -772,8 +774,8 @@ export default function CustomReportsPage() {
                     <div className="flex items-start gap-3">
                       <Clock className="text-yellow-600 flex-shrink-0 mt-0.5" size={18} />
                   <div>
-                        <p className="text-xs sm:text-sm font-semibold text-yellow-700 mb-1">Peak Hours</p>
-                        <p className="text-xs text-gray-700">Most orders occur between 2-4 PM, on weekdays.</p>
+                        <p className="text-xs sm:text-sm font-semibold text-yellow-700 mb-1">{t('peakHoursOrders')}</p>
+                        <p className="text-xs text-gray-700">{t('mostOrdersOccur')}</p>
                       </div>
                     </div>
                   </div>
@@ -781,8 +783,8 @@ export default function CustomReportsPage() {
                     <div className="flex items-start gap-3">
                       <Star className="text-purple-600 flex-shrink-0 mt-0.5" size={18} />
                       <div>
-                        <p className="text-xs sm:text-sm font-semibold text-purple-700 mb-1">Top Product</p>
-                        <p className="text-xs text-gray-700">Electronics category shows higher conversion rate of 52%.</p>
+                        <p className="text-xs sm:text-sm font-semibold text-purple-700 mb-1">{t('topProduct')}</p>
+                        <p className="text-xs text-gray-700">{t('electronicsShowsHigher')}</p>
                 </div>
               </div>
                 </div>

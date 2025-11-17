@@ -2,29 +2,37 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState, Fragment } from 'react'
+import { useState, Fragment, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Menu, ChevronLeft, ChevronRight, Search, Plus, Edit, Trash2, ChevronDown, Filter } from 'lucide-react'
+import { Menu, ChevronLeft, ChevronRight, Search, Plus, Edit, Trash2, ChevronDown, Filter, AlertTriangle, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function ProductsPage() {
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, language, translateProduct } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const itemsPerPage = 5
   const totalPages = 8
 
   // Mock product data - matching the image EXACTLY
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200, orders: 5, stock: 752, status: false },
-    { id: 2, name: 'Premium T-Shirt', sku: 'TS-002', category: 'Clothing', price: 200, orders: 55, stock: 554, status: true },
-    { id: 3, name: 'Running Shoes', sku: 'YM-003', category: 'Sports', price: 200, orders: 6, stock: 156, status: true },
-    { id: 4, name: 'Yoga Mat Pro', sku: 'RS-004', category: 'Sports', price: 200, orders: 45, stock: 528, status: true },
-    { id: 5, name: 'Coffee Mug Set', sku: 'CM-005', category: 'Home & Garden', price: 200, orders: 23, stock: 276, status: false },
+  const [rawProducts, setRawProducts] = useState([
+    { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200, orders: 5, stock: 752, status: false, slug: 'apple-airpods-pro-2nd' },
+    { id: 2, name: 'Premium T-Shirt', sku: 'TS-002', category: 'Clothing', price: 200, orders: 55, stock: 554, status: true, slug: 'premium-t-shirt' },
+    { id: 3, name: 'Running Shoes', sku: 'YM-003', category: 'Sports', price: 200, orders: 6, stock: 156, status: true, slug: 'running-shoes' },
+    { id: 4, name: 'Yoga Mat Pro', sku: 'RS-004', category: 'Sports', price: 200, orders: 45, stock: 528, status: true, slug: 'yoga-mat-pro' },
+    { id: 5, name: 'Coffee Mug Set', sku: 'CM-005', category: 'Home & Garden', price: 200, orders: 23, stock: 276, status: false, slug: 'coffee-mug-set' },
   ])
+
+  // Automatically translate products based on current language
+  const products = useMemo(() => {
+    return rawProducts.map(product => translateProduct(product))
+  }, [rawProducts, translateProduct, language])
 
   const activeCount = products.filter(p => p.status).length
   const inactiveCount = products.filter(p => !p.status).length
@@ -43,7 +51,7 @@ export default function ProductsPage() {
 
   // Toggle product status
   const handleToggleStatus = (productId: number) => {
-    setProducts(products.map(p => 
+    setRawProducts(rawProducts.map(p => 
       p.id === productId ? { ...p, status: !p.status } : p
     ))
   }
@@ -58,12 +66,43 @@ export default function ProductsPage() {
     router.push(`/products/${productId}/edit`)
   }
 
-  // Handle delete
+  // Handle delete - open modal
   const handleDelete = (productId: number) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      setProducts(products.filter(p => p.id !== productId))
-    }
+    setProductToDelete(productId)
+    setDeleteModalOpen(true)
   }
+
+  // Confirm delete
+  const confirmDelete = async () => {
+    if (productToDelete === null) return
+    
+    setIsDeleting(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    setRawProducts(rawProducts.filter(p => p.id !== productToDelete))
+    setDeleteModalOpen(false)
+    setProductToDelete(null)
+    setIsDeleting(false)
+  }
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setDeleteModalOpen(false)
+    setProductToDelete(null)
+  }
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (deleteModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [deleteModalOpen])
 
   // Get visible pages for pagination
   const getVisiblePages = () => {
@@ -814,6 +853,77 @@ export default function ProductsPage() {
           </main>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4"
+            onClick={cancelDelete}
+          >
+            {/* Modal */}
+            <div 
+              className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="text-red-600" size={20} />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    {t('confirmDelete')}
+                  </h3>
+                </div>
+                <button
+                  onClick={cancelDelete}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-4 sm:p-6">
+                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                  {t('deleteProductConfirm')}
+                </p>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 p-4 sm:p-6 border-t border-gray-200 bg-gray-50 sm:bg-white">
+                <button
+                  onClick={cancelDelete}
+                  disabled={isDeleting}
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>{t('deleting')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={18} />
+                      <span>{t('delete')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

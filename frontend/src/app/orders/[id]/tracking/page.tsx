@@ -5,9 +5,11 @@ import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Calendar, Send, X, ArrowLeft } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AddTrackingPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [autoNotify, setAutoNotify] = useState(true)
@@ -59,17 +61,17 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
     const newErrors: Record<string, string> = {}
 
     if (!formData.deliveryCompany.trim()) {
-      newErrors.deliveryCompany = 'Delivery company is required'
+      newErrors.deliveryCompany = t('deliveryCompanyRequired')
     }
 
     if (!formData.deliveryPerson.trim()) {
-      newErrors.deliveryPerson = 'Delivery person is required'
+      newErrors.deliveryPerson = t('deliveryPersonRequired')
     }
 
     if (!formData.contact.trim()) {
-      newErrors.contact = 'Contact information is required'
+      newErrors.contact = t('contactRequired')
     } else if (!/^\+?[\d\s\-()]+$/.test(formData.contact)) {
-      newErrors.contact = 'Please enter a valid phone number'
+      newErrors.contact = t('validPhoneNumber')
     }
 
     if (formData.estimatedDate) {
@@ -77,7 +79,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
       const datePattern = /^\d{2}\/\d{2}\/\d{4}$/
       const dateInputPattern = /^\d{4}-\d{2}-\d{2}$/
       if (!datePattern.test(formData.estimatedDate) && !dateInputPattern.test(formData.estimatedDate)) {
-        newErrors.estimatedDate = 'Please enter a valid date'
+        newErrors.estimatedDate = t('validDate')
       }
     }
 
@@ -152,14 +154,14 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
       router.push(`/orders/${params.id}`)
     } catch (error) {
       console.error('Error saving tracking information:', error)
-      alert('Failed to save tracking information. Please try again.')
+      alert(t('trackingAddedFailed'))
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleCancel = () => {
-    if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+    if (confirm(t('confirmCancel'))) {
       router.push(`/orders/${params.id}`)
     }
   }
@@ -197,10 +199,10 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-2"
                 >
                   <ArrowLeft size={16} />
-                  <span>Back to Order Details</span>
+                  <span>{t('back')} {t('to')} {t('orderDetails')}</span>
                 </button>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Orders</h1>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard &gt; Add Tracking Information</p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('orders')}</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} &gt; {t('addTracking')}</p>
               </div>
 
               {/* Order Summary */}
@@ -209,19 +211,19 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                   <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
                     <p className="text-white font-bold text-sm">O</p>
                   </div>
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Order Summary</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('orderSummary')}</h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm">
                   <div>
-                    <p className="text-gray-600 mb-1">Order ID</p>
+                    <p className="text-gray-600 mb-1">{t('orderId')}</p>
                     <p className="font-medium text-gray-900">{orderSummary.orderId}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">Customer Name</p>
+                    <p className="text-gray-600 mb-1">{t('customerName')}</p>
                     <p className="font-medium text-gray-900">{orderSummary.customerName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">Order Date</p>
+                    <p className="text-gray-600 mb-1">{t('orderDate')}</p>
                     <p className="font-medium text-gray-900">{orderSummary.orderDate}</p>
                   </div>
                 </div>
@@ -229,7 +231,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
 
               {/* Form */}
               <form onSubmit={handleSave} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900">Delivery Information</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('trackingInformation')}</h2>
 
                 {/* Delivery Company */}
                 <div>
@@ -302,7 +304,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                 {/* Estimated Delivery Date */}
                 <div>
                   <label htmlFor="estimatedDate" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Estimated Delivery Date
+                    {t('estimatedDate')}
                   </label>
                   <div className="relative">
                     <input
@@ -366,7 +368,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                         <p className="text-white text-xs">⚡</p>
                       </div>
                       <span className="text-xs sm:text-sm font-medium text-gray-900">
-                        Send tracking details to customer automatically
+                        {t('autoNotifyCustomer')}
                       </span>
                     </div>
                     <button
@@ -395,7 +397,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                     disabled={isLoading}
                     className="px-4 sm:px-6 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base transition-colors"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     type="submit"
@@ -405,12 +407,12 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                     {isLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Saving...</span>
+                        <span>{t('saving')}</span>
                       </>
                     ) : (
                       <>
                         <Send size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        <span>Save & Notify Customer</span>
+                        <span>{t('submitTracking')}</span>
                       </>
                     )}
                   </button>
@@ -462,19 +464,19 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                   <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
                     <p className="text-white font-bold text-sm">O</p>
                   </div>
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Order Summary</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('orderSummary')}</h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm">
                   <div>
-                    <p className="text-gray-600 mb-1">Order ID</p>
+                    <p className="text-gray-600 mb-1">{t('orderId')}</p>
                     <p className="font-medium text-gray-900">{orderSummary.orderId}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">Customer Name</p>
+                    <p className="text-gray-600 mb-1">{t('customerName')}</p>
                     <p className="font-medium text-gray-900">{orderSummary.customerName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 mb-1">Order Date</p>
+                    <p className="text-gray-600 mb-1">{t('orderDate')}</p>
                     <p className="font-medium text-gray-900">{orderSummary.orderDate}</p>
                   </div>
                 </div>
@@ -482,7 +484,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
 
               {/* Form */}
               <form onSubmit={handleSave} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900">Delivery Information</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('trackingInformation')}</h2>
 
                 {/* Delivery Company */}
                 <div>
@@ -555,7 +557,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                 {/* Estimated Delivery Date */}
                 <div>
                   <label htmlFor="estimatedDate" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Estimated Delivery Date
+                    {t('estimatedDate')}
                   </label>
                   <div className="relative">
                     <input
@@ -619,7 +621,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                         <p className="text-white text-xs">⚡</p>
                       </div>
                       <span className="text-xs sm:text-sm font-medium text-gray-900">
-                        Send tracking details to customer automatically
+                        {t('autoNotifyCustomer')}
                       </span>
                     </div>
                     <button
@@ -648,7 +650,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                     disabled={isLoading}
                     className="px-4 sm:px-6 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base transition-colors"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     type="submit"
@@ -658,12 +660,12 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                     {isLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Saving...</span>
+                        <span>{t('saving')}</span>
                       </>
                     ) : (
                       <>
                         <Send size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        <span>Save & Notify Customer</span>
+                        <span>{t('submitTracking')}</span>
                       </>
                     )}
                   </button>

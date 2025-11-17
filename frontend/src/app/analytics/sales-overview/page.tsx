@@ -4,8 +4,10 @@ import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { Menu, Calendar, ChevronDown, Download, DollarSign, ShoppingCart, TrendingUp, RefreshCw, FileText, Table, Crown, Bell, Users, Eye } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function SalesOverviewPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedPeriod, setSelectedPeriod] = useState('Daily')
@@ -111,7 +113,7 @@ export default function SalesOverviewPage() {
               className="font-medium"
               transform={`rotate(-90, 20, ${padding.top + graphHeight / 2})`}
             >
-              Amount ($)
+              {t('amount')}
             </text>
 
             {/* Grid lines */}
@@ -217,11 +219,11 @@ export default function SalesOverviewPage() {
         <div className="flex items-center justify-center gap-6 mt-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            <span className="text-sm text-gray-700 font-medium">Sales</span>
+            <span className="text-sm text-gray-700 font-medium">{t('sales')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span className="text-sm text-gray-700 font-medium">Orders</span>
+            <span className="text-sm text-gray-700 font-medium">{t('orders')}</span>
           </div>
         </div>
       </div>
@@ -257,8 +259,8 @@ export default function SalesOverviewPage() {
             <div className="max-w-7xl mx-auto space-y-6">
               {/* Header Section */}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Analytics & Reports</h1>
-                <p className="text-xs text-gray-500 mt-1">Dashboard • Sales Overview</p>
+                <h1 className="text-2xl font-bold text-gray-900">{t('analyticsReports')}</h1>
+                <p className="text-xs text-gray-500 mt-1">{t('dashboard')} • {t('salesOverview')}</p>
               </div>
 
               {/* Sales Overview Card */}
@@ -266,26 +268,26 @@ export default function SalesOverviewPage() {
                 {/* Card Header */}
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Sales Overview</h2>
-                    <p className="text-sm text-gray-500 mt-1">Track your sales performance and insights</p>
+                    <h2 className="text-2xl font-bold text-gray-900">{t('salesOverview')}</h2>
+                    <p className="text-sm text-gray-500 mt-1">{t('trackSalesPerformance')}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white flex items-center gap-2 text-gray-700 hover:bg-gray-50">
                       <Calendar size={16} />
-                      Today
+                      {t('today')}
                       <ChevronDown size={16} className="text-gray-500" />
                     </button>
                     <button className="px-3 py-2 text-sm rounded-md bg-orange-500 text-white flex items-center gap-2 hover:bg-orange-600">
                       <Download size={16} />
-                      PDF
+                      {t('pdf')}
                     </button>
                     <button className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white flex items-center gap-2 text-gray-700 hover:bg-gray-50">
                       <Table size={16} />
-                      Excel
+                      {t('excel')}
                     </button>
                     <button className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white flex items-center gap-2 text-gray-700 hover:bg-gray-50">
                       <FileText size={16} />
-                      CSV
+                      {t('csv')}
                     </button>
                   </div>
                 </div>
@@ -304,7 +306,7 @@ export default function SalesOverviewPage() {
                       </div>
                     </div>
                     <p className="text-2xl font-semibold text-gray-900">$12,540</p>
-                    <p className="text-sm text-gray-600 mt-1">Total Sales</p>
+                    <p className="text-sm text-gray-600 mt-1">{t('totalSales')}</p>
                   </div>
 
                   {/* Total Orders Card */}
@@ -319,7 +321,7 @@ export default function SalesOverviewPage() {
                       </div>
                     </div>
                     <p className="text-2xl font-semibold text-gray-900">452</p>
-                    <p className="text-sm text-gray-600 mt-1">Total Orders</p>
+                    <p className="text-sm text-gray-600 mt-1">{t('totalOrders')}</p>
                   </div>
 
                   {/* Average Order Value Card */}
@@ -334,7 +336,7 @@ export default function SalesOverviewPage() {
                       </div>
                     </div>
                     <p className="text-2xl font-semibold text-gray-900">$27.75</p>
-                    <p className="text-sm text-gray-600 mt-1">Average Order Value</p>
+                    <p className="text-sm text-gray-600 mt-1">{t('averageOrderValue')}</p>
                   </div>
 
                   {/* Refunded Orders Card */}
@@ -349,7 +351,7 @@ export default function SalesOverviewPage() {
                       </div>
                     </div>
                     <p className="text-2xl font-semibold text-gray-900">14</p>
-                    <p className="text-sm text-gray-600 mt-1">Refunded Orders</p>
+                    <p className="text-sm text-gray-600 mt-1">{t('refundedOrders')}</p>
                   </div>
                 </div>
 
@@ -358,7 +360,7 @@ export default function SalesOverviewPage() {
               {/* Sales Performance Section (Full Width) */}
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Sales Performance</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('salesPerformance')}</h3>
                   <div className="flex items-center gap-2">
                     {['Daily', 'Weekly', 'Monthly'].map((tab) => (
                       <button
@@ -370,7 +372,7 @@ export default function SalesOverviewPage() {
                             : 'text-gray-500 hover:text-gray-700'
                         }`}
                       >
-                        {tab}
+                        {t(tab.toLowerCase())}
                       </button>
                     ))}
                   </div>
@@ -382,7 +384,7 @@ export default function SalesOverviewPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Orders Breakdown */}
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Orders Breakdown</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('ordersBreakdown')}</h3>
                   <div className="flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center mb-4 relative">
                       <svg viewBox="0 0 280 280" className="w-full max-w-[280px] h-auto">
@@ -407,27 +409,27 @@ export default function SalesOverviewPage() {
                         
                         {/* Label lines and text for Cancelled - top, pointing up */}
                         <line x1="145" y1="60.25" x2="145" y2="25" stroke="#fecaca" strokeWidth="1.5" />
-                        <text x="150" y="22" fontSize="13" fill="#ef4444" textAnchor="start" fontWeight="500">Cancelled</text>
+                        <text x="150" y="22" fontSize="13" fill="#ef4444" textAnchor="start" fontWeight="500">{t('cancelled')}</text>
                         
                         {/* Label lines and text for Pending - left side */}
                         <line x1="167" y1="67" x2="105" y2="55" stroke="#fde68a" strokeWidth="1.5" />
-                        <text x="100" y="52" fontSize="13" fill="#f59e0b" textAnchor="start" fontWeight="500">Pending</text>
+                        <text x="100" y="52" fontSize="13" fill="#f59e0b" textAnchor="start" fontWeight="500">{t('pending')}</text>
                         
                         {/* Label lines and text for Completed - bottom-right */}
                         <line x1="120" y1="130" x2="220" y2="230" stroke="#a7f3d0" strokeWidth="1.5" />
-                        <text x="225" y="233" fontSize="13" fill="#22c55e" textAnchor="start" fontWeight="500">Completed</text>
+                        <text x="225" y="233" fontSize="13" fill="#22c55e" textAnchor="start" fontWeight="500">{t('completed')}</text>
                       </svg>
                     </div>
                     {/* Completion Rate Text Below Chart */}
                     <div className="text-center mt-4">
-                      <p className="text-xl font-semibold text-[#22c55e]">92.5% Completion Rate</p>
+                      <p className="text-xl font-semibold text-[#22c55e]">92.5% {t('completionRate')}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Revenue by Category */}
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Revenue by Category</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('revenueByCategory')}</h3>
                   <div className="flex items-center justify-center relative">
                     <svg viewBox="0 0 280 280" className="w-full max-w-[280px] h-auto">
                       {/* Pie Chart - Full Circle */}
@@ -450,15 +452,15 @@ export default function SalesOverviewPage() {
                       
                       {/* Label lines and text for Electronics - right side, connected to blue slice */}
                       <line x1="170" y1="135" x2="240" y2="140" stroke="#3B82F6" strokeWidth="1.5" />
-                      <text x="245" y="145" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">Electronics</text>
+                      <text x="245" y="145" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">{t('electronics')}</text>
                       
                       {/* Label lines and text for Fashion - below-left, connected to purple slice */}
                       <line x1="88" y1="162" x2="95" y2="240" stroke="#8B5CF6" strokeWidth="1.5" />
-                      <text x="100" y="245" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">Fashion</text>
+                      <text x="100" y="245" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">{t('fashion')}</text>
                       
                       {/* Label lines and text for Home Appliances - top-left, connected to green slice */}
                       <line x1="102" y1="85" x2="70" y2="35" stroke="#10B981" strokeWidth="1.5" />
-                      <text x="65" y="30" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">Home Appliances</text>
+                      <text x="65" y="30" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">{t('homeAppliances')}</text>
                     </svg>
                   </div>
                 </div>
@@ -469,55 +471,55 @@ export default function SalesOverviewPage() {
                 {/* Recent Sales */}
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Recent Sales</h3>
-                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">View all</button>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('recentSales')}</h3>
+                    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">{t('viewAll')}</button>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">Date</th>
-                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">Customer</th>
-                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">Amount</th>
-                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">Status</th>
+                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">{t('orderId')}</th>
+                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">{t('date')}</th>
+                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">{t('customer')}</th>
+                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">{t('amount')}</th>
+                          <th className="text-left py-3 px-2 text-xs font-medium text-gray-500 uppercase">{t('status')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         <tr>
                           <td className="py-3 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#OR345</a></td>
-                          <td className="py-3 px-2 text-sm text-gray-600">Today</td>
+                          <td className="py-3 px-2 text-sm text-gray-600">{t('today')}</td>
                           <td className="py-3 px-2 text-sm text-gray-600">John Smith</td>
                           <td className="py-3 px-2 text-sm font-medium text-gray-900">$54.00</td>
-                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Completed</span></td>
+                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">{t('completed')}</span></td>
                         </tr>
                         <tr>
                           <td className="py-3 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#OR344</a></td>
-                          <td className="py-3 px-2 text-sm text-gray-600">Yesterday</td>
+                          <td className="py-3 px-2 text-sm text-gray-600">{t('yesterday')}</td>
                           <td className="py-3 px-2 text-sm text-gray-600">Sarah Johnson</td>
                           <td className="py-3 px-2 text-sm font-medium text-gray-900">$12.50</td>
-                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700">Pending</span></td>
+                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700">{t('pending')}</span></td>
                         </tr>
                         <tr>
                           <td className="py-3 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#OR343</a></td>
-                          <td className="py-3 px-2 text-sm text-gray-600">2 days ago</td>
+                          <td className="py-3 px-2 text-sm text-gray-600">2 {t('daysAgo')}</td>
                           <td className="py-3 px-2 text-sm text-gray-600">Adam Black</td>
                           <td className="py-3 px-2 text-sm font-medium text-gray-900">$78.20</td>
-                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Completed</span></td>
+                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">{t('completed')}</span></td>
                         </tr>
                         <tr>
                           <td className="py-3 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#OR342</a></td>
-                          <td className="py-3 px-2 text-sm text-gray-600">3 days ago</td>
+                          <td className="py-3 px-2 text-sm text-gray-600">3 {t('daysAgo')}</td>
                           <td className="py-3 px-2 text-sm text-gray-600">Lisa Wilson</td>
                           <td className="py-3 px-2 text-sm font-medium text-gray-900">$29.90</td>
-                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Cancelled</span></td>
+                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">{t('cancelled')}</span></td>
                         </tr>
                         <tr>
                           <td className="py-3 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#OR341</a></td>
-                          <td className="py-3 px-2 text-sm text-gray-600">4 days ago</td>
+                          <td className="py-3 px-2 text-sm text-gray-600">4 {t('daysAgo')}</td>
                           <td className="py-3 px-2 text-sm text-gray-600">Tara Brown</td>
                           <td className="py-3 px-2 text-sm font-medium text-gray-900">$56.75</td>
-                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Completed</span></td>
+                          <td className="py-3 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">{t('completed')}</span></td>
                         </tr>
                       </tbody>
                     </table>
@@ -526,7 +528,7 @@ export default function SalesOverviewPage() {
 
                 {/* Insights & Highlights */}
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Insights & Highlights</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('insightsHighlights')}</h3>
                   <div className="space-y-4">
                     {/* Weekly Growth */}
                     <div className="p-4 rounded-lg bg-green-50 border border-green-100">
@@ -535,8 +537,8 @@ export default function SalesOverviewPage() {
                           <TrendingUp size={20} className="text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 mb-1">Weekly Growth</p>
-                          <p className="text-sm text-gray-600">New customers increased by 10% compared to last week.</p>
+                          <p className="font-semibold text-gray-900 mb-1">{t('weeklyGrowth')}</p>
+                          <p className="text-sm text-gray-600">{t('newCustomersIncreased')}</p>
                         </div>
                       </div>
                     </div>
@@ -548,8 +550,8 @@ export default function SalesOverviewPage() {
                           <Crown size={20} className="text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 mb-1">Top Category</p>
-                          <p className="text-sm text-gray-600">Electronics remains the top-selling category.</p>
+                          <p className="font-semibold text-gray-900 mb-1">{t('topCategory')}</p>
+                          <p className="text-sm text-gray-600">{t('electronicsRemainsTop')}</p>
                         </div>
                       </div>
                     </div>
@@ -561,8 +563,8 @@ export default function SalesOverviewPage() {
                           <Bell size={20} className="text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 mb-1">Peak Hours</p>
-                          <p className="text-sm text-gray-600">Most sales occur between 2 PM and 5 PM.</p>
+                          <p className="font-semibold text-gray-900 mb-1">{t('peakHours')}</p>
+                          <p className="text-sm text-gray-600">{t('mostSalesOccur')}</p>
                         </div>
                       </div>
                     </div>
@@ -574,8 +576,8 @@ export default function SalesOverviewPage() {
                           <Users size={20} className="text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 mb-1">Customer Retention</p>
-                          <p className="text-sm text-gray-600">Improved customer retention by 5% this month.</p>
+                          <p className="font-semibold text-gray-900 mb-1">{t('customerRetention')}</p>
+                          <p className="text-sm text-gray-600">{t('improvedRetention')}</p>
                         </div>
                       </div>
                     </div>
@@ -611,8 +613,8 @@ export default function SalesOverviewPage() {
           <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 space-y-6">
             {/* Header Section */}
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Analytics & Reports</h1>
-              <p className="text-xs text-gray-500 mt-1">Dashboard • Sales Overview</p>
+              <h1 className="text-xl font-bold text-gray-900">{t('analyticsReports')}</h1>
+              <p className="text-xs text-gray-500 mt-1">{t('dashboard')} • {t('salesOverview')}</p>
             </div>
 
             {/* Sales Overview Card */}
@@ -620,26 +622,26 @@ export default function SalesOverviewPage() {
               {/* Card Header */}
               <div className="flex flex-col gap-3 mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Sales Overview</h2>
-                  <p className="text-sm text-gray-500 mt-1">Track your sales performance and insights</p>
+                  <h2 className="text-xl font-bold text-gray-900">{t('salesOverview')}</h2>
+                  <p className="text-sm text-gray-500 mt-1">{t('trackSalesPerformance')}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <button className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white flex items-center gap-2 text-gray-700">
                     <Calendar size={16} />
-                    Today
+                    {t('today')}
                     <ChevronDown size={16} className="text-gray-500" />
                   </button>
                   <button className="px-3 py-2 text-sm rounded-md bg-orange-500 text-white flex items-center gap-2">
                     <Download size={16} />
-                    PDF
+                    {t('pdf')}
                   </button>
                   <button className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white flex items-center gap-2 text-gray-700">
                     <Table size={16} />
-                    Excel
+                    {t('excel')}
                   </button>
                   <button className="px-3 py-2 text-sm rounded-md border border-gray-300 bg-white flex items-center gap-2 text-gray-700">
                     <FileText size={16} />
-                    CSV
+                    {t('csv')}
                   </button>
                 </div>
               </div>
@@ -658,7 +660,7 @@ export default function SalesOverviewPage() {
                     </div>
                   </div>
                   <p className="text-2xl font-semibold text-gray-900">$12,540</p>
-                  <p className="text-sm text-gray-600 mt-1">Total Sales</p>
+                  <p className="text-sm text-gray-600 mt-1">{t('totalSales')}</p>
                 </div>
 
               {/* Total Orders Card */}
@@ -673,7 +675,7 @@ export default function SalesOverviewPage() {
                   </div>
                 </div>
                 <p className="text-2xl font-semibold text-gray-900">452</p>
-                <p className="text-sm text-gray-600 mt-1">Total Orders</p>
+                <p className="text-sm text-gray-600 mt-1">{t('totalOrders')}</p>
               </div>
 
               {/* Average Order Value Card */}
@@ -688,7 +690,7 @@ export default function SalesOverviewPage() {
                   </div>
                 </div>
                 <p className="text-2xl font-semibold text-gray-900">$27.75</p>
-                <p className="text-sm text-gray-600 mt-1">Average Order Value</p>
+                <p className="text-sm text-gray-600 mt-1">{t('averageOrderValue')}</p>
               </div>
 
               {/* Refunded Orders Card */}
@@ -702,7 +704,7 @@ export default function SalesOverviewPage() {
                   </div>
                 </div>
                 <p className="text-2xl font-semibold text-gray-900">14</p>
-                <p className="text-sm text-gray-600 mt-1">Refunded Orders</p>
+                <p className="text-sm text-gray-600 mt-1">{t('refundedOrders')}</p>
               </div>
             </div>
             </div>
@@ -710,7 +712,7 @@ export default function SalesOverviewPage() {
             {/* Sales Performance Section */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
-                <h3 className="text-lg font-semibold text-gray-900">Sales Performance</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('salesPerformance')}</h3>
                 <div className="flex items-center gap-2">
                 {['Daily', 'Weekly', 'Monthly'].map((tab) => (
                   <button
@@ -722,7 +724,7 @@ export default function SalesOverviewPage() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                      {tab}
+                      {t(tab.toLowerCase())}
                     </button>
                   ))}
                 </div>
@@ -733,7 +735,7 @@ export default function SalesOverviewPage() {
             {/* Orders Breakdown and Revenue by Category */}
             <div className="grid grid-cols-1 gap-6">
               <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Orders Breakdown</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('ordersBreakdown')}</h3>
                 <div className="flex flex-col items-center justify-center">
                   <div className="flex items-center justify-center mb-4 relative">
                   <svg viewBox="0 0 280 280" className="w-full max-w-[280px] h-auto">
@@ -758,26 +760,26 @@ export default function SalesOverviewPage() {
                     
                     {/* Label lines and text for Cancelled - top, pointing up */}
                     <line x1="145" y1="60.25" x2="145" y2="25" stroke="#fecaca" strokeWidth="1.5" />
-                    <text x="150" y="22" fontSize="13" fill="#ef4444" textAnchor="start" fontWeight="500">Cancelled</text>
+                    <text x="150" y="22" fontSize="13" fill="#ef4444" textAnchor="start" fontWeight="500">{t('cancelled')}</text>
                     
                     {/* Label lines and text for Pending - left side */}
                     <line x1="167" y1="67" x2="105" y2="55" stroke="#fde68a" strokeWidth="1.5" />
-                    <text x="100" y="52" fontSize="13" fill="#f59e0b" textAnchor="start" fontWeight="500">Pending</text>
+                    <text x="100" y="52" fontSize="13" fill="#f59e0b" textAnchor="start" fontWeight="500">{t('pending')}</text>
                     
                     {/* Label lines and text for Completed - bottom-right */}
                     <line x1="120" y1="130" x2="220" y2="230" stroke="#a7f3d0" strokeWidth="1.5" />
-                    <text x="225" y="233" fontSize="13" fill="#22c55e" textAnchor="start" fontWeight="500">Completed</text>
+                    <text x="225" y="233" fontSize="13" fill="#22c55e" textAnchor="start" fontWeight="500">{t('completed')}</text>
                   </svg>
                 </div>
                 {/* Completion Rate Text Below Chart */}
                 <div className="text-center mt-4">
-                  <p className="text-xl font-semibold text-[#22c55e]">92.5% Completion Rate</p>
+                  <p className="text-xl font-semibold text-[#22c55e]">92.5% {t('completionRate')}</p>
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue by Category</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('revenueByCategory')}</h3>
               <div className="flex items-center justify-center relative">
                 <svg viewBox="0 0 280 280" className="w-full max-w-[280px] h-auto">
                   {/* Pie Chart - Full Circle */}
@@ -800,15 +802,15 @@ export default function SalesOverviewPage() {
                   
                   {/* Label lines and text for Electronics - right side, connected to blue slice */}
                   <line x1="170" y1="135" x2="240" y2="140" stroke="#3B82F6" strokeWidth="1.5" />
-                  <text x="245" y="145" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">Electronics</text>
+                  <text x="245" y="145" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">{t('electronics')}</text>
                   
                   {/* Label lines and text for Fashion - below-left, connected to purple slice */}
                   <line x1="88" y1="162" x2="95" y2="240" stroke="#8B5CF6" strokeWidth="1.5" />
-                  <text x="100" y="245" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">Fashion</text>
+                  <text x="100" y="245" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">{t('fashion')}</text>
                   
                   {/* Label lines and text for Home Appliances - top-left, connected to green slice */}
                   <line x1="102" y1="85" x2="70" y2="35" stroke="#10B981" strokeWidth="1.5" />
-                  <text x="65" y="30" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">Home Appliances</text>
+                  <text x="65" y="30" fontSize="13" fill="#000000" textAnchor="start" fontWeight="bold">{t('homeAppliances')}</text>
                 </svg>
               </div>
             </div>
@@ -818,55 +820,55 @@ export default function SalesOverviewPage() {
           <div className="grid grid-cols-1 gap-6">
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Sales</h3>
-                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">View all</button>
+                <h3 className="text-lg font-semibold text-gray-900">{t('recentSales')}</h3>
+                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">{t('viewAll')}</button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">Customer</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">Amount</th>
-                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">{t('orderId')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">{t('date')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">{t('customer')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">{t('amount')}</th>
+                      <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 uppercase">{t('status')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     <tr>
                       <td className="py-2 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#82647</a></td>
-                      <td className="py-2 px-2 text-sm text-gray-600">Today</td>
+                      <td className="py-2 px-2 text-sm text-gray-600">{t('today')}</td>
                       <td className="py-2 px-2 text-sm text-gray-600">John Smith</td>
                       <td className="py-2 px-2 text-sm font-medium text-gray-900">$45.00</td>
-                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Completed</span></td>
+                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">{t('completed')}</span></td>
                     </tr>
                     <tr>
                       <td className="py-2 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#82646</a></td>
-                      <td className="py-2 px-2 text-sm text-gray-600">Yesterday</td>
+                      <td className="py-2 px-2 text-sm text-gray-600">{t('yesterday')}</td>
                       <td className="py-2 px-2 text-sm text-gray-600">Sarah Johnson</td>
                       <td className="py-2 px-2 text-sm font-medium text-gray-900">$32.50</td>
-                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700">Pending</span></td>
+                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700">{t('pending')}</span></td>
                     </tr>
                     <tr>
                       <td className="py-2 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#82645</a></td>
-                      <td className="py-2 px-2 text-sm text-gray-600">2 days ago</td>
+                      <td className="py-2 px-2 text-sm text-gray-600">2 {t('daysAgo')}</td>
                       <td className="py-2 px-2 text-sm text-gray-600">Adam Black</td>
                       <td className="py-2 px-2 text-sm font-medium text-gray-900">$78.20</td>
-                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Completed</span></td>
+                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">{t('completed')}</span></td>
                     </tr>
                     <tr>
                       <td className="py-2 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#82644</a></td>
-                      <td className="py-2 px-2 text-sm text-gray-600">3 days ago</td>
+                      <td className="py-2 px-2 text-sm text-gray-600">3 {t('daysAgo')}</td>
                       <td className="py-2 px-2 text-sm text-gray-600">Lisa Wilson</td>
                       <td className="py-2 px-2 text-sm font-medium text-gray-900">$29.90</td>
-                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Cancelled</span></td>
+                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">{t('cancelled')}</span></td>
                     </tr>
                     <tr>
                       <td className="py-2 px-2"><a href="#" className="text-sm text-blue-600 hover:underline">#82643</a></td>
-                      <td className="py-2 px-2 text-sm text-gray-600">4 days ago</td>
+                      <td className="py-2 px-2 text-sm text-gray-600">4 {t('daysAgo')}</td>
                       <td className="py-2 px-2 text-sm text-gray-600">Tara Brown</td>
                       <td className="py-2 px-2 text-sm font-medium text-gray-900">$56.75</td>
-                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Completed</span></td>
+                      <td className="py-2 px-2"><span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">{t('completed')}</span></td>
                     </tr>
                   </tbody>
                 </table>
@@ -874,7 +876,7 @@ export default function SalesOverviewPage() {
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Insights & Highlights</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('insightsHighlights')}</h3>
               <div className="space-y-3">
                 <div className="p-3 rounded-lg bg-green-50 border border-green-100">
                   <div className="flex items-start gap-3">
@@ -882,8 +884,8 @@ export default function SalesOverviewPage() {
                       <TrendingUp size={18} className="text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 mb-1 text-sm">Weekly Growth</p>
-                      <p className="text-xs text-gray-600">Your sales increased by 5% compared to last week.</p>
+                      <p className="font-semibold text-gray-900 mb-1 text-sm">{t('weeklyGrowth')}</p>
+                      <p className="text-xs text-gray-600">{t('newCustomersIncreased')}</p>
                     </div>
                   </div>
                 </div>
@@ -893,8 +895,8 @@ export default function SalesOverviewPage() {
                       <Crown size={18} className="text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 mb-1 text-sm">Top Category</p>
-                      <p className="text-xs text-gray-600">Electronics sales increased by $2,450 this month.</p>
+                      <p className="font-semibold text-gray-900 mb-1 text-sm">{t('topCategory')}</p>
+                      <p className="text-xs text-gray-600">{t('electronicsRemainsTop')}</p>
                     </div>
                   </div>
                 </div>
@@ -904,8 +906,8 @@ export default function SalesOverviewPage() {
                       <Bell size={18} className="text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 mb-1 text-sm">Pending Orders</p>
-                      <p className="text-xs text-gray-600">You have 15 new orders awaiting fulfillment.</p>
+                      <p className="font-semibold text-gray-900 mb-1 text-sm">{t('peakHours')}</p>
+                      <p className="text-xs text-gray-600">{t('mostSalesOccur')}</p>
                     </div>
                   </div>
                 </div>
@@ -915,8 +917,8 @@ export default function SalesOverviewPage() {
                       <Users size={18} className="text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900 mb-1 text-sm">Customer Retention</p>
-                      <p className="text-xs text-gray-600">8% of customers made repeat purchases.</p>
+                      <p className="font-semibold text-gray-900 mb-1 text-sm">{t('customerRetention')}</p>
+                      <p className="text-xs text-gray-600">{t('improvedRetention')}</p>
                     </div>
                   </div>
                 </div>

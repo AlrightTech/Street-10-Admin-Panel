@@ -4,8 +4,10 @@ import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { Menu, Search, Plus, Phone, Video, Info, Send, Paperclip, Smile, Truck, Eye, AlertTriangle } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function ChatPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
@@ -186,22 +188,22 @@ export default function ChatPage() {
           <main className="flex-1 flex flex-col overflow-hidden p-4 sm:p-6">
             {/* Page Header */}
             <div className="mb-4 sm:mb-6 flex-shrink-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Chat</h1>
-              <p className="text-sm text-gray-500 mt-1">Dashboard • Chat</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('chat')}</h1>
+              <p className="text-sm text-gray-500 mt-1">{t('dashboard')} • {t('chat')}</p>
             </div>
             <div className="flex-1 grid grid-cols-12 gap-2 sm:gap-4 min-h-0 overflow-hidden">
               {/* Conversations list */}
               <aside className="col-span-12 md:col-span-3 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col overflow-hidden">
                 <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Messages</h2>
-                  <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" aria-label="New message">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('messages')}</h2>
+                  <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" aria-label={t('newMessage')}>
                     <Plus size={18} className="sm:w-5 sm:h-5 text-gray-700" />
                   </button>
                 </div>
                 <div className="p-3 sm:p-4 border-b border-gray-200">
                   <div className="relative">
                     <Search size={16} className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input value={search} onChange={e=>setSearch(e.target.value)} className="w-full pl-8 sm:pl-9 pr-2 sm:pr-3 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Search by name, order ID" />
+                    <input value={search} onChange={e=>setSearch(e.target.value)} className="w-full pl-8 sm:pl-9 pr-2 sm:pr-3 py-2 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder={t('searchByNameOrderId')} />
                   </div>
                   <div className="flex items-center gap-2 mt-3 flex-wrap">
                     <button onClick={()=>setFilter('all')} className={`px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
@@ -209,21 +211,21 @@ export default function ChatPage() {
                         ? 'bg-primary-500 text-white'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                     }`}>
-                      All
+                      {t('all')}
                     </button>
                     <button onClick={()=>setFilter('customer')} className={`px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                       filter==='customer'
                         ? 'bg-primary-500 text-white'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                     }`}>
-                      Customers
+                      {t('customers')}
                     </button>
                     <button onClick={()=>setFilter('support')} className={`px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                       filter==='support'
                         ? 'bg-primary-500 text-white'
                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                     }`}>
-                      Support
+                      {t('support')}
                     </button>
                   </div>
                 </div>
@@ -249,7 +251,7 @@ export default function ChatPage() {
                           </div>
                           <p className="text-[11px] sm:text-xs text-gray-600 truncate mb-1">{last}</p>
                           {c.orderId && (
-                            <span className="text-[10px] px-1.5 sm:px-2 py-0.5 rounded bg-gray-100 text-gray-700">Order {c.orderId}</span>
+                            <span className="text-[10px] px-1.5 sm:px-2 py-0.5 rounded bg-gray-100 text-gray-700">{t('order')} {c.orderId}</span>
                           )}
                         </div>
                       </button>
@@ -267,11 +269,11 @@ export default function ChatPage() {
                     <div>
                       <h3 className="text-sm sm:text-base font-semibold text-gray-900">{active.name}</h3>
                       {active.orderId && (
-                        <p className="text-[10px] sm:text-xs text-gray-600 mt-0.5">Order {active.orderId}</p>
+                        <p className="text-[10px] sm:text-xs text-gray-600 mt-0.5">{t('order')} {active.orderId}</p>
                       )}
                       <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 sm:mt-1">
                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500"></span>
-                        <span className="text-[10px] sm:text-xs text-green-600 font-medium">Online</span>
+                        <span className="text-[10px] sm:text-xs text-green-600 font-medium">{t('online')}</span>
                       </div>
                     </div>
                   </div>
@@ -329,17 +331,17 @@ export default function ChatPage() {
 
                 {/* Quick Replies - Fixed */}
                 <div className="flex-shrink-0 px-3 sm:px-4 pt-2 pb-2 flex gap-2 overflow-x-auto bg-white border-t border-gray-200">
-                  <button 
-                    onClick={()=>insertQuick('Thank you for your order!')} 
+                    <button 
+                    onClick={()=>insertQuick(t('quickReply1'))} 
                     className="text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition-colors whitespace-nowrap flex-shrink-0"
                   >
-                    Thank you for your order!
+                    {t('quickReply1')}
                   </button>
                   <button 
-                    onClick={()=>insertQuick('Issue forwarded to support')} 
+                    onClick={()=>insertQuick(t('quickReply2'))} 
                     className="text-xs px-2.5 sm:px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition-colors whitespace-nowrap flex-shrink-0"
                   >
-                    Issue forwarded to support
+                    {t('quickReply2')}
                   </button>
                 </div>
 
@@ -361,7 +363,7 @@ export default function ChatPage() {
                       onChange={e=>setDraft(e.target.value)} 
                       onKeyDown={e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } }} 
                       className="flex-1 min-w-0 px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
-                      placeholder="Type your message here" 
+                      placeholder={t('typeMessage')} 
                     />
                     <button 
                       onClick={handleAttachClick}
@@ -414,22 +416,22 @@ export default function ChatPage() {
               <aside className="hidden md:block col-span-12 md:col-span-3 bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 space-y-4 sm:space-y-5 overflow-y-auto">
                 {/* Order Details */}
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">Order Details</h3>
+                  <h3 className="text-base font-semibold text-gray-900 mb-3">{t('orderDetails')}</h3>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Order ID</span>
+                      <span className="text-xs text-gray-600">{t('orderId')}</span>
                       <span className="text-sm font-semibold text-primary-500">{active.orderId || '—'}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Status</span>
-                      <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded">Shipped</span>
+                      <span className="text-xs text-gray-600">{t('status')}</span>
+                      <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded">{t('shipped')}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Amount</span>
+                      <span className="text-xs text-gray-600">{t('amount')}</span>
                       <span className="text-sm font-semibold text-gray-900">$89.99</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">Date</span>
+                      <span className="text-xs text-gray-600">{t('date')}</span>
                       <span className="text-xs text-gray-900">Dec 28, 2024</span>
                     </div>
                   </div>
@@ -437,14 +439,14 @@ export default function ChatPage() {
 
                 {/* Product */}
                     <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">Product</h3>
+                  <h3 className="text-base font-semibold text-gray-900 mb-3">{t('product')}</h3>
                   <div className="bg-white border border-gray-200 rounded-lg p-3 flex items-center gap-3">
                     <img src="/images/sidebar-topicon.png" className="w-14 h-14 rounded-lg object-cover flex-shrink-0" alt="product" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 mb-1">{active.product?.title || 'Wireless Bluetooth Headphones'}</p>
-                      <p className="text-xs text-gray-600">Qty: {active.product?.qty || 1}</p>
+                      <p className="text-xs text-gray-600">{t('quantity')}: {active.product?.qty || 1}</p>
                       {active.product?.variant && (
-                        <p className="text-xs text-gray-600">Color: {active.product.variant}</p>
+                        <p className="text-xs text-gray-600">{t('variant')}: {active.product.variant}</p>
                       )}
                     </div>
                   </div>
@@ -452,13 +454,13 @@ export default function ChatPage() {
 
                 {/* Customer Info */}
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">Customer Info</h3>
+                  <h3 className="text-base font-semibold text-gray-900 mb-3">{t('customerInfo')}</h3>
                   <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-3">
                       <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(active.name)}`} className="w-10 h-10 rounded-full flex-shrink-0" alt={active.name} />
                       <div>
                         <p className="text-sm font-semibold text-gray-900">{active.name}</p>
-                        <p className="text-xs text-gray-600">Premium Customer</p>
+                        <p className="text-xs text-gray-600">{t('premiumCustomer')}</p>
                       </div>
                     </div>
                     <div className="space-y-2 pt-2 border-t border-gray-100">
@@ -471,19 +473,19 @@ export default function ChatPage() {
 
                 {/* Actions */}
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">Actions</h3>
+                  <h3 className="text-base font-semibold text-gray-900 mb-3">{t('actions')}</h3>
                   <div className="space-y-2">
                     <button className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-primary-500 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2 font-medium">
                       <Eye size={16} />
-                      View Full Order
+                      {t('viewFullOrder')}
                     </button>
                     <button className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 font-medium">
                       <Truck size={16} />
-                      Track Shipment
+                      {t('trackShipment')}
                     </button>
                     <button className="w-full text-sm px-4 py-2.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 font-medium">
                       <AlertTriangle size={16} />
-                      Report Issue
+                      {t('reportIssue')}
                     </button>
                   </div>
                 </div>
@@ -511,16 +513,16 @@ export default function ChatPage() {
         <main className="p-3 space-y-3 pt-20 lg:pt-4">
           {/* Page Header */}
           <div className="mb-4">
-            <h1 className="text-xl font-bold text-gray-900">Chat</h1>
-            <p className="text-xs text-gray-500 mt-1">Dashboard • Chat</p>
+            <h1 className="text-xl font-bold text-gray-900">{t('chat')}</h1>
+            <p className="text-xs text-gray-500 mt-1">{t('dashboard')} • {t('chat')}</p>
           </div>
 
           {/* Tabs - Below Headings */}
           <div className="bg-white rounded-lg border border-gray-200 px-2 py-2 mb-4">
             <div className="flex gap-2 overflow-x-auto text-sm">
-              <button onClick={()=>setMobileTab('messages')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='messages'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>Messages</button>
-              <button onClick={()=>setMobileTab('chat')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='chat'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>Chat</button>
-              <button onClick={()=>setMobileTab('details')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='details'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>Details</button>
+              <button onClick={()=>setMobileTab('messages')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='messages'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>{t('messages')}</button>
+              <button onClick={()=>setMobileTab('chat')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='chat'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>{t('chat')}</button>
+              <button onClick={()=>setMobileTab('details')} className={`px-3 py-2 rounded-md font-medium transition-colors ${mobileTab==='details'?'bg-orange-500 text-white':'text-gray-600 hover:text-gray-900'}`}>{t('details')}</button>
             </div>
           </div>
 
@@ -530,7 +532,7 @@ export default function ChatPage() {
               <div className="p-3 border-b">
                 <div className="relative">
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input value={search} onChange={e=>setSearch(e.target.value)} className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg" placeholder="Search by name, order ID..." />
+                  <input value={search} onChange={e=>setSearch(e.target.value)} className="w-full pl-9 pr-3 py-2 text-sm border rounded-lg" placeholder={t('searchByNameOrderId')} />
                 </div>
               </div>
               <div className="divide-y">

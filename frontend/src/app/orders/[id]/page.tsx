@@ -2,16 +2,18 @@
 
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, ArrowLeft, Download, Printer, RefreshCw, DollarSign, MapPin, Package, Truck, Home, Check, User, Phone, Mail, Settings, ChevronDown, PackageSearch } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function OrderDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const { t, translateOrder } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  const order = {
+  const rawOrder = {
     id: params.id,
     orderNumber: '#2345',
     orderDate: 'Dec 15, 2024',
@@ -54,6 +56,9 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
     ]
   }
 
+  // Automatically translate order data based on current language
+  const order = useMemo(() => translateOrder(rawOrder), [rawOrder, translateOrder])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="hidden lg:flex h-screen overflow-hidden">
@@ -83,38 +88,38 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Orders</h1>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard {'>'} Order Details</p>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('orders')}</h1>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} {'>'} {t('orderDetails')}</p>
                 </div>
                 <button
                   onClick={() => router.push(`/orders/${params.id}/invoice`)}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base"
                 >
                   <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
-                  <span>View Receipt</span>
+                  <span>{t('viewReceipt')}</span>
                 </button>
               </div>
 
               {/* Order Details Section */}
               <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Order Details</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">{t('orderDetails')}</h2>
                 <div className="border-b border-gray-200 mb-4 sm:mb-6"></div>
                 {/* Order Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {/* Order ID Card */}
                   <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs sm:text-sm font-medium text-blue-600 mb-1 sm:mb-2">Order ID</p>
+                    <p className="text-xs sm:text-sm font-medium text-blue-600 mb-1 sm:mb-2">{t('orderId')}</p>
                     <p className="text-lg sm:text-xl font-bold text-blue-900">{order.orderNumber}</p>
                   </div>
                   {/* Order Date Card */}
                   <div className="bg-green-50 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs sm:text-sm font-medium text-green-600 mb-1 sm:mb-2">Order Date</p>
+                    <p className="text-xs sm:text-sm font-medium text-green-600 mb-1 sm:mb-2">{t('orderDate')}</p>
                     <p className="text-base sm:text-lg font-bold text-green-900">{order.orderDate}</p>
                     <p className="text-xs sm:text-sm font-medium text-green-900 mt-1">{order.orderTime}</p>
                   </div>
                   {/* Total Amount Card */}
                   <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs sm:text-sm font-medium text-purple-600 mb-1 sm:mb-2">Total Amount</p>
+                    <p className="text-xs sm:text-sm font-medium text-purple-600 mb-1 sm:mb-2">{t('totalAmount')}</p>
                     <p className="text-lg sm:text-xl font-bold text-purple-900">{order.totalAmount}</p>
                   </div>
                 </div>
@@ -122,7 +127,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
               {/* Customer Information */}
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border-b border-gray-200">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Customer Information</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('customerInformation')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                   {/* Left Column - Contact Details */}
                   <div className="space-y-6">
@@ -130,7 +135,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <User size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Name</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('name')}</p>
                         <p className="text-sm font-medium text-gray-900">{order.customer.name}</p>
                       </div>
                     </div>
@@ -138,7 +143,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <Phone size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Phone</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('phone')}</p>
                         <p className="text-sm font-medium text-gray-900">{order.customer.phone}</p>
                       </div>
                     </div>
@@ -146,7 +151,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <Mail size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Email</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('email')}</p>
                         <p className="text-sm font-medium text-gray-900">{order.customer.email}</p>
                       </div>
                     </div>
@@ -156,7 +161,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <MapPin size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Shipping Address</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('shippingAddress')}</p>
                         <div className="text-sm font-medium text-gray-900">
                           <p>{order.customer.address.line1}</p>
                           <p>{order.customer.address.line2}</p>
@@ -170,15 +175,15 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
               {/* Order Items */}
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Order Items</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">{t('orderItems')}</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Product</th>
-                      <th className="text-center py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Qty</th>
-                      <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Unit Price</th>
-                      <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Subtotal</th>
+                      <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('product')}</th>
+                      <th className="text-center py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('qty')}</th>
+                      <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('unitPrice')}</th>
+                      <th className="text-right py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{t('subtotal')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -193,7 +198,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                             />
                             <div className="min-w-0">
                               <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                              <p className="text-xs text-gray-500 mt-0.5">SKU: {item.sku}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">{t('sku')}: {item.sku}</p>
                             </div>
                           </div>
                         </td>
@@ -205,7 +210,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     {/* Shipping Row */}
                     <tr className="bg-gray-50 border-t-2 border-gray-300">
                       <td className="py-3 px-3 sm:px-4">
-                        <p className="text-xs sm:text-sm text-gray-700">Shipping</p>
+                        <p className="text-xs sm:text-sm text-gray-700">{t('shipping')}</p>
                       </td>
                       <td className="py-3 px-3 sm:px-4"></td>
                       <td className="py-3 px-3 sm:px-4"></td>
@@ -214,7 +219,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     {/* Total Row */}
                     <tr className="bg-gray-50">
                       <td className="py-3 px-3 sm:px-4">
-                        <p className="text-sm sm:text-base font-bold text-gray-900">Total</p>
+                        <p className="text-sm sm:text-base font-bold text-gray-900">{t('total')}</p>
                       </td>
                       <td className="py-3 px-3 sm:px-4"></td>
                       <td className="py-3 px-3 sm:px-4"></td>
@@ -229,21 +234,21 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Payment Information */}
                 <div className="bg-gray-50 rounded-lg p-4 sm:p-6 shadow-sm">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Payment Information</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('paymentInformation')}</h3>
                   <div className="space-y-3 sm:space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Payment Method</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('paymentMethod')}</p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs sm:text-sm font-medium text-gray-900">{order.payment.method}</span>
                         <span className="text-xs sm:text-sm font-medium text-gray-900">... {order.payment.cardLast4}</span>
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Transaction ID</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('transactionId')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.payment.transactionId}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Status</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('status')}</p>
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium w-fit">
                         {order.payment.status}
                       </span>
@@ -253,18 +258,18 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
                 {/* Delivery Information */}
                 <div className="bg-gray-50 rounded-lg p-4 sm:p-6 shadow-sm">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Delivery Information</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('deliveryInformation')}</h3>
                   <div className="space-y-3 sm:space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Shipping Method</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('shippingMethod')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.delivery.method}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Courier</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('courier')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.delivery.courier}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Tracking Number</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('trackingNumber')}</p>
                       <button 
                         onClick={() => router.push(`/orders/${params.id}/tracking`)}
                         className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 w-fit text-left sm:text-right"
@@ -273,7 +278,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                       </button>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Est. Delivery</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('estDelivery')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.delivery.estDelivery}</p>
                     </div>
                   </div>
@@ -282,7 +287,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
               {/* Order Timeline */}
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Order Timeline</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('orderTimeline')}</h3>
                 <div className="relative">
                   {/* Timeline line */}
                   <div className="absolute left-3 sm:left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
@@ -300,9 +305,11 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                         IconComponent = Settings
                       } else {
                         iconColor = 'bg-gray-300'
-                        if (step.status === 'Shipped') {
+                        // Check original status from rawOrder for icon selection
+                        const originalStep = rawOrder.timeline[index]
+                        if (originalStep && originalStep.status === 'Shipped') {
                           IconComponent = Truck
-                        } else if (step.status === 'Delivered') {
+                        } else if (originalStep && originalStep.status === 'Delivered') {
                           IconComponent = Home
                         } else {
                           IconComponent = Check
@@ -332,27 +339,27 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors text-xs sm:text-sm font-medium"
                 >
                   <PackageSearch size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate">Add Tracking</span>
+                  <span className="truncate">{t('addTracking')}</span>
                 </button>
                 <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-xs sm:text-sm font-medium">
-                  <span className="truncate">Update Status</span>
+                  <span className="truncate">{t('updateStatus')}</span>
                   <ChevronDown size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
                 </button>
                 <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors text-xs sm:text-sm font-medium">
                   <RefreshCw size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate">Issue Refund</span>
+                  <span className="truncate">{t('issueRefund')}</span>
                 </button>
                 <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium">
                   <Download size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden md:inline truncate">Download Invoice</span>
-                  <span className="hidden sm:inline md:hidden truncate">Invoice</span>
-                  <span className="sm:hidden truncate">Invoice</span>
+                  <span className="hidden md:inline truncate">{t('downloadInvoice')}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('downloadInvoice')}</span>
+                  <span className="sm:hidden truncate">{t('downloadInvoice')}</span>
                 </button>
                 <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium">
                   <Printer size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden md:inline truncate">Print Order</span>
-                  <span className="hidden sm:inline md:hidden truncate">Print</span>
-                  <span className="sm:hidden truncate">Print</span>
+                  <span className="hidden md:inline truncate">{t('printOrder')}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('printOrder')}</span>
+                  <span className="sm:hidden truncate">{t('printOrder')}</span>
                 </button>
               </div>
             </div>
@@ -385,38 +392,38 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders</h1>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard {'>'} Order Details</p>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('orders')}</h1>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} {'>'} {t('orderDetails')}</p>
                 </div>
                 <button
                   onClick={() => router.push(`/orders/${params.id}/invoice`)}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm"
                 >
                   <Download size={16} />
-                  <span>View Receipt</span>
+                  <span>{t('viewReceipt')}</span>
                 </button>
               </div>
 
               {/* Order Details Section */}
               <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Order Details</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4">{t('orderDetails')}</h2>
                 <div className="border-b border-gray-200 mb-4 sm:mb-6"></div>
                 {/* Order Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {/* Order ID Card */}
                   <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs sm:text-sm font-medium text-blue-600 mb-1 sm:mb-2">Order ID</p>
+                    <p className="text-xs sm:text-sm font-medium text-blue-600 mb-1 sm:mb-2">{t('orderId')}</p>
                     <p className="text-lg sm:text-xl font-bold text-blue-900">{order.orderNumber}</p>
                   </div>
                   {/* Order Date Card */}
                   <div className="bg-green-50 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs sm:text-sm font-medium text-green-600 mb-1 sm:mb-2">Order Date</p>
+                    <p className="text-xs sm:text-sm font-medium text-green-600 mb-1 sm:mb-2">{t('orderDate')}</p>
                     <p className="text-base sm:text-lg font-bold text-green-900">{order.orderDate}</p>
                     <p className="text-xs sm:text-sm font-medium text-green-900 mt-1">{order.orderTime}</p>
                   </div>
                   {/* Total Amount Card */}
                   <div className="bg-purple-50 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs sm:text-sm font-medium text-purple-600 mb-1 sm:mb-2">Total Amount</p>
+                    <p className="text-xs sm:text-sm font-medium text-purple-600 mb-1 sm:mb-2">{t('totalAmount')}</p>
                     <p className="text-lg sm:text-xl font-bold text-purple-900">{order.totalAmount}</p>
                   </div>
                 </div>
@@ -424,7 +431,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
               {/* Customer Information */}
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border-b border-gray-200">
-                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Customer Information</h2>
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('customerInformation')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                   {/* Left Column - Contact Details */}
                   <div className="space-y-6">
@@ -432,7 +439,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <User size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Name</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('name')}</p>
                         <p className="text-sm font-medium text-gray-900">{order.customer.name}</p>
                       </div>
                     </div>
@@ -440,7 +447,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <Phone size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Phone</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('phone')}</p>
                         <p className="text-sm font-medium text-gray-900">{order.customer.phone}</p>
                       </div>
                     </div>
@@ -448,7 +455,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <Mail size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Email</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('email')}</p>
                         <p className="text-sm font-medium text-gray-900">{order.customer.email}</p>
                       </div>
                     </div>
@@ -458,7 +465,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex items-start gap-3">
                       <MapPin size={20} className="text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Shipping Address</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('shippingAddress')}</p>
                         <div className="text-sm font-medium text-gray-900">
                           <p>{order.customer.address.line1}</p>
                           <p>{order.customer.address.line2}</p>
@@ -531,21 +538,21 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Payment Information */}
                 <div className="bg-gray-50 rounded-lg p-4 sm:p-6 shadow-sm">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Payment Information</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('paymentInformation')}</h3>
                   <div className="space-y-3 sm:space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Payment Method</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('paymentMethod')}</p>
                       <div className="flex items-center gap-2">
                         <span className="text-xs sm:text-sm font-medium text-gray-900">{order.payment.method}</span>
                         <span className="text-xs sm:text-sm font-medium text-gray-900">... {order.payment.cardLast4}</span>
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Transaction ID</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('transactionId')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.payment.transactionId}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Status</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('status')}</p>
                       <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium w-fit">
                         {order.payment.status}
                       </span>
@@ -555,18 +562,18 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
                 {/* Delivery Information */}
                 <div className="bg-gray-50 rounded-lg p-4 sm:p-6 shadow-sm">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Delivery Information</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('deliveryInformation')}</h3>
                   <div className="space-y-3 sm:space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Shipping Method</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('shippingMethod')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.delivery.method}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Courier</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('courier')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.delivery.courier}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Tracking Number</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('trackingNumber')}</p>
                       <button 
                         onClick={() => router.push(`/orders/${params.id}/tracking`)}
                         className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 w-fit text-left sm:text-right"
@@ -575,7 +582,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                       </button>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                      <p className="text-xs sm:text-sm text-gray-600">Est. Delivery</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{t('estDelivery')}</p>
                       <p className="text-xs sm:text-sm font-medium text-gray-900">{order.delivery.estDelivery}</p>
                     </div>
                   </div>
@@ -584,7 +591,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
 
               {/* Order Timeline */}
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Order Timeline</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">{t('orderTimeline')}</h3>
                 <div className="relative">
                   {/* Timeline line */}
                   <div className="absolute left-3 sm:left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
