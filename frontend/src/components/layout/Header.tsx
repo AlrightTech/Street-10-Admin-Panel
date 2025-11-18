@@ -39,24 +39,24 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
   }
 
   const allNotifications = [
-    { id: '1', icon: Package, title: 'New order received', desc: 'Order #10425 has been placed by Sarah Johnson. Total amount: $129.99', tags: [{t:'New Order',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '2 minutes ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '2', icon: DollarSign, title: 'Withdrawal completed', desc: 'Your withdrawal request of $560.00 has been processed successfully to your bank account ending in 4567.', tags: [{t:'Payout',c:'bg-blue-100 text-blue-700'}], links: ['View Transaction'], time: '1 day ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
-    { id: '3', icon: RefreshCcw, title: 'Refund policy updated', desc: 'Your refund policy has been successfully updated. The new policy will take effect immediately for all new orders.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['View Policy'], time: '5 days ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
-    { id: '4', icon: Truck, title: 'Order shipped', desc: 'Order #10198 has been shipped via FedEx. Tracking number: IZ999AA1234567890. Expected delivery: Jan 28, 2025', tags: [{t:'Order Update',c:'bg-orange-100 text-orange-700'}], links: ['Track Package'], time: '1 week ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '5', icon: AlertTriangle, title: 'Low stock alert', desc: 'Product "Wireless Bluetooth Headphones" is running low on stock. Only 3 units remaining. Consider restocking soon.', tags: [{t:'Stock Alert',c:'bg-red-100 text-red-700'}], links: ['Restock Now'], time: '1 week ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '6', icon: Star, title: 'New 5-star review', desc: 'Michael Davis left a 5-star review for "Premium Coffee Beans": "Excellent quality and fast shipping. Highly recommended!"', tags: [{t:'Review',c:'bg-yellow-100 text-yellow-700'}], links: ['View Review'], time: '2 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '7', icon: Package, title: 'Order #10420 delivered', desc: 'Order #10420 has been successfully delivered to John Smith. Customer confirmed receipt.', tags: [{t:'Order Delivered',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '2 weeks ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '8', icon: DollarSign, title: 'Payment received', desc: 'Payment of $89.50 has been received for Order #10418. Funds will be available in 2-3 business days.', tags: [{t:'Payment',c:'bg-blue-100 text-blue-700'}], links: ['View Transaction'], time: '3 weeks ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
-    { id: '9', icon: RefreshCcw, title: 'System maintenance scheduled', desc: 'Scheduled maintenance will occur on January 30, 2025 from 2:00 AM to 4:00 AM EST. Some features may be temporarily unavailable.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['Learn More'], time: '3 weeks ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
-    { id: '10', icon: Truck, title: 'Order #10415 out for delivery', desc: 'Order #10415 is out for delivery. Expected to arrive today between 10:00 AM and 2:00 PM.', tags: [{t:'Order Update',c:'bg-orange-100 text-orange-700'}], links: ['Track Package'], time: '3 weeks ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '11', icon: AlertTriangle, title: 'Product review pending', desc: 'Order #10412 has been completed. Remind customer to leave a review to improve your store rating.', tags: [{t:'Review Request',c:'bg-yellow-100 text-yellow-700'}], links: ['Send Reminder'], time: '4 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '12', icon: Star, title: 'New 4-star review', desc: 'Emily Wilson left a 4-star review for "Organic Tea Collection": "Great product, fast delivery. Would order again!"', tags: [{t:'Review',c:'bg-yellow-100 text-yellow-700'}], links: ['View Review'], time: '4 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '13', icon: Package, title: 'Bulk order received', desc: 'A bulk order of 50 units has been placed for "Premium Coffee Beans" by Corporate Client Inc.', tags: [{t:'Bulk Order',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '1 month ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '14', icon: DollarSign, title: 'Monthly payout processed', desc: 'Your monthly payout of $2,450.00 has been processed and transferred to your bank account.', tags: [{t:'Payout',c:'bg-blue-100 text-blue-700'}], links: ['View Statement'], time: '1 month ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
-    { id: '15', icon: RefreshCcw, title: 'New feature available', desc: 'We\'ve added a new analytics dashboard feature. Check it out to get better insights into your sales performance.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['Explore Feature'], time: '1 month ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
-    { id: '16', icon: Truck, title: 'Order #10405 returned', desc: 'Order #10405 has been returned by the customer. Reason: Item not as described. Refund will be processed within 5-7 business days.', tags: [{t:'Return',c:'bg-red-100 text-red-700'}], links: ['Process Refund'], time: '1 month ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
-    { id: '17', icon: AlertTriangle, title: 'Inventory sync completed', desc: 'Your inventory has been successfully synced with all sales channels. All product quantities are up to date.', tags: [{t:'Inventory',c:'bg-blue-100 text-blue-700'}], links: ['View Inventory'], time: '1 month ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'system' as const },
-    { id: '18', icon: Star, title: 'Store rating improved', desc: 'Your store rating has improved to 4.8 stars! Keep up the great work with excellent customer service.', tags: [{t:'Achievement',c:'bg-green-100 text-green-700'}], links: ['View Ratings'], time: '2 months ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '1', icon: Package, titleKey: 'newOrderReceived', descKey: 'orderPlacedBy', tags: [{tKey:'newOrder',c:'bg-green-100 text-green-700'}], links: [{tKey:'viewOrder'}], timeKey: 'twoMinutesAgo', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '2', icon: DollarSign, titleKey: 'withdrawalCompleted', descKey: 'withdrawalProcessed', tags: [{tKey:'payout',c:'bg-blue-100 text-blue-700'}], links: [{tKey:'viewTransaction'}], timeKey: 'oneDayAgo', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+    { id: '3', icon: RefreshCcw, titleKey: 'refundPolicyUpdated', descKey: 'refundPolicyUpdatedDesc', tags: [{tKey:'systemUpdate',c:'bg-purple-100 text-purple-700'}], links: [{tKey:'viewPolicy'}], timeKey: 'fiveDaysAgo', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '4', icon: Truck, titleKey: 'orderShipped', descKey: 'orderShippedDesc', tags: [{tKey:'orderUpdate',c:'bg-orange-100 text-orange-700'}], links: [{tKey:'trackPackage'}], timeKey: 'oneWeekAgo', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '5', icon: AlertTriangle, titleKey: 'lowStockAlert', descKey: 'lowStockDesc', tags: [{tKey:'stockAlert',c:'bg-red-100 text-red-700'}], links: [{tKey:'restockNow'}], timeKey: 'oneWeekAgo', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '6', icon: Star, titleKey: 'new5StarReview', descKey: 'new5StarReviewDesc', tags: [{tKey:'review',c:'bg-yellow-100 text-yellow-700'}], links: [{tKey:'viewReview'}], timeKey: 'twoWeeksAgo', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '7', icon: Package, titleKey: 'orderDelivered', descKey: 'orderDeliveredDesc', tags: [{tKey:'orderDelivered',c:'bg-green-100 text-green-700'}], links: [{tKey:'viewOrder'}], timeKey: 'twoWeeksAgo', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '8', icon: DollarSign, titleKey: 'paymentReceived', descKey: 'paymentReceivedDesc', tags: [{tKey:'payout',c:'bg-blue-100 text-blue-700'}], links: [{tKey:'viewTransaction'}], timeKey: 'threeWeeksAgo', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+    { id: '9', icon: RefreshCcw, titleKey: 'systemMaintenanceScheduled', descKey: 'systemMaintenanceDesc', tags: [{tKey:'systemUpdate',c:'bg-purple-100 text-purple-700'}], links: [{tKey:'viewPolicy'}], timeKey: 'threeWeeksAgo', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '10', icon: Truck, titleKey: 'orderOutForDelivery', descKey: 'orderOutForDeliveryDesc', tags: [{tKey:'orderUpdate',c:'bg-orange-100 text-orange-700'}], links: [{tKey:'trackPackage'}], timeKey: 'threeWeeksAgo', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '11', icon: AlertTriangle, titleKey: 'productReviewPending', descKey: 'reviewPendingDesc', tags: [{tKey:'reviewRequest',c:'bg-yellow-100 text-yellow-700'}], links: [{tKey:'sendReminder'}], timeKey: 'fourWeeksAgo', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '12', icon: Star, titleKey: 'new4StarReview', descKey: 'new4StarReviewDesc', tags: [{tKey:'review',c:'bg-yellow-100 text-yellow-700'}], links: [{tKey:'viewReview'}], timeKey: 'fourWeeksAgo', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '13', icon: Package, titleKey: 'bulkOrderReceived', descKey: 'bulkOrderDesc', tags: [{tKey:'newOrder',c:'bg-green-100 text-green-700'}], links: [{tKey:'viewOrder'}], timeKey: 'oneMonthAgo', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '14', icon: DollarSign, titleKey: 'monthlyPayoutProcessed', descKey: 'monthlyPayoutDesc', tags: [{tKey:'payout',c:'bg-blue-100 text-blue-700'}], links: [{tKey:'viewStatement'}], timeKey: 'oneMonthAgo', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+    { id: '15', icon: RefreshCcw, titleKey: 'newFeatureAvailable', descKey: 'newFeatureDesc', tags: [{tKey:'systemUpdate',c:'bg-purple-100 text-purple-700'}], links: [{tKey:'exploreFeature'}], timeKey: 'oneMonthAgo', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '16', icon: Truck, titleKey: 'orderReturned', descKey: 'orderReturnedDesc', tags: [{tKey:'return',c:'bg-red-100 text-red-700'}], links: [{tKey:'processRefund'}], timeKey: 'oneMonthAgo', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
+    { id: '17', icon: AlertTriangle, titleKey: 'inventorySyncCompleted', descKey: 'inventorySyncDesc', tags: [{tKey:'inventory',c:'bg-blue-100 text-blue-700'}], links: [{tKey:'viewInventory'}], timeKey: 'oneMonthAgo', color: 'text-blue-600', dot: 'bg-purple-500', type: 'system' as const },
+    { id: '18', icon: Star, titleKey: 'storeRatingImproved', descKey: 'storeRatingDesc', tags: [{tKey:'achievement',c:'bg-green-100 text-green-700'}], links: [{tKey:'viewRatings'}], timeKey: 'twoMonthsAgo', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
   ]
 
   // Filter out cleared notifications and apply active filter
@@ -270,7 +270,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                             : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                         }`}
                       >
-                        {language === 'ar' ? 'المدفوعات' : 'Payouts'}
+                        {t('payouts')}
                       </button>
                       <button 
                         onClick={() => handleFilterChange('system')}
@@ -280,7 +280,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                             : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                         }`}
                       >
-                        {language === 'ar' ? 'النظام' : 'System'}
+                        {t('systemUpdates')}
                       </button>
                     </div>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
@@ -289,7 +289,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                         disabled={filteredNotifications.length === 0 || filteredNotifications.every(n => readNotifications.has(n.id))}
                         className="text-xs text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        {language === 'ar' ? 'تعليم الكل كمقروء' : 'Mark all as read'}
+                        {t('markAllAsRead')}
                       </button>
                       <span className="h-3 w-px bg-gray-300" />
                       <button 
@@ -297,7 +297,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                         disabled={filteredNotifications.length === 0}
                         className="text-xs text-red-500 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        {language === 'ar' ? 'مسح الكل' : 'Clear all'}
+                        {t('clearAll')}
                       </button>
                     </div>
                   </div>
@@ -314,19 +314,19 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <h3 className={`text-sm font-semibold ${isRead ? 'text-gray-600' : 'text-gray-900'}`}>{n.title}</h3>
+                                <h3 className={`text-sm font-semibold ${isRead ? 'text-gray-600' : 'text-gray-900'}`}>{t(n.titleKey)}</h3>
                                 <div className="flex items-center gap-2 flex-shrink-0">
-                                  <span className="text-[11px] text-gray-500 whitespace-nowrap">{n.time}</span>
+                                  <span className="text-[11px] text-gray-500 whitespace-nowrap">{t(n.timeKey)}</span>
                                   {!isRead && <span className={`h-1.5 w-1.5 rounded-full ${n.dot}`} />}
                                 </div>
                               </div>
-                            <p className="text-sm text-gray-600 mt-1 break-words">{n.desc}</p>
+                            <p className="text-sm text-gray-600 mt-1 break-words">{t(n.descKey)}</p>
                             <div className="flex items-center gap-2 mt-2 flex-wrap">
-                              {n.tags.map((tag) => (
-                                <span key={tag.t} className={`px-2 py-0.5 rounded-md text-[11px] ${tag.c} border border-gray-200`}>{tag.t}</span>
+                              {n.tags.map((tag, idx) => (
+                                <span key={idx} className={`px-2 py-0.5 rounded-md text-[11px] ${tag.c} border border-gray-200`}>{t(tag.tKey)}</span>
                               ))}
-                              {n.links.map((a) => (
-                                <button key={a} className="text-xs text-orange-600 hover:underline whitespace-nowrap">{a}</button>
+                              {n.links.map((link, idx) => (
+                                <button key={idx} className="text-xs text-orange-600 hover:underline whitespace-nowrap">{t(link.tKey)}</button>
                               ))}
                             </div>
                           </div>
@@ -336,7 +336,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                     ) : (
                       <div className="p-8 text-center">
                         <Bell size={48} className="mx-auto text-gray-300 mb-3" />
-                        <p className="text-sm text-gray-500">{language === 'ar' ? 'لم يتم العثور على إشعارات' : 'No notifications found'}</p>
+                        <p className="text-sm text-gray-500">{t('noNotificationsFound')}</p>
                       </div>
                     )}
                   </div>
@@ -352,12 +352,12 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                         {isLoadingMore ? (
                           <>
                             <Loader2 size={16} className="animate-spin" />
-                            {language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
+                            {t('loading') || (language === 'ar' ? 'جاري التحميل...' : 'Loading...')}
                           </>
                         ) : (
                           <>
                             <Bell size={16} />
-                            {language === 'ar' ? 'تحميل المزيد من الإشعارات' : 'Load More Notifications'}
+                            {t('loadMoreNotifications')}
                           </>
                         )}
                       </button>
