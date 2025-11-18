@@ -1013,21 +1013,21 @@ export default function SettingsProfilePage() {
   const renderPolicies = () => (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Vendor Policies & Information</h2>
-        <p className="text-sm text-gray-500 mb-2">Manage your business info, shipping policy, refund policy, and other terms, in one place.</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-1">{t('vendorPoliciesAndInformation')}</h2>
+        <p className="text-sm text-gray-500 mb-2">{t('manageBusinessInfo')}</p>
         <div className="flex items-center gap-1 text-xs text-gray-500">
           <Clock size={14} />
-          <span>Last saved 2 minutes ago</span>
+          <span>{t('lastSaved')} {t('twoMinutesAgo')}</span>
         </div>
       </div>
 
       <div className="space-y-6 sm:space-y-8">
         {/* Business Information */}
         <div className="bg-white rounded-lg p-4 sm:p-6 space-y-4">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Business Information</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">{t('businessInformation')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="storeName">Store Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="storeName">{t('storeName')}</label>
               <input
                 id="storeName"
                 type="text"
@@ -1041,7 +1041,7 @@ export default function SettingsProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="businessEmail">Business Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="businessEmail">{t('businessEmail')}</label>
               <input
                 id="businessEmail"
                 type="email"
@@ -1056,13 +1056,13 @@ export default function SettingsProfilePage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="storeDescription">Store Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="storeDescription">{t('storeDescription')}</label>
             <textarea
               id="storeDescription"
               name="storeDescription"
               value={policiesData.storeDescription}
               onChange={handlePoliciesChange}
-              placeholder="Describe your store, services, and offerings."
+              placeholder={t('describeYourStore')}
               rows={4}
               tabIndex={0}
               className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none resize-y"
@@ -1071,7 +1071,7 @@ export default function SettingsProfilePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Business Phone (Optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('businessPhone')}</label>
               <input
                 type="tel"
                 name="businessPhone"
@@ -1082,7 +1082,7 @@ export default function SettingsProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Support Hours</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('supportHours')}</label>
               <input
                 type="text"
                 name="supportHours"
@@ -1094,7 +1094,7 @@ export default function SettingsProfilePage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Store Address (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('storeAddressOptional')}</label>
             <input
               type="text"
               name="storeAddress"
