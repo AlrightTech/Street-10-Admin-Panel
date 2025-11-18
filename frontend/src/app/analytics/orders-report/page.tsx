@@ -380,7 +380,7 @@ export default function OrdersReportPage() {
                           { name: 'John Smith', orders: 45, total: '$3,200', last: `2 ${t('daysAgo')}` },
                           { name: 'Sarah Johnson', orders: 38, total: '$2,850', last: `1 ${t('daysAgo')}` },
                           { name: 'Mike Davis', orders: 32, total: '$2,400', last: `3 ${t('daysAgo')}` }
-                        ].map((c) => (
+                        ].map((c: { name: string; orders: number; total: string; last: string }) => (
                           <tr key={c.name} className="hover:bg-gray-50 transition-colors">
                             <td className="py-3 px-2">
                               <div className="flex items-center gap-3">
@@ -491,7 +491,7 @@ export default function OrdersReportPage() {
                           {id:'#ORD-001',date:'Dec 28, 2024',name:'John Smith',amount:'$125.00',status:'Completed'},
                           {id:'#ORD-002',date:'Dec 28, 2024',name:'Sarah Johnson',amount:'$89.50',status:'Pending'},
                           {id:'#ORD-003',date:'Dec 27, 2024',name:'Mike Davis',amount:'$245.00',status:'Completed'}
-                        ].map((o)=> (
+                        ].map((o: { id: string; date: string; name: string; amount: string; status: string }) => (
                           <tr key={o.id} className="hover:bg-gray-50 transition-colors">
                             <td className="py-3 px-2">
                               <a href="#" className="text-blue-600 hover:text-blue-800 underline text-sm font-medium">

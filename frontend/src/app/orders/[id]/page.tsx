@@ -7,6 +7,23 @@ import { useRouter } from 'next/navigation'
 import { Menu, ArrowLeft, Download, Printer, RefreshCw, DollarSign, MapPin, Package, Truck, Home, Check, User, Phone, Mail, Settings, ChevronDown, PackageSearch } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+// TypeScript interfaces
+interface OrderItem {
+  name: string
+  sku: string
+  qty: number
+  unitPrice: string
+  subtotal: string
+  image?: string
+}
+
+interface TimelineStep {
+  status: string
+  date: string
+  completed: boolean
+  active: boolean
+}
+
 export default function OrderDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { t, translateOrder } = useLanguage()
@@ -187,7 +204,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {order.items.map((item, index) => (
+                    {order.items.map((item: OrderItem, index: number) => (
                       <tr key={index} className="bg-white">
                         <td className="py-3 px-3 sm:px-4">
                           <div className="flex items-center gap-2 sm:gap-3">
@@ -293,7 +310,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                   <div className="absolute left-3 sm:left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
                   
                   <div className="space-y-4 sm:space-y-6">
-                    {order.timeline.map((step, index) => {
+                    {order.timeline.map((step: TimelineStep, index: number) => {
                       let iconColor = 'bg-gray-300'
                       let IconComponent = Check
                       
@@ -491,7 +508,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {order.items.map((item, index) => (
+                      {order.items.map((item: OrderItem, index: number) => (
                         <tr key={index} className="bg-white">
                           <td className="py-3 px-3 sm:px-4">
                             <div className="flex items-center gap-2 sm:gap-3">
@@ -597,7 +614,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                   <div className="absolute left-3 sm:left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
                   
                   <div className="space-y-4 sm:space-y-6">
-                    {order.timeline.map((step, index) => {
+                    {order.timeline.map((step: TimelineStep, index: number) => {
                       let iconColor = 'bg-gray-300'
                       let IconComponent = Check
                       

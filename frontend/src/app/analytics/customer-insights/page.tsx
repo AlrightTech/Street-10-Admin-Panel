@@ -225,7 +225,7 @@ export default function CustomerInsightsPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {[{name:'Sarah Khan',email:'sarah@email.com',orders:18,total:'$2,450',last:'Jan 8, 2025'},{name:'Ahmed Ali',email:'ahmed@email.com',orders:15,total:'$2,120',last:'Jan 10, 2025'},{name:'Maria Garcia',email:'maria@email.com',orders:12,total:'$1,890',last:'Jan 12, 2025'}].map((u)=> (
+                      {[{name:'Sarah Khan',email:'sarah@email.com',orders:18,total:'$2,450',last:'Jan 8, 2025'},{name:'Ahmed Ali',email:'ahmed@email.com',orders:15,total:'$2,120',last:'Jan 10, 2025'},{name:'Maria Garcia',email:'maria@email.com',orders:12,total:'$1,890',last:'Jan 12, 2025'}].map((u: { name: string; email: string; orders: number; total: string; last: string }) => (
                         <tr key={u.email} className="text-gray-700 hover:bg-gray-50 transition-colors">
                           <td className="py-3 px-2">
                             <div className="flex items-center gap-3">

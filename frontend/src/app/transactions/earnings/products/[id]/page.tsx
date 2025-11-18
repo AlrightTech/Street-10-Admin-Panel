@@ -7,6 +7,16 @@ import { useRouter } from 'next/navigation'
 import { Menu, ArrowLeft, TrendingUp, DollarSign, Tag, RefreshCw, BarChart3, Star, Calendar, Search, Download } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+// TypeScript interfaces
+interface ProductOrder {
+  id: string
+  customer: string
+  date: string
+  qty: number
+  revenue: number
+  status: string
+}
+
 export default function ProductPerformancePage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -391,7 +401,7 @@ export default function ProductPerformancePage({ params }: { params: { id: strin
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {orders.map((order) => (
+                      {orders.map((order: ProductOrder) => (
                         <tr key={order.id} className="hover:bg-gray-50">
                           <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-blue-600 whitespace-nowrap">{order.id}</td>
                           <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 whitespace-nowrap">{order.customer}</td>
@@ -716,7 +726,7 @@ export default function ProductPerformancePage({ params }: { params: { id: strin
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {orders.map((order) => (
+                  {orders.map((order: ProductOrder) => (
                     <tr key={order.id} className="hover:bg-gray-50">
                       <td className="px-3 py-4 text-xs font-medium text-blue-600 whitespace-nowrap">{order.id}</td>
                       <td className="px-3 py-4 text-xs text-gray-900 whitespace-nowrap">{order.customer}</td>

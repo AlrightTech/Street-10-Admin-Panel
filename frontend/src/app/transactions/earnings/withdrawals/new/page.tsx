@@ -6,6 +6,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Wallet, Clock, ArrowUp, Send, Download, Calendar, Search, Eye, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { ButtonLoader } from '@/components/ui/Loader'
+
+// TypeScript interfaces
+interface WithdrawalRequest {
+  id: string
+  date: string
+  amount: number
+  method: string
+  status: string
+  processed: string | null
+}
 
 export default function RequestWithdrawalPage() {
   const router = useRouter()
@@ -19,9 +30,14 @@ export default function RequestWithdrawalPage() {
     accountDetails: '',
     notes: ''
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800))
+    setIsSubmitting(false)
     // Handle withdrawal request submission
     router.push('/transactions/earnings/withdrawals')
   }
@@ -208,10 +224,11 @@ export default function RequestWithdrawalPage() {
                   <div className="flex justify-end">
                     <button
                       type="submit"
-                      className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                     >
-                      <Send size={18} />
-                      Submit Withdrawal Request
+                      {isSubmitting ? <ButtonLoader size="sm" /> : <Send size={18} />}
+                      {isSubmitting ? 'Submitting...' : 'Submit Withdrawal Request'}
                     </button>
                   </div>
                 </form>
@@ -263,7 +280,7 @@ export default function RequestWithdrawalPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {withdrawals.map((withdrawal) => (
+                      {withdrawals.map((withdrawal: WithdrawalRequest) => (
                         <tr key={withdrawal.id} className="hover:bg-gray-50">
                           <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">{withdrawal.id}</td>
                           <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-500 whitespace-nowrap">{withdrawal.date}</td>
@@ -306,7 +323,7 @@ export default function RequestWithdrawalPage() {
                     <span>Back</span>
                   </button>
 
-                  {visiblePages.map((page, index) => {
+                  {visiblePages.map((page: number | null, index: number) => {
                     if (page === null) return null
                     const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
                     
@@ -564,7 +581,7 @@ export default function RequestWithdrawalPage() {
               </button>
 
               <div className="flex items-center gap-1">
-                {visiblePages.map((page, index) => {
+                {visiblePages.map((page: number | null, index: number) => {
                   if (page === null) return null
                   const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
                   

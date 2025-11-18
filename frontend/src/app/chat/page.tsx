@@ -230,7 +230,7 @@ export default function ChatPage() {
                   </div>
                 </div>
                 <div className="overflow-y-auto flex-1">
-                  {filtered.map((c) => {
+                  {filtered.map((c: Conversation) => {
                     const last = c.messages[c.messages.length-1]?.text || ''
                     const isActive = c.id === activeId
                     return (
@@ -292,7 +292,7 @@ export default function ChatPage() {
 
                 {/* Messages - Scrollable */}
                 <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
-                  {active.messages.map((m, idx) => {
+                  {active.messages.map((m: Message, idx: number) => {
                     const isSystemMessage = m.text.includes('Tracking ID') || m.text.includes('shipped')
                     return (
                       <div key={m.id} className={`flex items-start gap-2 sm:gap-3 ${m.author==='me'?'flex-row-reverse':''}`}>
@@ -385,7 +385,7 @@ export default function ChatPage() {
                       {showEmojiPicker && (
                         <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 sm:p-3 w-[calc(100vw-2rem)] sm:w-64 max-w-64 max-h-64 overflow-y-auto z-10 emoji-picker-container">
                           <div className="grid grid-cols-8 gap-1">
-                            {commonEmojis.map((emoji, idx) => (
+                            {commonEmojis.map((emoji: string, idx: number) => (
                               <button
                                 key={idx}
                                 onClick={() => insertEmoji(emoji)}
@@ -536,7 +536,7 @@ export default function ChatPage() {
                 </div>
               </div>
               <div className="divide-y">
-                {filtered.map((c) => {
+                {filtered.map((c: Conversation) => {
                   const last = c.messages[c.messages.length-1]?.text || ''
                   const active = c.id === activeId
                   return (
@@ -575,7 +575,7 @@ export default function ChatPage() {
               </div>
               {/* Messages - Scrollable */}
               <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
-                {active.messages.map((m, idx) => {
+                {active.messages.map((m: Message, idx: number) => {
                   const isSystemMessage = m.text.includes('Tracking ID') || m.text.includes('shipped')
                   return (
                     <div key={m.id} className={`flex items-start gap-3 ${m.author==='me'?'flex-row-reverse':''}`}>

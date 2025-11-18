@@ -7,6 +7,21 @@ import { useRouter } from 'next/navigation'
 import { Menu, ArrowLeft, Download, RefreshCw, Check, X, AlertTriangle, MessageCircle, Calendar, Clock, Headphones } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+// TypeScript interfaces
+interface TransactionProduct {
+  name: string
+  qty: number
+  price: number
+}
+
+interface TransactionTimelineStep {
+  status: string
+  date: string
+  completed: boolean
+  current?: boolean
+  failed?: boolean
+}
+
 export default function TransactionDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { t } = useLanguage()
@@ -254,7 +269,7 @@ export default function TransactionDetailsPage({ params }: { params: { id: strin
                       <div>
                         <p className="text-sm text-gray-500 mb-2">Products Purchased</p>
                         <div className="space-y-2">
-                          {transaction.products.map((product: any, index: number) => (
+                          {transaction.products.map((product: TransactionProduct, index: number) => (
                             <div key={index} className="flex justify-between">
                               <span className="text-gray-900">{product.name}</span>
                               <span className="text-gray-600">(x {'$' + product.price.toFixed(2)})</span>
@@ -327,7 +342,7 @@ export default function TransactionDetailsPage({ params }: { params: { id: strin
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Status Timeline</h2>
                 <div className="relative">
                   <div className="flex items-center justify-between">
-                    {transaction.timeline.map((step: any, index: number) => (
+                    {transaction.timeline.map((step: TransactionTimelineStep, index: number) => (
                       <div key={index} className="flex-1 relative">
                         <div className="flex flex-col items-center">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 ${

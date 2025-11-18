@@ -6,6 +6,19 @@ import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Search, Filter, MoreVertical, ChevronLeft, ChevronRight, Eye, Edit, X, RefreshCw, FileText, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { ButtonLoader } from '@/components/ui/Loader'
+
+// TypeScript interfaces
+interface OrderRow {
+  id: number
+  orderNo: string
+  placedOn: string
+  type: string
+  items: number
+  amount: number
+  paymentMethod: string
+  status: string
+}
 
 export default function OrdersPage() {
   const router = useRouter()
@@ -16,6 +29,7 @@ export default function OrdersPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
+  const [loadingOrderId, setLoadingOrderId] = useState<number | null>(null)
   const [rawOrders, setRawOrders] = useState([
     { id: 1, orderNo: 'ORD-1562792771583', placedOn: '26/04/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'Online', status: 'Pending' },
     { id: 2, orderNo: 'ORD-1562792771584', placedOn: '26/04/2020', type: 'Order', items: 5, amount: 200, paymentMethod: 'COD', status: 'Completed' },
@@ -138,6 +152,7 @@ export default function OrdersPage() {
   const handleCancelOrder = async (orderId: number) => {
     setOpenDropdownId(null)
     if (confirm(t('confirmCancelOrder'))) {
+      setLoadingOrderId(orderId)
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500))
@@ -174,6 +189,8 @@ export default function OrdersPage() {
       } catch (error) {
         console.error('Error cancelling order:', error)
         alert(t('orderCancelledFailed'))
+      } finally {
+        setLoadingOrderId(null)
       }
     }
   }
@@ -181,6 +198,7 @@ export default function OrdersPage() {
   const handleRefundOrder = async (orderId: number) => {
     setOpenDropdownId(null)
     if (confirm(t('confirmRefundOrder'))) {
+      setLoadingOrderId(orderId)
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500))
@@ -217,6 +235,8 @@ export default function OrdersPage() {
       } catch (error) {
         console.error('Error processing refund:', error)
         alert(t('refundProcessedFailed'))
+      } finally {
+        setLoadingOrderId(null)
       }
     }
   }
@@ -229,6 +249,7 @@ export default function OrdersPage() {
   const handleDeleteOrder = async (orderId: number) => {
     setOpenDropdownId(null)
     if (confirm(t('confirmDeleteOrder'))) {
+      setLoadingOrderId(orderId)
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500))
@@ -259,6 +280,8 @@ export default function OrdersPage() {
       } catch (error) {
         console.error('Error deleting order:', error)
         alert(t('orderCancelledFailed'))
+      } finally {
+        setLoadingOrderId(null)
       }
     }
   }
@@ -426,7 +449,7 @@ export default function OrdersPage() {
                     </thead>
                   <tbody className="divide-y divide-gray-200">
                     {paginatedOrders.length > 0 ? (
-                      paginatedOrders.map((order) => {
+                      paginatedOrders.map((order: OrderRow) => {
                         const badge = getStatusBadge(order.status)
                         return (
                           <tr 
@@ -554,9 +577,14 @@ export default function OrdersPage() {
                                             e.stopPropagation()
                                             handleCancelOrder(order.id)
                                           }}
-                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                          disabled={loadingOrderId === order.id}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                          <X size={18} />
+                                          {loadingOrderId === order.id ? (
+                                            <ButtonLoader size="sm" />
+                                          ) : (
+                                            <X size={18} />
+                                          )}
                                           <span className="text-sm font-medium">{t('cancelOrder')}</span>
                                         </button>
                                       )}
@@ -567,9 +595,14 @@ export default function OrdersPage() {
                                             e.stopPropagation()
                                             handleRefundOrder(order.id)
                                           }}
-                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left"
+                                          disabled={loadingOrderId === order.id}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                          <RefreshCw size={18} />
+                                          {loadingOrderId === order.id ? (
+                                            <ButtonLoader size="sm" />
+                                          ) : (
+                                            <RefreshCw size={18} />
+                                          )}
                                           <span className="text-sm font-medium">{t('issueRefund')}</span>
                                         </button>
                                       )}
@@ -581,9 +614,14 @@ export default function OrdersPage() {
                                           e.stopPropagation()
                                           handleDeleteOrder(order.id)
                                         }}
-                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                        disabled={loadingOrderId === order.id}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
-                                        <Trash2 size={18} />
+                                        {loadingOrderId === order.id ? (
+                                          <ButtonLoader size="sm" />
+                                        ) : (
+                                          <Trash2 size={18} />
+                                        )}
                                         <span className="text-sm font-medium">{t('deleteOrder')}</span>
                                       </button>
                                     </div>
@@ -617,7 +655,7 @@ export default function OrdersPage() {
                       <span className="hidden sm:inline">{t('back')}</span>
                     </button>
                     
-                    {visiblePages.map((page, index) => {
+                    {visiblePages.map((page: number | null, index: number) => {
                       if (page === null) return null
                       const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
                       
@@ -653,7 +691,7 @@ export default function OrdersPage() {
               {/* Mobile Orders Cards */}
               <div className="md:hidden space-y-3">
                 {paginatedOrders.length > 0 ? (
-                  paginatedOrders.map((order) => {
+                  paginatedOrders.map((order: OrderRow) => {
                     const badge = getStatusBadge(order.status)
                     return (
                       <div 
@@ -781,9 +819,14 @@ export default function OrdersPage() {
                                             e.stopPropagation()
                                             handleCancelOrder(order.id)
                                           }}
-                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                          disabled={loadingOrderId === order.id}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                          <X size={18} />
+                                          {loadingOrderId === order.id ? (
+                                            <ButtonLoader size="sm" />
+                                          ) : (
+                                            <X size={18} />
+                                          )}
                                           <span className="text-sm font-medium">{t('cancelOrder')}</span>
                                         </button>
                                       )}
@@ -794,9 +837,14 @@ export default function OrdersPage() {
                                             e.stopPropagation()
                                             handleRefundOrder(order.id)
                                           }}
-                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left"
+                                          disabled={loadingOrderId === order.id}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                          <RefreshCw size={18} />
+                                          {loadingOrderId === order.id ? (
+                                            <ButtonLoader size="sm" />
+                                          ) : (
+                                            <RefreshCw size={18} />
+                                          )}
                                           <span className="text-sm font-medium">{t('issueRefund')}</span>
                                         </button>
                                       )}
@@ -808,9 +856,14 @@ export default function OrdersPage() {
                                           e.stopPropagation()
                                           handleDeleteOrder(order.id)
                                         }}
-                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                        disabled={loadingOrderId === order.id}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
-                                        <Trash2 size={18} />
+                                        {loadingOrderId === order.id ? (
+                                          <ButtonLoader size="sm" />
+                                        ) : (
+                                          <Trash2 size={18} />
+                                        )}
                                         <span className="text-sm font-medium">{t('deleteOrder')}</span>
                                       </button>
                                     </div>
@@ -1128,9 +1181,14 @@ export default function OrdersPage() {
                                             e.stopPropagation()
                                             handleCancelOrder(order.id)
                                           }}
-                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                          disabled={loadingOrderId === order.id}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                          <X size={18} />
+                                          {loadingOrderId === order.id ? (
+                                            <ButtonLoader size="sm" />
+                                          ) : (
+                                            <X size={18} />
+                                          )}
                                           <span className="text-sm font-medium">{t('cancelOrder')}</span>
                                         </button>
                                       )}
@@ -1141,9 +1199,14 @@ export default function OrdersPage() {
                                             e.stopPropagation()
                                             handleRefundOrder(order.id)
                                           }}
-                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left"
+                                          disabled={loadingOrderId === order.id}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-orange-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                          <RefreshCw size={18} />
+                                          {loadingOrderId === order.id ? (
+                                            <ButtonLoader size="sm" />
+                                          ) : (
+                                            <RefreshCw size={18} />
+                                          )}
                                           <span className="text-sm font-medium">{t('issueRefund')}</span>
                                         </button>
                                       )}
@@ -1155,9 +1218,14 @@ export default function OrdersPage() {
                                           e.stopPropagation()
                                           handleDeleteOrder(order.id)
                                         }}
-                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left"
+                                        disabled={loadingOrderId === order.id}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-red-600 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
-                                        <Trash2 size={18} />
+                                        {loadingOrderId === order.id ? (
+                                          <ButtonLoader size="sm" />
+                                        ) : (
+                                          <Trash2 size={18} />
+                                        )}
                                         <span className="text-sm font-medium">{t('deleteOrder')}</span>
                                       </button>
                                     </div>

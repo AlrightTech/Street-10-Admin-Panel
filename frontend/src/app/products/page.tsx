@@ -6,6 +6,7 @@ import { useState, Fragment, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, ChevronLeft, ChevronRight, Search, Plus, Edit, Trash2, ChevronDown, Filter, AlertTriangle, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { ButtonLoader } from '@/components/ui/Loader'
 
 export default function ProductsPage() {
   const router = useRouter()
@@ -17,6 +18,7 @@ export default function ProductsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [togglingProductId, setTogglingProductId] = useState<number | null>(null)
   const itemsPerPage = 5
   const totalPages = 8
 
@@ -50,10 +52,14 @@ export default function ProductsPage() {
   const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
 
   // Toggle product status
-  const handleToggleStatus = (productId: number) => {
+  const handleToggleStatus = async (productId: number) => {
+    setTogglingProductId(productId)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 300))
     setRawProducts(rawProducts.map(p => 
       p.id === productId ? { ...p, status: !p.status } : p
     ))
+    setTogglingProductId(null)
   }
 
   // Handle view product
@@ -284,7 +290,7 @@ export default function ProductsPage() {
                         </tr>
                       </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {paginatedProducts.map((product) => (
+                      {paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
                         <tr key={product.id} className="hover:bg-gray-50">
                           {/* Product Column - Clickable */}
                           <td className="py-3 px-3 sm:px-4 cursor-pointer" onClick={() => handleViewProduct(product.id)}>
@@ -322,10 +328,17 @@ export default function ProductsPage() {
                                   e.stopPropagation()
                                   handleToggleStatus(product.id)
                                 }}
-                                className={`relative inline-flex h-5 w-11 items-center rounded-full transition-colors ${product.status ? 'bg-primary-500' : 'bg-gray-300'}`}
+                                disabled={togglingProductId === product.id}
+                                className={`relative inline-flex h-5 w-11 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${product.status ? 'bg-primary-500' : 'bg-gray-300'}`}
                                 aria-label="Toggle status"
                               >
-                                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${product.status ? 'translate-x-6' : 'translate-x-1'}`} />
+                                {togglingProductId === product.id ? (
+                                  <span className="absolute inset-0 flex items-center justify-center">
+                                    <ButtonLoader size="sm" />
+                                  </span>
+                                ) : (
+                                  <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${product.status ? 'translate-x-6' : 'translate-x-1'}`} />
+                                )}
                               </button>
                               
                               {/* Edit and Delete Buttons */}
@@ -371,7 +384,7 @@ export default function ProductsPage() {
                           </button>
 
                   <div className="flex items-center gap-1 sm:gap-2">
-                    {visiblePages.map((page, index) => {
+                    {visiblePages.map((page: number | null, index: number) => {
                       if (page === null) return null
                       const showEllipsis = index > 0 && page - visiblePages[index - 1] > 1
                       
@@ -406,7 +419,7 @@ export default function ProductsPage() {
 
               {/* Mobile Product Cards */}
               <div className="md:hidden space-y-3">
-                {paginatedProducts.map((product) => (
+                {paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
                   <div 
                     key={product.id} 
                     className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer"
@@ -453,10 +466,17 @@ export default function ProductsPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleToggleStatus(product.id)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${product.status ? 'bg-primary-500' : 'bg-gray-300'}`}
+                            disabled={togglingProductId === product.id}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${product.status ? 'bg-primary-500' : 'bg-gray-300'}`}
                             aria-label="Toggle product status"
                           >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${product.status ? 'translate-x-6' : 'translate-x-1'}`} />
+                            {togglingProductId === product.id ? (
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <ButtonLoader size="sm" />
+                              </span>
+                            ) : (
+                              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${product.status ? 'translate-x-6' : 'translate-x-1'}`} />
+                            )}
                           </button>
                           <button
                             onClick={() => handleEdit(product.id)}
@@ -653,7 +673,7 @@ export default function ProductsPage() {
                       </tr>
                     </thead>
                     <tbody className="text-gray-900">
-                      {paginatedProducts.map((product) => (
+                      {paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
                         <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
@@ -708,7 +728,7 @@ export default function ProductsPage() {
 
                 {/* Products Cards - Mobile */}
                 <div className="md:hidden space-y-3">
-                  {paginatedProducts.map((product) => (
+                  {paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
                     <div
                       key={product.id}
                       className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer"
@@ -793,7 +813,7 @@ export default function ProductsPage() {
                       {t('back')}
                     </button>
                     <div className="flex items-center gap-1">
-                      {visiblePages.map((page, idx) => (
+                      {visiblePages.map((page: number | null, idx: number) => (
                         <Fragment key={idx}>
                           {page === null ? (
                             <span className="px-2">...</span>
