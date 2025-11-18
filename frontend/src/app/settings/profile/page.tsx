@@ -6,6 +6,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Menu, Camera, Upload, Download, Check, X, Eye, EyeOff, Plus, Trash2, Edit, Search, MoreVertical, ChevronDown, ChevronLeft, ChevronRight, Clock, Bold, Italic, Underline, FileText, Image } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { ButtonLoader } from '@/components/ui/Loader'
 
 type SubVendor = {
   id: number
@@ -825,7 +826,7 @@ export default function SettingsProfilePage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedVendors.map((vendor, index) => {
+                    {paginatedVendors.map((vendor: SubVendor, index: number) => {
                       // Calculate sequential ID number based on current page
                       const sequentialId = startIndex + index + 1
                       const isEven = sequentialId % 2 === 0
@@ -899,7 +900,7 @@ export default function SettingsProfilePage() {
                   <span>Back</span>
                 </button>
 
-                {visiblePages.map((page, index) => {
+                {visiblePages.map((page: number | null, index: number) => {
                   if (page === null) return null
                   const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
 
@@ -1494,7 +1495,14 @@ export default function SettingsProfilePage() {
               aria-label={isSaving ? 'Saving changes' : 'Save changes'}
               onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !isSaving) { e.preventDefault(); e.currentTarget.click(); } }}
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? (
+                <>
+                  <ButtonLoader size="sm" />
+                  {t('saving')}
+                </>
+              ) : (
+                t('saveChanges')
+              )}
             </button>
           </div>
         </div>
@@ -1622,12 +1630,13 @@ export default function SettingsProfilePage() {
                     <button
                       onClick={handleSave}
                       disabled={isSaving}
-                      className={`px-6 py-2.5 rounded-lg transition-colors font-medium ${
+                      className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-colors font-medium ${
                         isSaving
                           ? 'bg-gray-400 text-white cursor-not-allowed'
                           : 'bg-orange-500 text-white hover:bg-orange-600'
                       }`}
                     >
+                      {isSaving && <ButtonLoader size="sm" />}
                       {isSaving ? t('saving') : t('saveChanges')}
                     </button>
                   </div>
@@ -1751,13 +1760,14 @@ export default function SettingsProfilePage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className={`flex-1 px-4 py-2.5 rounded-lg font-medium ${
+                  className={`flex items-center justify-center gap-2 flex-1 px-4 py-2.5 rounded-lg font-medium ${
                     isSaving
                       ? 'bg-gray-400 text-white cursor-not-allowed'
                       : 'bg-orange-500 text-white hover:bg-orange-600'
                     }`}
                 >
-                  {isSaving ? 'Saving...' : activeTab === 'policies' ? 'Save Changes' : 'Save'}
+                  {isSaving && <ButtonLoader size="sm" />}
+                  {isSaving ? t('saving') : activeTab === 'policies' ? t('saveChanges') : t('save')}
                 </button>
               </div>
             )}

@@ -3,12 +3,24 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { Menu, Clock, Package, RefreshCw, Shield, Eye } from 'lucide-react'
+import { Menu, Clock, Package, RefreshCw, Shield, Eye, Save } from 'lucide-react'
 import TabsBar from '@/components/ui/TabsBar'
+import { useLanguage } from '@/contexts/LanguageContext'
+import { ButtonLoader } from '@/components/ui/Loader'
 
 export default function PolicySettingsPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const handleSavePolicies = async () => {
+    setSaving(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800))
+    setSaving(false)
+    alert(t('settingsSavedSuccessfully') || 'Policies saved successfully!')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -38,16 +50,16 @@ export default function PolicySettingsPage() {
             <div className="max-w-6xl mx-auto space-y-6">
               {/* Header */}
               <div className="mb-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Store Setting</h1>
-                <p className="text-sm text-gray-500 mt-1">Dashboard - Policy Settings</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('storeBuilder')}</h1>
+                <p className="text-sm text-gray-500 mt-1">{t('dashboard')} - {t('policySettings')}</p>
               </div>
 
               {/* Tabs */}
               <TabsBar
                 tabs={[
-                  { label: 'Store Settings', href: '/settings/store' },
-                  { label: 'Policy Settings', href: '/settings/policy', active: true },
-                  { label: 'Notification', href: '/settings/notifications' },
+                  { label: t('storeSettings'), href: '/settings/store' },
+                  { label: t('policySettings'), href: '/settings/policy', active: true },
+                  { label: t('notifications'), href: '/settings/notifications' },
                 ]}
                 variant="underline"
               />
@@ -55,8 +67,8 @@ export default function PolicySettingsPage() {
               {/* Manage Your Policies */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="mb-6">
-                  <h2 className="text-lg font-bold text-gray-900 mb-1">Manage Your Policies</h2>
-                  <p className="text-sm text-gray-600">Define and update your store policies to inform customers about shipping, returns, and other important terms.</p>
+                  <h2 className="text-lg font-bold text-gray-900 mb-1">{t('manageYourPolicies')}</h2>
+                  <p className="text-sm text-gray-600">{t('defineAndUpdatePolicies')}</p>
                 </div>
 
                 {/* Shipping Policy */}
@@ -65,24 +77,24 @@ export default function PolicySettingsPage() {
                     <div className="flex items-start gap-3">
                       <Package className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h3 className="text-base font-semibold text-gray-900 mb-1">Shipping Policy</h3>
-                        <p className="text-xs text-gray-600">Define your shipping terms, delivery times, and charges</p>
+                        <h3 className="text-base font-semibold text-gray-900 mb-1">{t('shippingPolicy')}</h3>
+                        <p className="text-xs text-gray-600">{t('defineShippingTerms')}</p>
                       </div>
                     </div>
                   </div>
                   <div className="p-6 space-y-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">Shipping Terms & Conditions</label>
-                      <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="We offer nationwide shipping with delivery within 2-7 business days. Free shipping on orders over $50. Express delivery available for an additional fee. International shipping takes 10-14 business days." />
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('shippingTermsConditions')}</label>
+                      <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('shippingTermsConditions')} />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-2">Standard Delivery Time</label>
-                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="3-7 business days" />
+                        <label className="block text-xs font-medium text-gray-700 mb-2">{t('standardDeliveryTime')}</label>
+                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('standardDeliveryTime')} />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-2">Free Shipping Threshold</label>
-                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="$50" />
+                        <label className="block text-xs font-medium text-gray-700 mb-2">{t('freeShippingThreshold')}</label>
+                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('freeShippingThreshold')} />
                       </div>
                     </div>
                   </div>
@@ -94,24 +106,24 @@ export default function PolicySettingsPage() {
                     <div className="flex items-start gap-3">
                       <RefreshCw className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h3 className="text-base font-semibold text-gray-900 mb-1">Refund & Return Policy</h3>
-                        <p className="text-xs text-gray-600">Set conditions for returns, exchanges, and refunds</p>
+                        <h3 className="text-base font-semibold text-gray-900 mb-1">{t('refundReturnPolicy')}</h3>
+                        <p className="text-xs text-gray-600">{t('setReturnConditions')}</p>
                       </div>
                     </div>
                   </div>
                   <div className="p-6 space-y-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">Return & Refund Conditions</label>
-                      <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Returns accepted within 30 days of purchase. Items must be in original condition with tags attached. Refunds processed within 5-7 business days. Return shipping costs are the customer's responsibility. Digital items and personalized products are non-returnable." />
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('returnRefundConditions')}</label>
+                      <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('returnRefundConditions')} />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-2">Return Window</label>
-                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="30 days" />
+                        <label className="block text-xs font-medium text-gray-700 mb-2">{t('returnWindow')}</label>
+                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('returnWindow')} />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-2">Refund Processing Time</label>
-                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="5-7 business days" />
+                        <label className="block text-xs font-medium text-gray-700 mb-2">{t('refundProcessingTime')}</label>
+                        <input className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('refundProcessingTime')} />
                       </div>
                     </div>
                   </div>
@@ -123,23 +135,23 @@ export default function PolicySettingsPage() {
                     <div className="flex items-start gap-3">
                       <Shield className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <h3 className="text-base font-semibold text-gray-900 mb-1">Privacy & Other Policies</h3>
-                        <p className="text-xs text-gray-600">Additional policies including privacy, terms of service, and custom policies</p>
+                        <h3 className="text-base font-semibold text-gray-900 mb-1">{t('privacyOtherPolicies')}</h3>
+                        <p className="text-xs text-gray-600">{t('additionalPolicies')}</p>
                       </div>
                     </div>
                   </div>
                   <div className="p-6 space-y-5">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">Privacy Policy</label>
-                      <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="We respect your privacy and commit to protecting your personal information. We collect data to improve our services and do not share your information with third parties." />
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('privacyPolicy')}</label>
+                      <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('privacyPolicy')} />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">Terms of Service</label>
-                      <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="By using our services, you agree to these terms. All sales are final unless otherwise stated. We reserve the right to refuse service." />
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('termsOfService')}</label>
+                      <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('termsOfService')} />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">Custom Policies</label>
-                      <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="Special handling fees may apply for fragile items. Bulk orders may require additional processing time. Custom orders cannot be cancelled once production begins." />
+                      <label className="block text-xs font-medium text-gray-700 mb-2">{t('customPolicies')}</label>
+                      <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder={t('customPolicies')} />
                     </div>
                   </div>
                 </div>
@@ -149,13 +161,20 @@ export default function PolicySettingsPage() {
                   <div className="flex flex-col gap-2">
                     <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
                       <Eye size={16} />
-                      Preview Policies
+                      {t('previewPolicies')}
                     </button>
-                    <p className="text-xs text-gray-500">Last updated: December 18, 2024 at 2:30 PM</p>
+                    <p className="text-xs text-gray-500">{t('lastUpdated')}: December 18, 2024 at 2:30 PM</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
-                    <button className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors">Save Policies</button>
+                    <button className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">{t('cancel')}</button>
+                    <button 
+                      onClick={handleSavePolicies}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {saving ? <ButtonLoader size="sm" /> : <Save size={16} />}
+                      {saving ? t('saving') : t('savePolicies')}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -181,16 +200,16 @@ export default function PolicySettingsPage() {
         <main className="p-4 space-y-4">
           {/* Page header */}
           <div className="mb-4">
-            <h1 className="text-xl font-bold text-gray-900">Store Setting</h1>
-            <p className="text-xs text-gray-500 mt-1">Dashboard - Policy Settings</p>
+            <h1 className="text-xl font-bold text-gray-900">{t('storeBuilder')}</h1>
+            <p className="text-xs text-gray-500 mt-1">{t('dashboard')} - {t('policySettings')}</p>
           </div>
 
           <div>
             <TabsBar
               tabs={[
-                { label: 'Store Settings', href: '/settings/store' },
-                { label: 'Policy Settings', href: '/settings/policy', active: true },
-                { label: 'Notification', href: '/settings/notifications' },
+                { label: t('storeSettings'), href: '/settings/store' },
+                { label: t('policySettings'), href: '/settings/policy', active: true },
+                { label: t('notifications'), href: '/settings/notifications' },
               ]}
               variant="underline"
             />
@@ -199,8 +218,8 @@ export default function PolicySettingsPage() {
           {/* Manage Your Policies */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="mb-4">
-              <h2 className="text-base font-bold text-gray-900 mb-1">Manage Your Policies</h2>
-              <p className="text-xs text-gray-600">Define and update your store policies to inform customers about shipping, returns, and other important terms.</p>
+              <h2 className="text-base font-bold text-gray-900 mb-1">{t('manageYourPolicies')}</h2>
+              <p className="text-xs text-gray-600">{t('defineAndUpdatePolicies')}</p>
             </div>
 
             {/* Shipping Policy */}
@@ -209,24 +228,24 @@ export default function PolicySettingsPage() {
                 <div className="flex items-start gap-3">
                   <Package className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Shipping Policy</h3>
-                    <p className="text-xs text-gray-600">Define your shipping terms, delivery times, and charges</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">{t('shippingPolicy')}</h3>
+                    <p className="text-xs text-gray-600">{t('defineShippingTerms')}</p>
                   </div>
                 </div>
               </div>
               <div className="p-4 space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Shipping Terms & Conditions</label>
-                  <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder="We offer nationwide shipping with delivery within 2-7 business days..." />
+                  <label className="block text-xs font-medium text-gray-700 mb-2">{t('shippingTermsConditions')}</label>
+                  <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder={t('shippingTermsConditions')} />
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Standard Delivery Time</label>
-                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="3-7 business days" />
+                    <label className="block text-xs font-medium text-gray-700 mb-2">{t('standardDeliveryTime')}</label>
+                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder={t('standardDeliveryTime')} />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Free Shipping Threshold</label>
-                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="$50" />
+                    <label className="block text-xs font-medium text-gray-700 mb-2">{t('freeShippingThreshold')}</label>
+                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder={t('freeShippingThreshold')} />
                   </div>
                 </div>
               </div>
@@ -238,24 +257,24 @@ export default function PolicySettingsPage() {
                 <div className="flex items-start gap-3">
                   <RefreshCw className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Refund & Return Policy</h3>
-                    <p className="text-xs text-gray-600">Set conditions for returns, exchanges, and refunds</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">{t('refundReturnPolicy')}</h3>
+                    <p className="text-xs text-gray-600">{t('setReturnConditions')}</p>
                   </div>
                 </div>
               </div>
               <div className="p-4 space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Return & Refund Conditions</label>
-                  <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder="Returns accepted within 30 days of purchase..." />
+                  <label className="block text-xs font-medium text-gray-700 mb-2">{t('returnRefundConditions')}</label>
+                  <textarea rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder={t('returnRefundConditions')} />
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Return Window</label>
-                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="30 days" />
+                    <label className="block text-xs font-medium text-gray-700 mb-2">{t('returnWindow')}</label>
+                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder={t('returnWindow')} />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-2">Refund Processing Time</label>
-                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="5-7 business days" />
+                    <label className="block text-xs font-medium text-gray-700 mb-2">{t('refundProcessingTime')}</label>
+                    <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder={t('refundProcessingTime')} />
                   </div>
                 </div>
               </div>
@@ -267,23 +286,23 @@ export default function PolicySettingsPage() {
                 <div className="flex items-start gap-3">
                   <Shield className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Privacy & Other Policies</h3>
-                    <p className="text-xs text-gray-600">Additional policies including privacy, terms of service, and custom policies</p>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">{t('privacyOtherPolicies')}</h3>
+                    <p className="text-xs text-gray-600">{t('additionalPolicies')}</p>
                   </div>
                 </div>
               </div>
               <div className="p-4 space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Privacy Policy</label>
-                  <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder="We respect your privacy and commit to protecting your personal information..." />
+                  <label className="block text-xs font-medium text-gray-700 mb-2">{t('privacyPolicy')}</label>
+                  <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder={t('privacyPolicy')} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Terms of Service</label>
-                  <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder="By using our services, you agree to these terms..." />
+                  <label className="block text-xs font-medium text-gray-700 mb-2">{t('termsOfService')}</label>
+                  <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder={t('termsOfService')} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Custom Policies</label>
-                  <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder="Special handling fees may apply for fragile items..." />
+                  <label className="block text-xs font-medium text-gray-700 mb-2">{t('customPolicies')}</label>
+                  <textarea rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none" placeholder={t('customPolicies')} />
                 </div>
               </div>
             </div>
@@ -293,13 +312,13 @@ export default function PolicySettingsPage() {
               <div className="flex flex-col gap-2">
                 <button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors w-fit">
                   <Eye size={16} />
-                  Preview Policies
+                  {t('previewPolicies')}
                 </button>
-                <p className="text-xs text-gray-500">Last updated: December 18, 2024 at 2:30 PM</p>
+                <p className="text-xs text-gray-500">{t('lastUpdated')}: December 18, 2024 at 2:30 PM</p>
               </div>
               <div className="flex items-center gap-3 justify-end">
-                <button className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
-                <button className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors">Save Policies</button>
+                <button className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">{t('cancel')}</button>
+                <button className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition-colors">{t('savePolicies')}</button>
               </div>
             </div>
           </div>

@@ -378,7 +378,7 @@ export default function EarningsReportPage() {
                       { name: 'iPhone 14', units: 120, revenue: '$12,000', percentage: 35, iconBg: 'from-purple-100 to-purple-200', borderColor: 'border-purple-200', emoji: '📱' },
                       { name: 'Samsung Galaxy S23', units: 85, revenue: '$4,250', percentage: 23, iconBg: 'from-blue-100 to-blue-200', borderColor: 'border-blue-200', emoji: '📱' },
                       { name: 'MacBook Air', units: 32, revenue: '$2,500', percentage: 13, iconBg: 'from-gray-100 to-gray-200', borderColor: 'border-gray-200', emoji: '💻' }
-                    ].map((p) => (
+                    ].map((p: { name: string; units: number; revenue: string; percentage: number; iconBg: string; borderColor: string; emoji: string }) => (
                       <div key={p.name} className="bg-gray-50 rounded-lg p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 flex-1">
@@ -436,7 +436,7 @@ export default function EarningsReportPage() {
                         { category: t('electronics'), earnings: '$10,000', percentage: 54, color: '#3b82f6' },
                         { category: t('fashion'), earnings: '$5,200', percentage: 28, color: '#22c55e' },
                         { category: t('home'), earnings: '$3,550', percentage: 18, color: '#f97316' }
-                      ].map((item) => (
+                      ].map((item: { category: string; earnings: string; percentage: number; color: string }) => (
                         <div key={item.category} className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></div>
@@ -497,7 +497,7 @@ export default function EarningsReportPage() {
                         {id:'#TXN-2024-003',date:'Dec 13, 2024',type:t('earning'),amount:'+$850',amountColor:'text-green-600',status:t('completed')},
                         {id:'#TXN-2024-004',date:'Dec 12, 2024',type:t('refund'),amount:'-$150',amountColor:'text-red-600',status:t('processing')},
                         {id:'#TXN-2024-005',date:'Dec 11, 2024',type:t('earning'),amount:'+$2,100',amountColor:'text-green-600',status:t('completed')}
-                      ].map((trans)=> (
+                      ].map((trans: { id: string; date: string; type: string; amount: string; amountColor: string; status: string }) => (
                         <tr key={trans.id} className="text-gray-700 hover:bg-gray-50">
                           <td className="py-3 text-sm">{trans.id}</td>
                           <td className="py-3 text-sm text-gray-600">{trans.date}</td>
@@ -680,7 +680,7 @@ export default function EarningsReportPage() {
                 { name: 'iPhone 14', units: 120, revenue: '$12,000', percentage: 35, iconBg: 'from-purple-100 to-purple-200', borderColor: 'border-purple-200', emoji: '📱' },
                 { name: 'Samsung Galaxy S23', units: 85, revenue: '$4,250', percentage: 23, iconBg: 'from-blue-100 to-blue-200', borderColor: 'border-blue-200', emoji: '📱' },
                 { name: 'MacBook Air', units: 32, revenue: '$2,500', percentage: 13, iconBg: 'from-gray-100 to-gray-200', borderColor: 'border-gray-200', emoji: '💻' }
-              ].map((p) => (
+              ].map((p: { name: string; units: number; revenue: string; percentage: number; iconBg: string; borderColor: string; emoji: string }) => (
                 <div key={p.name} className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">

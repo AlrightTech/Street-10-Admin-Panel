@@ -6,12 +6,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Upload, X, ChevronDown, Info } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { ButtonLoader } from '@/components/ui/Loader'
 
 export default function AddProductPage() {
   const router = useRouter()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -37,7 +39,11 @@ export default function AddProductPage() {
     })
   }
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    setIsPublishing(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800))
+    setIsPublishing(false)
     alert(t('productPublished'))
     router.push('/products')
   }
@@ -343,9 +349,11 @@ export default function AddProductPage() {
                   </button>
                   <button
                     onClick={handlePublish}
-                    className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm sm:text-base"
+                    disabled={isPublishing}
+                    className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base transition-colors"
                   >
-                    {t('publishProduct')}
+                    {isPublishing ? <ButtonLoader size="sm" /> : null}
+                    {isPublishing ? t('publishing') || 'Publishing...' : t('publishProduct')}
                   </button>
                 </div>
               </div>

@@ -7,6 +7,16 @@ import { useRouter } from 'next/navigation'
 import { Menu, TrendingUp, Clock, CheckCircle, Plus, Calendar, Search, Eye, Download, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+// TypeScript interfaces
+interface Withdrawal {
+  id: string
+  date: string
+  amount: number
+  method: string
+  status: string
+  reference: string
+}
+
 export default function WithdrawalHistoryPage() {
   const router = useRouter()
   const { t } = useLanguage()
@@ -184,7 +194,7 @@ export default function WithdrawalHistoryPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {withdrawals.map((withdrawal) => (
+                      {withdrawals.map((withdrawal: Withdrawal) => (
                         <tr key={withdrawal.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm text-gray-900">{withdrawal.date}</td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">${withdrawal.amount.toFixed(2)}</td>
@@ -225,7 +235,7 @@ export default function WithdrawalHistoryPage() {
                     <span>{t('back')}</span>
                   </button>
 
-                  {visiblePages.map((page, index) => {
+                  {visiblePages.map((page: number | null, index: number) => {
                     if (page === null) return null
                     const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
                     

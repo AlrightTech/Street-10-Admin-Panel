@@ -6,6 +6,20 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Download, Printer, Mail, Phone, Globe, Laptop, Mouse, Shield } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import React from 'react'
+
+// TypeScript interfaces
+type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement> & { size?: number | string; className?: string }>
+
+interface InvoiceItem {
+  product: string
+  details: string
+  sku: string
+  qty: number
+  unitPrice: string
+  subtotal: string
+  icon?: LucideIcon
+}
 
 export default function InvoicePage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -184,7 +198,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
-                        {invoice.items.map((item, index) => {
+                        {invoice.items.map((item: InvoiceItem, index: number) => {
                           const IconComponent = item.icon || Laptop
                           return (
                             <tr key={index} className="bg-white">
@@ -405,7 +419,7 @@ export default function InvoicePage({ params }: { params: { id: string } }) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
-                        {invoice.items.map((item, index) => {
+                        {invoice.items.map((item: InvoiceItem, index: number) => {
                           const IconComponent = item.icon || Laptop
                           return (
                             <tr key={index} className="bg-white">

@@ -7,6 +7,16 @@ import { useRouter } from 'next/navigation'
 import { Menu, TrendingUp, Calendar, Clock, ArrowDown, DollarSign, ShoppingCart, RefreshCw, Percent, BarChart3, Search, Eye, Download } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+// TypeScript interfaces
+interface BestProduct {
+  id: number
+  name: string
+  productId: string
+  category: string
+  totalSold: number
+  revenue: number
+}
+
 export default function EarningsOverviewPage() {
   const router = useRouter()
   const { t } = useLanguage()
@@ -337,7 +347,7 @@ export default function EarningsOverviewPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {bestProducts.map((product) => (
+                    {bestProducts.map((product: BestProduct) => (
                       <tr key={product.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -583,7 +593,7 @@ export default function EarningsOverviewPage() {
           <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('bestPerformingProducts')}</h2>
             <div className="space-y-3">
-              {bestProducts.map((p) => (
+              {bestProducts.map((p: BestProduct) => (
                 <div key={p.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">

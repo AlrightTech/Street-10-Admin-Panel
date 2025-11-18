@@ -248,7 +248,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                     }`}
                   >
                     <option value="">Select a company</option>
-                    {deliveryCompanies.map((company) => (
+                    {deliveryCompanies.map((company: string) => (
                       <option key={company} value={company}>
                         {company}
                       </option>
@@ -501,7 +501,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
                     }`}
                   >
                     <option value="">Select a company</option>
-                    {deliveryCompanies.map((company) => (
+                    {deliveryCompanies.map((company: string) => (
                       <option key={company} value={company}>
                         {company}
                       </option>

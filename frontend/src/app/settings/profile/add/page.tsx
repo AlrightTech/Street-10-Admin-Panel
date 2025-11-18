@@ -6,6 +6,7 @@ import Modal from '@/components/ui/Modal'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, Eye, EyeOff, Check, ChevronUp, ChevronDown, Shield, Package, CheckCircle } from 'lucide-react'
+import { ButtonLoader } from '@/components/ui/Loader'
 
 export default function AddSubVendorPage() {
   const router = useRouter()
@@ -669,7 +670,14 @@ export default function AddSubVendorPage() {
                             : 'bg-orange-500 text-white hover:bg-orange-600'
                         }`}
                       >
-                        {isSubmitting ? 'Inviting...' : 'Invite User'}
+                        {isSubmitting ? (
+                          <>
+                            <ButtonLoader size="sm" />
+                            Inviting...
+                          </>
+                        ) : (
+                          'Invite User'
+                        )}
                       </button>
                     </div>
                   </div>

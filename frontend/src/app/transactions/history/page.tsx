@@ -7,6 +7,19 @@ import { useRouter } from 'next/navigation'
 import { Menu, Search, Filter, Calendar, TrendingUp, Clock, FileText, ChevronLeft, ChevronRight, Eye, ChevronDown, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
+// TypeScript interfaces
+interface Transaction {
+  id: string
+  orderId?: string | null
+  customer?: string | null
+  type: string
+  amount: number
+  paymentMethod?: string
+  status: string
+  date: string
+  isPositive: boolean
+}
+
 export default function TransactionHistoryPage() {
   const router = useRouter()
   const { t } = useLanguage()
@@ -345,7 +358,7 @@ export default function TransactionHistoryPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {transactions.map((transaction) => {
+                      {transactions.map((transaction: Transaction) => {
                         const typeBadge = getTypeBadge(transaction.type)
                         const statusBadge = getStatusBadge(transaction.status)
                         return (
@@ -409,7 +422,7 @@ export default function TransactionHistoryPage() {
                     <span>{t('back')}</span>
                   </button>
 
-                  {visiblePages.map((page, index) => {
+                  {visiblePages.map((page: number | null, index: number) => {
                     if (page === null) return null
                     const showEllipsis = index > 0 && visiblePages[index - 1] !== null && page - visiblePages[index - 1]! > 1
                     

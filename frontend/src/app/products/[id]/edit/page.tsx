@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Menu, Upload, X, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { ButtonLoader } from '@/components/ui/Loader'
 
 export default function EditProductPage() {
   const router = useRouter()
@@ -14,6 +15,7 @@ export default function EditProductPage() {
   const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const [formData, setFormData] = useState({
     title: 'Apple AirPods Pro (2nd Generation)',
@@ -51,7 +53,11 @@ export default function EditProductPage() {
     ))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setIsSaving(true)
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800))
+    setIsSaving(false)
     alert(language === 'ar' ? 'تم حفظ المنتج!' : 'Product saved!')
     router.push(`/products/${productId}`)
   }
@@ -480,9 +486,11 @@ export default function EditProductPage() {
                   </button>
                   <button
                     onClick={handleSave}
-                    className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm sm:text-base"
+                    disabled={isSaving}
+                    className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base transition-colors"
                   >
-                    {t('saveChanges')}
+                    {isSaving ? <ButtonLoader size="sm" /> : null}
+                    {isSaving ? t('saving') : t('saveChanges')}
                   </button>
                 </div>
               </div>

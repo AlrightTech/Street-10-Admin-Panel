@@ -6,6 +6,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, ArrowLeft, Download, X, Check, Clock, FileText, Eye, AlertCircle, Info } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import React from 'react'
+
+// TypeScript interfaces
+type LucideIcon = React.ComponentType<{ size?: number; className?: string }>
+
+interface WithdrawalTimelineStep {
+  status: string
+  date: string
+  completed: boolean
+  icon: LucideIcon
+}
 
 export default function WithdrawalDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -195,7 +206,7 @@ export default function WithdrawalDetailsPage({ params }: { params: { id: string
                       <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('processingTimeline')}</h2>
                       <div className="relative">
                         <div className="flex items-center justify-between">
-                          {withdrawal.timeline.map((step: any, index: number) => (
+                          {withdrawal.timeline.map((step: WithdrawalTimelineStep, index: number) => (
                             <div key={index} className="flex-1 relative">
                               <div className="flex flex-col items-center">
                                 <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-500 flex items-center justify-center text-green-600">

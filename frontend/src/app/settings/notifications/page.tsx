@@ -5,8 +5,10 @@ import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { Menu, Bell, Package, Truck, Star, AlertTriangle, RefreshCcw, DollarSign } from 'lucide-react'
 import TabsBar from '@/components/ui/TabsBar'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function SettingsNotificationsPage() {
+  const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeFilter, setActiveFilter] = useState<'all' | 'orders' | 'payouts' | 'system'>('all')
@@ -39,16 +41,16 @@ export default function SettingsNotificationsPage() {
             <div className="max-w-6xl mx-auto space-y-6">
               {/* Header */}
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Store Setting</h1>
-                <p className="text-sm text-gray-500 mt-1">Dashboard Notifications</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('storeBuilder')}</h1>
+                <p className="text-sm text-gray-500 mt-1">{t('dashboardNotifications')}</p>
               </div>
 
               {/* Tabs */}
               <TabsBar
                 tabs={[
-                  { label: 'Store Settings', href: '/settings/store' },
-                  { label: 'Policy Settings', href: '/settings/policy' },
-                  { label: 'Notification', href: '/settings/notifications', active: true },
+                  { label: t('storeSettings'), href: '/settings/store' },
+                  { label: t('policySettings'), href: '/settings/policy' },
+                  { label: t('notifications'), href: '/settings/notifications', active: true },
                 ]}
                 variant="underline"
               />
@@ -64,7 +66,7 @@ export default function SettingsNotificationsPage() {
                         : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
-                    All
+                    {t('all')}
                   </button>
                   <button 
                     onClick={() => setActiveFilter('orders')}
@@ -74,7 +76,7 @@ export default function SettingsNotificationsPage() {
                         : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
-                    Orders
+                    {t('orders')}
                   </button>
                   <button 
                     onClick={() => setActiveFilter('payouts')}
@@ -84,7 +86,7 @@ export default function SettingsNotificationsPage() {
                         : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
-                    Payouts
+                    {t('payouts')}
                   </button>
                   <button 
                     onClick={() => setActiveFilter('system')}
@@ -94,25 +96,25 @@ export default function SettingsNotificationsPage() {
                         : 'text-gray-500 hover:text-gray-700 bg-transparent'
                     }`}
                   >
-                    System Updates
+                    {t('systemUpdates')}
                   </button>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <button className="text-gray-600 hover:text-gray-900">Mark all as read</button>
+                  <button className="text-gray-600 hover:text-gray-900">{t('markAllAsRead')}</button>
                   <span className="h-3 w-px bg-gray-300" />
-                  <button className="text-red-500 hover:text-red-600">Clear all</button>
+                  <button className="text-red-500 hover:text-red-600">{t('clearAll')}</button>
                 </div>
               </div>
 
               {/* Notifications list */}
               <div className="bg-white rounded-lg border border-gray-200">
                 {[
-                  { icon: Package, title: 'New order received', desc: 'Order #10425 has been placed by Sarah Johnson. Total amount: $129.99', tags: [{t:'New Order',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '2 minutes ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
-                  { icon: DollarSign, title: 'Withdrawal completed', desc: 'Your withdrawal request of $560.00 has been processed successfully to your bank account ending in 4567.', tags: [{t:'Payout',c:'bg-blue-100 text-blue-700'}], links: ['View Transaction'], time: '1 day ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
-                  { icon: RefreshCcw, title: 'Refund policy updated', desc: 'Your refund policy has been successfully updated. The new policy will take effect immediately for all new orders.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['View Policy'], time: '5 days ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
-                  { icon: Truck, title: 'Order shipped', desc: 'Order #10198 has been shipped via FedEx. Tracking number: IZ999AA1234567890. Expected delivery: Jan 28, 2025', tags: [{t:'Order Update',c:'bg-orange-100 text-orange-700'}], links: ['Track Package'], time: '1 week ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
-                  { icon: AlertTriangle, title: 'Low stock alert', desc: 'Product "Wireless Bluetooth Headphones" is running low on stock. Only 3 units remaining. Consider restocking soon.', tags: [{t:'Stock Alert',c:'bg-red-100 text-red-700'}], links: ['Restock Now'], time: '1 week ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
-                  { icon: Star, title: 'New 5-star review', desc: 'Michael Davis left a 5-star review for "Premium Coffee Beans": "Excellent quality and fast shipping. Highly recommended!"', tags: [{t:'Review',c:'bg-yellow-100 text-yellow-700'}], links: ['View Review'], time: '2 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+                  { icon: Package, title: t('newOrderReceived'), desc: 'Order #10425 has been placed by Sarah Johnson. Total amount: $129.99', tags: [{t:t('newOrder'),c:'bg-green-100 text-green-700'}], links: [t('viewOrder')], time: '2 minutes ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+                  { icon: DollarSign, title: t('withdrawalCompleted'), desc: 'Your withdrawal request of $560.00 has been processed successfully to your bank account ending in 4567.', tags: [{t:t('payout'),c:'bg-blue-100 text-blue-700'}], links: [t('viewTransaction')], time: '1 day ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+                  { icon: RefreshCcw, title: t('refundPolicyUpdated'), desc: 'Your refund policy has been successfully updated. The new policy will take effect immediately for all new orders.', tags: [{t:t('systemUpdate'),c:'bg-purple-100 text-purple-700'}], links: [t('viewPolicy')], time: '5 days ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+                  { icon: Truck, title: t('orderShipped'), desc: 'Order #10198 has been shipped via FedEx. Tracking number: IZ999AA1234567890. Expected delivery: Jan 28, 2025', tags: [{t:t('orderUpdate'),c:'bg-orange-100 text-orange-700'}], links: [t('trackPackage')], time: '1 week ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
+                  { icon: AlertTriangle, title: t('lowStockAlert'), desc: 'Product "Wireless Bluetooth Headphones" is running low on stock. Only 3 units remaining. Consider restocking soon.', tags: [{t:t('stockAlert'),c:'bg-red-100 text-red-700'}], links: [t('restockNow')], time: '1 week ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
+                  { icon: Star, title: t('new5StarReview'), desc: 'Michael Davis left a 5-star review for "Premium Coffee Beans": "Excellent quality and fast shipping. Highly recommended!"', tags: [{t:t('review'),c:'bg-yellow-100 text-yellow-700'}], links: [t('viewReview')], time: '2 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
                 ]
                 .filter((n) => activeFilter === 'all' || n.type === activeFilter)
                 .map((n, idx, filteredArray) => (
@@ -143,7 +145,7 @@ export default function SettingsNotificationsPage() {
                 <div className="p-4 border-t flex justify-center">
                   <button className="px-4 py-2 text-sm rounded-md border text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                     <Bell size={16} />
-                    Load More Notifications
+                    {t('loadMoreNotifications')}
                   </button>
                 </div>
               </div>
@@ -170,9 +172,9 @@ export default function SettingsNotificationsPage() {
           <div>
             <TabsBar
               tabs={[
-                { label: 'Store Settings', href: '/settings/store' },
-                { label: 'Policy Settings', href: '/settings/policy' },
-                { label: 'Notification', href: '/settings/notifications', active: true },
+                { label: t('storeSettings'), href: '/settings/store' },
+                { label: t('policySettings'), href: '/settings/policy' },
+                { label: t('notifications'), href: '/settings/notifications', active: true },
               ]}
               variant="underline"
             />
@@ -189,7 +191,7 @@ export default function SettingsNotificationsPage() {
                     : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
-                All
+                {t('all')}
               </button>
               <button 
                 onClick={() => setActiveFilter('orders')}
@@ -199,7 +201,7 @@ export default function SettingsNotificationsPage() {
                     : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
-                Orders
+                {t('orders')}
               </button>
               <button 
                 onClick={() => setActiveFilter('payouts')}
@@ -209,7 +211,7 @@ export default function SettingsNotificationsPage() {
                     : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
-                Payouts
+                {t('payouts')}
               </button>
               <button 
                 onClick={() => setActiveFilter('system')}
@@ -219,25 +221,25 @@ export default function SettingsNotificationsPage() {
                     : 'text-gray-500 hover:text-gray-700 bg-transparent'
                 }`}
               >
-                System Updates
+                {t('systemUpdates')}
               </button>
             </div>
             <div className="flex items-center gap-3 text-xs">
-              <button className="text-gray-600 hover:text-gray-900">Mark all as read</button>
+              <button className="text-gray-600 hover:text-gray-900">{t('markAllAsRead')}</button>
               <span className="h-3 w-px bg-gray-300" />
-              <button className="text-red-500 hover:text-red-600">Clear all</button>
+              <button className="text-red-500 hover:text-red-600">{t('clearAll')}</button>
             </div>
           </div>
 
           {/* Notifications list */}
           <div className="bg-white rounded-lg border border-gray-200">
             {[
-              { icon: Package, title: 'New order received', desc: 'Order #10425 has been placed by Sarah Johnson. Total amount: $129.99', tags: [{t:'New Order',c:'bg-green-100 text-green-700'}], links: ['View Order'], time: '2 minutes ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
-              { icon: DollarSign, title: 'Withdrawal completed', desc: 'Your withdrawal request of $560.00 has been processed successfully to your bank account ending in 4567.', tags: [{t:'Payout',c:'bg-blue-100 text-blue-700'}], links: ['View Transaction'], time: '1 day ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
-              { icon: RefreshCcw, title: 'Refund policy updated', desc: 'Your refund policy has been successfully updated. The new policy will take effect immediately for all new orders.', tags: [{t:'System Update',c:'bg-purple-100 text-purple-700'}], links: ['View Policy'], time: '5 days ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
-              { icon: Truck, title: 'Order shipped', desc: 'Order #10198 has been shipped via FedEx. Tracking number: IZ999AA1234567890. Expected delivery: Jan 28, 2025', tags: [{t:'Order Update',c:'bg-orange-100 text-orange-700'}], links: ['Track Package'], time: '1 week ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
-              { icon: AlertTriangle, title: 'Low stock alert', desc: 'Product "Wireless Bluetooth Headphones" is running low on stock. Only 3 units remaining. Consider restocking soon.', tags: [{t:'Stock Alert',c:'bg-red-100 text-red-700'}], links: ['Restock Now'], time: '1 week ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
-              { icon: Star, title: 'New 5-star review', desc: 'Michael Davis left a 5-star review for "Premium Coffee Beans": "Excellent quality and fast shipping. Highly recommended!"', tags: [{t:'Review',c:'bg-yellow-100 text-yellow-700'}], links: ['View Review'], time: '2 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
+              { icon: Package, title: t('newOrderReceived'), desc: 'Order #10425 has been placed by Sarah Johnson. Total amount: $129.99', tags: [{t:t('newOrder'),c:'bg-green-100 text-green-700'}], links: [t('viewOrder')], time: '2 minutes ago', color: 'text-green-600', dot: 'bg-purple-500', type: 'orders' as const },
+              { icon: DollarSign, title: t('withdrawalCompleted'), desc: 'Your withdrawal request of $560.00 has been processed successfully to your bank account ending in 4567.', tags: [{t:t('payout'),c:'bg-blue-100 text-blue-700'}], links: [t('viewTransaction')], time: '1 day ago', color: 'text-blue-600', dot: 'bg-purple-500', type: 'payouts' as const },
+              { icon: RefreshCcw, title: t('refundPolicyUpdated'), desc: 'Your refund policy has been successfully updated. The new policy will take effect immediately for all new orders.', tags: [{t:t('systemUpdate'),c:'bg-purple-100 text-purple-700'}], links: [t('viewPolicy')], time: '5 days ago', color: 'text-purple-600', dot: 'bg-purple-500', type: 'system' as const },
+              { icon: Truck, title: t('orderShipped'), desc: 'Order #10198 has been shipped via FedEx. Tracking number: IZ999AA1234567890. Expected delivery: Jan 28, 2025', tags: [{t:t('orderUpdate'),c:'bg-orange-100 text-orange-700'}], links: [t('trackPackage')], time: '1 week ago', color: 'text-orange-600', dot: 'bg-purple-500', type: 'orders' as const },
+              { icon: AlertTriangle, title: t('lowStockAlert'), desc: 'Product "Wireless Bluetooth Headphones" is running low on stock. Only 3 units remaining. Consider restocking soon.', tags: [{t:t('stockAlert'),c:'bg-red-100 text-red-700'}], links: [t('restockNow')], time: '1 week ago', color: 'text-red-600', dot: 'bg-purple-500', type: 'orders' as const },
+              { icon: Star, title: t('new5StarReview'), desc: 'Michael Davis left a 5-star review for "Premium Coffee Beans": "Excellent quality and fast shipping. Highly recommended!"', tags: [{t:t('review'),c:'bg-yellow-100 text-yellow-700'}], links: [t('viewReview')], time: '2 weeks ago', color: 'text-yellow-600', dot: 'bg-purple-500', type: 'orders' as const },
             ]
             .filter((n) => activeFilter === 'all' || n.type === activeFilter)
             .map((n, idx, filteredArray) => (
@@ -268,7 +270,7 @@ export default function SettingsNotificationsPage() {
             <div className="p-4 border-t flex justify-center">
               <button className="px-4 py-2 text-sm rounded-md border text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                 <Bell size={16} />
-                Load More Notifications
+                {t('loadMoreNotifications')}
               </button>
             </div>
           </div>
