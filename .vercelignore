@@ -1,0 +1,6 @@
+backend/
+*.md
+*.bat
+*.sh
+!frontend/
+
