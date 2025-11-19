@@ -1,7 +1,7 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Download, Printer, Mail, Phone, Globe, Laptop, Mouse, Shield } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import React from 'react'
@@ -19,7 +19,8 @@ interface InvoiceItem {
   icon?: LucideIcon
 }
 
-export default function InvoicePage({ params }: { params: { id: string } }) {
+export default function InvoicePage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)

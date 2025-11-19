@@ -1,7 +1,7 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, ArrowLeft, Download, Printer, RefreshCw, DollarSign, MapPin, Package, Truck, Home, Check, User, Phone, Mail, Settings, ChevronDown, PackageSearch } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -22,14 +22,15 @@ interface TimelineStep {
   active: boolean
 }
 
-export default function OrderDetailsPage({ params }: { params: { id: string } }) {
+export default function OrderDetailsPage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t, translateOrder } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const rawOrder = {
-    id: params.id,
+    id: id || '',
     orderNumber: '#2345',
     orderDate: 'Dec 15, 2024',
     orderTime: '2:30 PM',
@@ -107,7 +108,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                   <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} {'>'} {t('orderDetails')}</p>
                 </div>
                 <button
-                  onClick={() => navigate(`/orders/${params.id}/invoice`)}
+                  onClick={() => navigate(`/orders/${id}/invoice`)}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base"
                 >
                   <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -286,7 +287,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                       <p className="text-xs sm:text-sm text-gray-600">{t('trackingNumber')}</p>
                       <button 
-                        onClick={() => navigate(`/orders/${params.id}/tracking`)}
+                        onClick={() => navigate(`/orders/${id}/tracking`)}
                         className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 w-fit text-left sm:text-right"
                       >
                         #{order.delivery.trackingNumber}
@@ -350,7 +351,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               {/* Action Buttons */}
               <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 sm:gap-3">
                 <button 
-                  onClick={() => navigate(`/orders/${params.id}/tracking`)}
+                  onClick={() => navigate(`/orders/${id}/tracking`)}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors text-xs sm:text-sm font-medium"
                 >
                   <PackageSearch size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
@@ -411,7 +412,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                   <p className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboard')} {'>'} {t('orderDetails')}</p>
                 </div>
                 <button
-                  onClick={() => navigate(`/orders/${params.id}/invoice`)}
+                  onClick={() => navigate(`/orders/${id}/invoice`)}
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm"
                 >
                   <Download size={16} />
@@ -590,7 +591,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                       <p className="text-xs sm:text-sm text-gray-600">{t('trackingNumber')}</p>
                       <button 
-                        onClick={() => navigate(`/orders/${params.id}/tracking`)}
+                        onClick={() => navigate(`/orders/${id}/tracking`)}
                         className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 w-fit text-left sm:text-right"
                       >
                         #{order.delivery.trackingNumber}
@@ -652,7 +653,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               {/* Action Buttons */}
               <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 sm:gap-3 pb-6">
                 <button 
-                  onClick={() => navigate(`/orders/${params.id}/tracking`)}
+                  onClick={() => navigate(`/orders/${id}/tracking`)}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors text-xs sm:text-sm font-medium"
                 >
                   <PackageSearch size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />

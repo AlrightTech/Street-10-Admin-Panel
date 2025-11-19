@@ -70,15 +70,15 @@ export default function CreateReportPage() {
               <div>
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Create New Report</h1>
                     <nav className="text-xs text-gray-400 flex items-center gap-1.5" aria-label="breadcrumb">
-                  <Link href="/analytics/custom-reports" className="hover:underline text-gray-500">Analytics & Reports</Link>
+                  <Link to="/analytics/custom-reports" className="hover:underline text-gray-500">Analytics & Reports</Link>
                   <ChevronRight size={14} />
-                  <Link href="/analytics/custom-reports" className="hover:underline text-gray-500">Custom Reports</Link>
+                  <Link to="/analytics/custom-reports" className="hover:underline text-gray-500">Custom Reports</Link>
                   <ChevronRight size={14} />
                       <span className="text-orange-500">Create New Report</span>
                 </nav>
               </div>
               <div className="flex gap-2">
-                <Link href="/analytics/custom-reports">
+                <Link to="/analytics/custom-reports">
                       <button className="border border-gray-300 px-4 py-2 rounded-md text-gray-700 bg-white text-sm font-medium hover:bg-gray-50 flex items-center">
                     Cancel
                   </button>
@@ -321,15 +321,15 @@ export default function CreateReportPage() {
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Create New Report</h1>
                   <nav className="text-xs text-gray-400 flex items-center gap-1.5" aria-label="breadcrumb">
-                    <Link href="/analytics/custom-reports" className="hover:underline text-gray-500">Analytics & Reports</Link>
+                    <Link to="/analytics/custom-reports" className="hover:underline text-gray-500">Analytics & Reports</Link>
                     <ChevronRight size={14} />
-                    <Link href="/analytics/custom-reports" className="hover:underline text-gray-500">Custom Reports</Link>
+                    <Link to="/analytics/custom-reports" className="hover:underline text-gray-500">Custom Reports</Link>
                     <ChevronRight size={14} />
                     <span className="text-orange-500">Create New Report</span>
                   </nav>
                 </div>
                 <div className="flex gap-2">
-                  <Link href="/analytics/custom-reports">
+                  <Link to="/analytics/custom-reports">
                     <button className="border border-gray-300 px-3 sm:px-4 py-2 rounded-md text-gray-700 bg-white text-xs sm:text-sm font-medium hover:bg-gray-50 flex items-center">
                       Cancel
                     </button>

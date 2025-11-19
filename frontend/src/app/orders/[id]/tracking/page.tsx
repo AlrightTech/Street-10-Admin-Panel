@@ -1,11 +1,12 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Calendar, Send, X, ArrowLeft } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-export default function AddTrackingPage({ params }: { params: { id: string } }) {
+export default function AddTrackingPage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -24,7 +25,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
   const [showDatePicker, setShowDatePicker] = useState(false)
 
   const orderSummary = {
-    orderId: `#${params.id}`,
+    orderId: `#${id}`,
     customerName: 'Sarah Johnson',
     orderDate: 'Dec 15, 2024'
   }
@@ -138,18 +139,18 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       // Here you would typically send data to your backend API
-      // await fetch(`/api/orders/${params.id}/tracking`, {
+      // await fetch(`/api/orders/${id}/tracking`, {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({
       //     ...formData,
       //     autoNotify,
-      //     orderId: params.id
+      //     orderId: id
       //   })
       // })
 
       // Success - navigate back to order detail page
-      navigate(`/orders/${params.id}`)
+      navigate(`/orders/${id}`)
     } catch (error) {
       console.error('Error saving tracking information:', error)
       alert(t('trackingAddedFailed'))
@@ -160,7 +161,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
 
   const handleCancel = () => {
     if (confirm(t('confirmCancel'))) {
-      navigate(`/orders/${params.id}`)
+      navigate(`/orders/${id}`)
     }
   }
 
@@ -193,7 +194,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
               {/* Header */}
               <div>
                 <button
-                  onClick={() => navigate(`/orders/${params.id}`)}
+                  onClick={() => navigate(`/orders/${id}`)}
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-2"
                 >
                   <ArrowLeft size={16} />
@@ -446,7 +447,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
               {/* Header */}
               <div>
                 <button
-                  onClick={() => navigate(`/orders/${params.id}`)}
+                  onClick={() => navigate(`/orders/${id}`)}
                   className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 mb-2"
                 >
                   <ArrowLeft size={14} className="sm:w-4 sm:h-4" />

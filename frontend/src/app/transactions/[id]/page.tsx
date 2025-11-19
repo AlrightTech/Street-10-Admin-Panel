@@ -1,7 +1,7 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, ArrowLeft, Download, RefreshCw, Check, X, AlertTriangle, MessageCircle, Calendar, Clock, Headphones } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -20,7 +20,8 @@ interface TransactionTimelineStep {
   failed?: boolean
 }
 
-export default function TransactionDetailsPage({ params }: { params: { id: string } }) {
+export default function TransactionDetailsPage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -106,7 +107,7 @@ export default function TransactionDetailsPage({ params }: { params: { id: strin
     }
   }
 
-  const transaction = transactionMap[params.id] || transactionMap['TXN001234']
+  const transaction = transactionMap[id || ''] || transactionMap['TXN001234']
   const isCompleted = transaction.status === 'Completed'
   const isPending = transaction.status === 'Pending'
   const isFailed = transaction.status === 'Failed'
