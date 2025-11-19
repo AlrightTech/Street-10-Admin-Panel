@@ -1,14 +1,12 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import Modal from '@/components/ui/Modal'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Menu, Eye, EyeOff, Check, ChevronUp, ChevronDown, Megaphone, Settings, DollarSign, Headphones, FolderOpen, Users as UsersIcon, ShoppingCart, Ticket, CheckCircle } from 'lucide-react'
 
 export default function AddNewSubAdminPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
@@ -124,7 +122,7 @@ export default function AddNewSubAdminPage() {
 
   const handleSuccessClose = () => {
     setShowSuccessModal(false)
-    router.push('/sub-admin/users')
+    navigate('/sub-admin/users')
   }
 
   const roleOptions = [

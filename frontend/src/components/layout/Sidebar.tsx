@@ -1,4 +1,3 @@
-'use client'
 
 import { 
   LayoutDashboard, 
@@ -24,8 +23,8 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRole } from '@/contexts/RoleContext'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 interface SidebarProps {
   onClose?: () => void
@@ -35,13 +34,13 @@ interface SidebarProps {
 export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarProps) {
   const { t } = useLanguage()
   const { role, isSubAdmin, setRole } = useRole()
-  const router = useRouter()
+  const navigate = useNavigate()
 
   const handleLogout = () => {
     // Clear role from localStorage
     setRole(null)
     // Navigate to role-select page
-    router.push('/select-role')
+    navigate('/select-role')
     // Close sidebar on mobile if open
     if (onClose) {
       onClose()
@@ -163,7 +162,7 @@ export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarP
             <li key={index}>
               {item.link ? (
                        <Link
-                         href={item.link}
+                         to={item.link}
                          className={`flex items-center justify-between px-3 py-3 rounded-lg transition-colors duration-200 ${
                            item.active
                              ? 'bg-orange-500 text-white'
@@ -210,7 +209,7 @@ export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarP
                       {productManagementSubmenu.map((subItem, subIndex) => (
                         <li key={subIndex}>
                           <Link
-                            href={subItem.link}
+                            to={subItem.link}
                             className={`flex items-center px-4 py-2.5 rounded-lg transition-colors duration-200 ${
                               subItem.active
                                 ? 'bg-orange-500 text-white'
@@ -228,7 +227,7 @@ export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarP
                       {transactionsSubmenuFiltered.map((subItem, subIndex) => (
                         <li key={subIndex}>
                           <Link
-                            href={subItem.link}
+                            to={subItem.link}
                             className={`flex items-center px-4 py-2.5 rounded-lg transition-colors duration-200 ${
                               subItem.active
                                 ? 'bg-orange-500 text-white'
@@ -246,7 +245,7 @@ export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarP
                       {analyticsSubmenu.map((subItem, subIndex) => (
                         <li key={subIndex}>
                           <Link
-                            href={subItem.link}
+                            to={subItem.link}
                             className={`flex items-center px-4 py-2.5 rounded-lg transition-colors duration-200 ${
                               subItem.active
                                 ? 'bg-orange-500 text-white'

@@ -1,9 +1,7 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Menu, TrendingUp, Calendar, Clock, ArrowDown, DollarSign, ShoppingCart, RefreshCw, Percent, BarChart3, Search, Eye, Download } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -18,7 +16,7 @@ interface BestProduct {
 }
 
 export default function EarningsOverviewPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -369,7 +367,7 @@ export default function EarningsOverviewPage() {
                         <td className="px-6 py-4 font-medium text-gray-900">${product.revenue.toLocaleString()}</td>
                         <td className="px-6 py-4">
                           <button
-                            onClick={() => router.push(`/transactions/earnings/products/${product.id}`)}
+                            onClick={() => navigate(`/transactions/earnings/products/${product.id}`)}
                             className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
                           >
                             <Eye size={16} />
@@ -385,7 +383,7 @@ export default function EarningsOverviewPage() {
               {/* Action Buttons */}
               <div className="flex justify-end gap-4">
                 <button
-                  onClick={() => router.push('/transactions/earnings/withdrawals/new')}
+                  onClick={() => navigate('/transactions/earnings/withdrawals/new')}
                   className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                 >
                   <DollarSign size={18} />
@@ -605,7 +603,7 @@ export default function EarningsOverviewPage() {
                     </div>
                   </div>
                   <button
-                    onClick={() => router.push(`/transactions/earnings/products/${p.id}`)}
+                    onClick={() => navigate(`/transactions/earnings/products/${p.id}`)}
                     className="text-blue-600 text-sm"
                   >
                     {t('viewDetails')}
@@ -618,7 +616,7 @@ export default function EarningsOverviewPage() {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => router.push('/transactions/earnings/withdrawals/new')}
+              onClick={() => navigate('/transactions/earnings/withdrawals/new')}
               className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg"
             >
               {t('requestWithdrawal')}

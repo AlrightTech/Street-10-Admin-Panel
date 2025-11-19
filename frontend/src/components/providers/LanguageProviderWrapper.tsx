@@ -1,4 +1,3 @@
-'use client'
 
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import { ReactNode } from 'react'

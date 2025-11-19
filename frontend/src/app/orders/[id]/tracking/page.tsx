@@ -1,14 +1,12 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Menu, Calendar, Send, X, ArrowLeft } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AddTrackingPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -151,7 +149,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
       // })
 
       // Success - navigate back to order detail page
-      router.push(`/orders/${params.id}`)
+      navigate(`/orders/${params.id}`)
     } catch (error) {
       console.error('Error saving tracking information:', error)
       alert(t('trackingAddedFailed'))
@@ -162,7 +160,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
 
   const handleCancel = () => {
     if (confirm(t('confirmCancel'))) {
-      router.push(`/orders/${params.id}`)
+      navigate(`/orders/${params.id}`)
     }
   }
 
@@ -195,7 +193,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
               {/* Header */}
               <div>
                 <button
-                  onClick={() => router.push(`/orders/${params.id}`)}
+                  onClick={() => navigate(`/orders/${params.id}`)}
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-2"
                 >
                   <ArrowLeft size={16} />
@@ -448,7 +446,7 @@ export default function AddTrackingPage({ params }: { params: { id: string } }) 
               {/* Header */}
               <div>
                 <button
-                  onClick={() => router.push(`/orders/${params.id}`)}
+                  onClick={() => navigate(`/orders/${params.id}`)}
                   className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 mb-2"
                 >
                   <ArrowLeft size={14} className="sm:w-4 sm:h-4" />
