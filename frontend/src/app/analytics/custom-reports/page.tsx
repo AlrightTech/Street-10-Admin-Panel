@@ -70,7 +70,7 @@ export default function CustomReportsPage() {
                       <h1 className="text-2xl font-bold text-gray-900 mb-1">{t('customReports')}</h1>
                       <p className="text-sm text-gray-500">{t('generatePersonalizedReports')}</p>
                 </div>
-                <Link href="/analytics/custom-reports/create">
+                <Link to="/analytics/custom-reports/create">
                       <button className="px-4 py-2 rounded-md bg-orange-500 text-white flex items-center gap-2 font-medium hover:bg-orange-600 text-sm shadow-sm">
                     <Plus size={18} /> {t('createNewReport')}
                   </button>
@@ -449,7 +449,7 @@ export default function CustomReportsPage() {
                   <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{t('customReports')}</h1>
                   <p className="text-xs sm:text-sm text-gray-500">{t('generatePersonalizedReports')}</p>
             </div>
-            <Link href="/analytics/custom-reports/create">
+            <Link to="/analytics/custom-reports/create">
                   <button className="px-3 sm:px-4 py-2 rounded-md bg-orange-500 text-white flex items-center gap-2 font-medium hover:bg-orange-600 text-xs sm:text-sm shadow-sm">
                 <Plus size={16} /> {t('createNewReport')}
               </button>

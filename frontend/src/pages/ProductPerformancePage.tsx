@@ -1,7 +1,7 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, ArrowLeft, TrendingUp, DollarSign, Tag, RefreshCw, BarChart3, Star, Calendar, Search, Download } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -15,7 +15,8 @@ interface ProductOrder {
   status: string
 }
 
-export default function ProductPerformancePage({ params }: { params: { id: string } }) {
+export default function ProductPerformancePage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -24,7 +25,7 @@ export default function ProductPerformancePage({ params }: { params: { id: strin
 
   // Mock product data
   const product = {
-    id: params.id,
+    id: id,
     name: 'Premium Wireless Headphones',
     productId: 'RPW001',
     image: '/images/products/headphones.jpg'

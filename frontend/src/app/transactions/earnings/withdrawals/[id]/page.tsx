@@ -1,7 +1,7 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, ArrowLeft, Download, X, Check, Clock, FileText, Eye, AlertCircle, Info } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import React from 'react'
@@ -16,7 +16,8 @@ interface WithdrawalTimelineStep {
   icon: LucideIcon
 }
 
-export default function WithdrawalDetailsPage({ params }: { params: { id: string } }) {
+export default function WithdrawalDetailsPage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -74,7 +75,7 @@ export default function WithdrawalDetailsPage({ params }: { params: { id: string
     }
   }
 
-  const withdrawal = withdrawalMap[params.id] || withdrawalMap['WD-2024-001']
+  const withdrawal = withdrawalMap[id || ''] || withdrawalMap['WD-2024-001']
   const isCompleted = withdrawal.status === 'Completed'
   const isPending = withdrawal.status === 'Pending'
   const isRejected = withdrawal.status === 'Rejected'
