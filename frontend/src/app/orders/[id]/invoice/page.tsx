@@ -1,9 +1,7 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Menu, Download, Printer, Mail, Phone, Globe, Laptop, Mouse, Shield } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import React from 'react'
@@ -22,7 +20,7 @@ interface InvoiceItem {
 }
 
 export default function InvoicePage({ params }: { params: { id: string } }) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { t, language } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)

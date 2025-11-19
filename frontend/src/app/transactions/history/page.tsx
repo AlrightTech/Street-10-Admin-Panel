@@ -1,9 +1,7 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Menu, Search, Filter, Calendar, TrendingUp, Clock, FileText, ChevronLeft, ChevronRight, Eye, ChevronDown, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -21,7 +19,7 @@ interface Transaction {
 }
 
 export default function TransactionHistoryPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -111,7 +109,7 @@ export default function TransactionHistoryPage() {
   }
 
   const handleViewTransaction = (transactionId: string) => {
-    router.push(`/transactions/${transactionId}`)
+    navigate(`/transactions/${transactionId}`)
   }
 
   const handleClearFilters = () => {
@@ -367,7 +365,7 @@ export default function TransactionHistoryPage() {
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               {transaction.orderId ? (
                                 <button 
-                                  onClick={() => router.push(`/orders/${transaction.orderId?.replace('ORD', '')}`)}
+                                  onClick={() => navigate(`/orders/${transaction.orderId?.replace('ORD', '')}`)}
                                   className="text-blue-600 hover:text-blue-800 hover:underline"
                                 >
                                   #{transaction.orderId}
@@ -648,7 +646,7 @@ export default function TransactionHistoryPage() {
                         <p className="text-gray-500 text-xs">{t('orderId')}</p>
                         {transaction.orderId ? (
                           <button 
-                            onClick={() => router.push(`/orders/${transaction.orderId?.replace('ORD', '')}`)}
+                            onClick={() => navigate(`/orders/${transaction.orderId?.replace('ORD', '')}`)}
                             className="text-blue-600 hover:text-blue-800 text-sm"
                           >
                             #{transaction.orderId}

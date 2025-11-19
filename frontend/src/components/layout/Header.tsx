@@ -1,11 +1,9 @@
-'use client'
-
 import { Search, Bell, ChevronDown, Menu, X, Package, Truck, Star, AlertTriangle, RefreshCcw, DollarSign, Loader2, User, Settings, LogOut, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRole } from '@/contexts/RoleContext'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 interface HeaderProps {
   onToggleSidebar?: () => void
@@ -15,7 +13,7 @@ interface HeaderProps {
 export default function Header({ onToggleSidebar, isSidebarOpen = false }: HeaderProps) {
   const { language, changeLanguage, t } = useLanguage()
   const { setRole } = useRole()
-  const router = useRouter()
+  const navigate = useNavigate()
   const [showLangDropdown, setShowLangDropdown] = useState(false)
   const [searchExpanded, setSearchExpanded] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
@@ -113,7 +111,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
     // Clear role from localStorage
     setRole(null)
     // Navigate to role-select page
-    router.push('/select-role')
+    navigate('/select-role')
     setShowProfileDropdown(false)
   }
 
@@ -419,7 +417,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                   {/* Menu Items */}
                   <div className="flex-1 overflow-y-auto py-2">
                     <Link
-                      href="/settings/profile"
+                      to="/settings/profile"
                       onClick={() => setShowProfileDropdown(false)}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
                     >
@@ -428,7 +426,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                     </Link>
                     
                     <Link
-                      href="/settings/store"
+                      to="/settings/store"
                       onClick={() => setShowProfileDropdown(false)}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
                     >

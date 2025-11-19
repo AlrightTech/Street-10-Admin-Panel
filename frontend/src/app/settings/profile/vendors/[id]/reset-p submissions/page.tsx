@@ -1,13 +1,11 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 
 export default function ResetPasswordPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const params = useParams()
   const vendorId = params?.id
   
@@ -42,7 +40,7 @@ export default function ResetPasswordPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
       alert('Password changed successfully!')
-      router.push(`/settings/profile/vendors/${vendorId}`)
+      navigate(`/settings/profile/vendors/${vendorId}`)
     } catch (error) {
       alert('Failed to change password')
     } finally {
@@ -79,7 +77,7 @@ export default function ResetPasswordPage() {
             {/* Breadcrumb */}
             <div className="mb-6">
               <button
-                onClick={() => router.push(`/settings/profile/vendors/${vendorId}`)}
+                onClick={() => navigate(`/settings/profile/vendors/${vendorId}`)}
                 className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-2"
               >
                 <ArrowLeft size={16} />
@@ -176,7 +174,7 @@ export default function ResetPasswordPage() {
         
         <main className="p-4">
           <button
-            onClick={() => router.back()}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft size={16} />

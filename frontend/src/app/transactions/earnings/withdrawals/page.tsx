@@ -1,9 +1,7 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 import { Menu, TrendingUp, Clock, CheckCircle, Plus, Calendar, Search, Eye, Download, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -18,7 +16,7 @@ interface Withdrawal {
 }
 
 export default function WithdrawalHistoryPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -94,7 +92,7 @@ export default function WithdrawalHistoryPage() {
                   <p className="text-sm text-gray-500 mt-1">{t('dashboard')} / {t('withdrawalHistory')}</p>
                 </div>
                 <button
-                  onClick={() => router.push('/transactions/earnings/withdrawals/new')}
+                  onClick={() => navigate('/transactions/earnings/withdrawals/new')}
                   className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                 >
                   <Plus size={18} />
@@ -211,7 +209,7 @@ export default function WithdrawalHistoryPage() {
                           <td className="px-6 py-4 text-sm text-gray-500">{withdrawal.reference}</td>
                           <td className="px-6 py-4">
                             <button
-                              onClick={() => router.push(`/transactions/earnings/withdrawals/${withdrawal.id}`)}
+                              onClick={() => navigate(`/transactions/earnings/withdrawals/${withdrawal.id}`)}
                               className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
                             >
                               <Eye size={16} />

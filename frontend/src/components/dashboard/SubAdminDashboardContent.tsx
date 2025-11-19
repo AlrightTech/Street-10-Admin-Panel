@@ -1,4 +1,3 @@
-'use client'
 
 import { 
   ClipboardList, 
@@ -35,11 +34,9 @@ export default function SubAdminDashboardContent() {
   const [loading, setLoading] = useState(true)
 
   const fetchData = useCallback(async () => {
-    // If no public API URL is provided, show demo data
-    const demoMode = !process.env.NEXT_PUBLIC_API_URL
-    if (demoMode) {
-      const isArabic = language === 'ar'
-      const demoData: SubAdminDashboardData = {
+    // Frontend-only: Always use demo data
+    const isArabic = language === 'ar'
+    const demoData: SubAdminDashboardData = {
         metrics: {
           assignedTasks: 18,
           completedOrders: 42,
@@ -74,23 +71,6 @@ export default function SubAdminDashboardContent() {
       }
       setDashboardData(demoData)
       setLoading(false)
-      return
-    }
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-      const response = await fetch(`${apiUrl}/api/dashboard/sub-admin/data`)
-      const data = await response.json()
-      setDashboardData(data)
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching sub-admin dashboard data:', error)
-      const demoData: SubAdminDashboardData = {
-        metrics: { assignedTasks: 0, completedOrders: 0, pendingApprovals: 0, teamPerformance: 0 }
-      }
-      setDashboardData(demoData)
-      setLoading(false)
-    }
   }, [language])
 
   useEffect(() => {

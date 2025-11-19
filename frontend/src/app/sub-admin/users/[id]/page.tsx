@@ -1,10 +1,8 @@
-'use client'
-
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import Modal from '@/components/ui/Modal'
 import { useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, ArrowLeft, UserPlus, MoreVertical, Megaphone, Settings, DollarSign, Headphones, Check, CheckCircle } from 'lucide-react'
 
 // Mock user data - in real app, fetch from API based on ID
@@ -24,7 +22,7 @@ const mockUserData = {
 }
 
 export default function UserDetailPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const params = useParams()
   const userId = params?.id
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -121,7 +119,7 @@ export default function UserDetailPage() {
             <div className="mx-auto w-full max-w-6xl space-y-6">
               <div>
                 <button
-                  onClick={() => router.push('/sub-admin/users')}
+                  onClick={() => navigate('/sub-admin/users')}
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
                 >
                   <ArrowLeft size={16} />

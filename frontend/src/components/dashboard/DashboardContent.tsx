@@ -1,4 +1,3 @@
-'use client'
 
 import { 
   ShoppingCart, 
@@ -40,11 +39,9 @@ export default function DashboardContent() {
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
 
   const fetchData = useCallback(async () => {
-    // If no public API URL is provided, show demo data so the frontend can run standalone
-    const demoMode = !process.env.NEXT_PUBLIC_API_URL
-    if (demoMode) {
-      const isArabic = language === 'ar'
-      const demoData: DashboardData = {
+    // Frontend-only: Always use demo data
+    const isArabic = language === 'ar'
+    const demoData: DashboardData = {
         metrics: {
           uncompletedOrders: 24,
           totalOrders: 156,
@@ -105,24 +102,6 @@ export default function DashboardContent() {
       }
       setDashboardData(demoData)
       setLoading(false)
-      return
-    }
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-      const response = await fetch(`${apiUrl}/api/dashboard/data`)
-      const data = await response.json()
-      setDashboardData(data)
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-      // Fallback to demo data on error as well
-      const demoData: DashboardData = {
-        metrics: { uncompletedOrders: 0, totalOrders: 0, totalRevenue: 0, pendingPayouts: 0 }
-      }
-      setDashboardData(demoData)
-      setLoading(false)
-    }
   }, [language])
 
   useEffect(() => {
