@@ -22,7 +22,7 @@ export default function ViewProductPage() {
     'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=800&fit=crop'
   ]
 
-  // Mock product data - This would come from backend in real app
+  // Mock product data
   const mockProducts: any = {
     '1': { 
       id: 1, 
