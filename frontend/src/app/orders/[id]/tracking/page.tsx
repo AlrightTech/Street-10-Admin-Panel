@@ -135,19 +135,8 @@ export default function AddTrackingPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
+      // Simulate save operation
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Here you would typically send data to your backend API
-      // await fetch(`/api/orders/${id}/tracking`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     ...formData,
-      //     autoNotify,
-      //     orderId: id
-      //   })
-      // })
 
       // Success - navigate back to order detail page
       navigate(`/orders/${id}`)

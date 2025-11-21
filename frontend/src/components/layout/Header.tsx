@@ -1,5 +1,5 @@
-import { Search, Bell, ChevronDown, Menu, X, Package, Truck, Star, AlertTriangle, RefreshCcw, DollarSign, Loader2, User, Settings, LogOut, HelpCircle } from 'lucide-react'
-import { useState } from 'react'
+import { Search, Bell, ChevronDown, Menu, X, Package, Truck, Star, AlertTriangle, RefreshCcw, DollarSign, Loader2, User, Settings, LogOut, HelpCircle, FileText, Users, MessageCircle, Wallet, CreditCard, Navigation } from 'lucide-react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRole } from '@/contexts/RoleContext'
 import { useNavigate } from 'react-router-dom'
@@ -23,6 +23,10 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set())
   const [clearedNotifications, setClearedNotifications] = useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const searchResultsRef = useRef<HTMLDivElement>(null)
 
   const languages = [
     { code: 'ar', name: 'Arabic', flag: '🇶🇦' },
@@ -115,6 +119,224 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
     setShowProfileDropdown(false)
   }
 
+  // Comprehensive search data - in a real app, this would come from a context or API
+  const searchableProducts = [
+    { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200 },
+    { id: 2, name: 'Premium T-Shirt', sku: 'TS-002', category: 'Clothing', price: 200 },
+    { id: 3, name: 'Running Shoes', sku: 'YM-003', category: 'Sports', price: 200 },
+    { id: 4, name: 'Yoga Mat Pro', sku: 'RS-004', category: 'Sports', price: 200 },
+    { id: 5, name: 'Coffee Mug Set', sku: 'CM-005', category: 'Home & Garden', price: 200 },
+  ]
+
+  const searchableOrders = [
+    { id: 1, orderNo: 'ORD-1562792771583', customer: 'Sarah Johnson', amount: 200, status: 'Pending' },
+    { id: 2, orderNo: 'ORD-1562792771584', customer: 'Mike Chen', amount: 200, status: 'Completed' },
+    { id: 3, orderNo: 'ORD-1562792771585', customer: 'Emma Davis', amount: 200, status: 'Cancelled' },
+    { id: 4, orderNo: 'ORD-1562792771586', customer: 'John Smith', amount: 200, status: 'Refunded' },
+    { id: 5, orderNo: 'ORD-1562792771587', customer: 'Lisa Brown', amount: 200, status: 'Pending' },
+  ]
+
+  const searchableUsers = [
+    { id: 1, name: 'Touseeef Ahmed', username: 'Touseeef', email: 'alice.johnson@example.com', phone: '+1 234 567 8900', status: 'Verified' },
+    { id: 2, name: 'John Doe', username: 'johndoe', email: 'john.doe@example.com', phone: '+1 234 567 8901', status: 'Verified' },
+    { id: 3, name: 'Jane Smith', username: 'janesmith', email: 'jane.smith@example.com', phone: '+1 234 567 8902', status: 'Pending' },
+    { id: 4, name: 'Mike Johnson', username: 'mikejohnson', email: 'mike.j@example.com', phone: '+1 234 567 8903', status: 'Verified' },
+  ]
+
+  const searchableTransactions = [
+    { id: 'TXN001234', orderId: 'ORD5678', customer: 'John Smith', type: 'Earning', amount: 150.00, status: 'Completed', date: 'Dec 15, 2024' },
+    { id: 'TXN001235', orderId: 'ORD5679', customer: 'Sarah Johnson', type: 'Refund', amount: 75.50, status: 'Pending', date: 'Dec 14, 2024' },
+    { id: 'TXN001236', orderId: null, customer: null, type: 'Withdrawal', amount: 500.00, status: 'Completed', date: 'Dec 13, 2024' },
+    { id: 'TXN001237', orderId: 'ORD5680', customer: 'Mike Davis', type: 'Earning', amount: 220.00, status: 'Failed', date: 'Dec 12, 2024' },
+    { id: 'TXN001238', orderId: 'ORD5681', customer: 'Emma Wilson', type: 'Earning', amount: 89.99, status: 'Completed', date: 'Dec 11, 2024' },
+  ]
+
+  const searchableWithdrawals = [
+    { id: 'WD-2024-001', date: 'Dec 15, 2024', amount: 2500, method: 'PayPal', status: 'Pending' },
+    { id: 'WD-2024-002', date: 'Dec 10, 2024', amount: 1800, method: 'Bank Transfer', status: 'Completed' },
+    { id: 'WD-2024-003', date: 'Dec 5, 2024', amount: 3200, method: 'Stripe', status: 'Completed' },
+    { id: 'WD-2024-004', date: 'Nov 28, 2024', amount: 900, method: 'PayPal', status: 'Rejected' },
+  ]
+
+  const searchableChats = [
+    { id: '1', name: 'Ali Raza', type: 'customer', orderId: '#1023', lastMessage: 'Hi! I placed order #1023 yesterday' },
+    { id: '2', name: 'Admin Support', type: 'support', orderId: null, lastMessage: 'Your request is under review' },
+    { id: '3', name: 'Sarah khan', type: 'customer', orderId: null, lastMessage: 'Thanks for the quick delivery!' },
+    { id: '4', name: 'Ahmed Ali', type: 'customer', orderId: '#9837', lastMessage: 'Can you confirm order #9837?' },
+  ]
+
+  const searchablePages = [
+    { name: 'Dashboard', path: '/dashboard', description: 'Main dashboard with metrics and analytics' },
+    { name: 'Products', path: '/products', description: 'Manage all products' },
+    { name: 'Orders', path: '/orders', description: 'View and manage orders' },
+    { name: 'Transactions', path: '/transactions/history', description: 'Transaction history' },
+    { name: 'Earnings', path: '/transactions/earnings', description: 'View earnings and revenue' },
+    { name: 'Withdrawals', path: '/transactions/earnings/withdrawals', description: 'Manage withdrawal requests' },
+    { name: 'Chat', path: '/chat', description: 'Customer support chat' },
+    { name: 'Analytics', path: '/analytics/sales-overview', description: 'Sales analytics and reports' },
+    { name: 'Settings', path: '/settings/profile', description: 'Account and store settings' },
+    { name: 'Sub-Admin Users', path: '/sub-admin/users', description: 'Manage sub-admin users' },
+  ]
+
+  // Comprehensive search functionality - searches through everything
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return { 
+      products: [], 
+      orders: [], 
+      users: [], 
+      transactions: [], 
+      withdrawals: [], 
+      chats: [], 
+      pages: [] 
+    }
+
+    const query = searchQuery.toLowerCase().trim()
+    
+    // Search Products
+    const matchedProducts = searchableProducts.filter(product => 
+      product.name.toLowerCase().includes(query) ||
+      product.sku.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query) ||
+      product.price.toString().includes(query)
+    ).slice(0, 5)
+
+    // Search Orders
+    const matchedOrders = searchableOrders.filter(order =>
+      order.orderNo.toLowerCase().includes(query) ||
+      order.customer.toLowerCase().includes(query) ||
+      order.status.toLowerCase().includes(query) ||
+      order.amount.toString().includes(query)
+    ).slice(0, 5)
+
+    // Search Users/Customers
+    const matchedUsers = searchableUsers.filter(user =>
+      user.name.toLowerCase().includes(query) ||
+      user.username.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query) ||
+      user.phone.includes(query) ||
+      user.status.toLowerCase().includes(query)
+    ).slice(0, 5)
+
+    // Search Transactions
+    const matchedTransactions = searchableTransactions.filter(transaction =>
+      transaction.id.toLowerCase().includes(query) ||
+      (transaction.orderId && transaction.orderId.toLowerCase().includes(query)) ||
+      (transaction.customer && transaction.customer.toLowerCase().includes(query)) ||
+      transaction.type.toLowerCase().includes(query) ||
+      transaction.status.toLowerCase().includes(query) ||
+      transaction.amount.toString().includes(query) ||
+      transaction.date.toLowerCase().includes(query)
+    ).slice(0, 5)
+
+    // Search Withdrawals
+    const matchedWithdrawals = searchableWithdrawals.filter(withdrawal =>
+      withdrawal.id.toLowerCase().includes(query) ||
+      withdrawal.method.toLowerCase().includes(query) ||
+      withdrawal.status.toLowerCase().includes(query) ||
+      withdrawal.amount.toString().includes(query) ||
+      withdrawal.date.toLowerCase().includes(query)
+    ).slice(0, 5)
+
+    // Search Chats
+    const matchedChats = searchableChats.filter(chat =>
+      chat.name.toLowerCase().includes(query) ||
+      chat.type.toLowerCase().includes(query) ||
+      (chat.orderId && chat.orderId.toLowerCase().includes(query)) ||
+      chat.lastMessage.toLowerCase().includes(query)
+    ).slice(0, 5)
+
+    // Search Pages/Navigation
+    const matchedPages = searchablePages.filter(page =>
+      page.name.toLowerCase().includes(query) ||
+      page.path.toLowerCase().includes(query) ||
+      page.description.toLowerCase().includes(query)
+    ).slice(0, 5)
+
+    return { 
+      products: matchedProducts, 
+      orders: matchedOrders,
+      users: matchedUsers,
+      transactions: matchedTransactions,
+      withdrawals: matchedWithdrawals,
+      chats: matchedChats,
+      pages: matchedPages
+    }
+  }, [searchQuery])
+
+  const hasSearchResults = 
+    searchResults.products.length > 0 || 
+    searchResults.orders.length > 0 ||
+    searchResults.users.length > 0 ||
+    searchResults.transactions.length > 0 ||
+    searchResults.withdrawals.length > 0 ||
+    searchResults.chats.length > 0 ||
+    searchResults.pages.length > 0
+
+  const totalResults = 
+    searchResults.products.length + 
+    searchResults.orders.length +
+    searchResults.users.length +
+    searchResults.transactions.length +
+    searchResults.withdrawals.length +
+    searchResults.chats.length +
+    searchResults.pages.length
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setShowSearchResults(e.target.value.trim().length > 0)
+  }
+
+  // Handle search result click
+  const handleSearchResultClick = (type: string, id: string | number, path?: string) => {
+    if (path) {
+      navigate(path)
+    } else if (type === 'product') {
+      navigate(`/products/${id}`)
+    } else if (type === 'order') {
+      navigate(`/orders/${id}`)
+    } else if (type === 'user') {
+      navigate(`/sub-admin/users/${id}`)
+    } else if (type === 'transaction') {
+      navigate(`/transactions/${id}`)
+    } else if (type === 'withdrawal') {
+      navigate(`/transactions/earnings/withdrawals/${id}`)
+    } else if (type === 'chat') {
+      navigate(`/chat`)
+    } else if (type === 'page') {
+      navigate(path || '/')
+    }
+    setSearchQuery('')
+    setShowSearchResults(false)
+    searchInputRef.current?.blur()
+  }
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchResultsRef.current &&
+        !searchResultsRef.current.contains(event.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node)
+      ) {
+        setShowSearchResults(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // Handle search input focus
+  const handleSearchFocus = () => {
+    if (searchQuery.trim().length > 0) {
+      setShowSearchResults(true)
+    }
+  }
+
   return (
     <header className={`bg-gray-100 px-4 lg:px-6 py-3 fixed lg:static top-0 left-0 right-0 ${onToggleSidebar ? 'z-40' : 'z-50'}`}>
       <div className="flex items-center justify-between w-full gap-4">
@@ -133,13 +355,242 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
           {/* Search Bar - Responsive */}
           {searchExpanded || !onToggleSidebar ? (
             <div className={`w-80 ${onToggleSidebar ? 'ml-3 lg:ml-0' : ''}`}>
-              <div className="relative">
+              <div className="relative" ref={searchResultsRef}>
                 <input
+                  ref={searchInputRef}
                   type="text"
-                  placeholder={t('search')}
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={handleSearchFocus}
+                  placeholder={t('search') || 'Search products, orders...'}
                   className="w-full pl-3 pr-9 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
                 />
                 <Search className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-500" size={16} />
+                
+                {/* Search Results Dropdown */}
+                {showSearchResults && searchQuery.trim().length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-[600px] overflow-y-auto">
+                    {hasSearchResults ? (
+                      <div className="py-2">
+                        {/* Products Section */}
+                        {searchResults.products.length > 0 && (
+                          <div className="mb-2">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                              {t('products') || 'Products'} ({searchResults.products.length})
+                            </div>
+                            {searchResults.products.map((product) => (
+                              <button
+                                key={product.id}
+                                onClick={() => handleSearchResultClick('product', product.id)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Package size={18} className="text-primary-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{product.name}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    {product.sku} • {product.category}
+                                  </div>
+                                </div>
+                                <div className="text-sm font-semibold text-gray-700 flex-shrink-0">
+                                  ${product.price}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Orders Section */}
+                        {searchResults.orders.length > 0 && (
+                          <div className="mb-2">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                              {t('orders') || 'Orders'} ({searchResults.orders.length})
+                            </div>
+                            {searchResults.orders.map((order) => (
+                              <button
+                                key={order.id}
+                                onClick={() => handleSearchResultClick('order', order.id)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <FileText size={18} className="text-blue-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{order.orderNo}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    {order.customer} • {order.status}
+                                  </div>
+                                </div>
+                                <div className="text-sm font-semibold text-gray-700 flex-shrink-0">
+                                  ${order.amount}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Users Section */}
+                        {searchResults.users.length > 0 && (
+                          <div className="mb-2">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                              {t('users') || 'Users'} ({searchResults.users.length})
+                            </div>
+                            {searchResults.users.map((user) => (
+                              <button
+                                key={user.id}
+                                onClick={() => handleSearchResultClick('user', user.id)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Users size={18} className="text-green-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{user.name}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    {user.email} • {user.status}
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Transactions Section */}
+                        {searchResults.transactions.length > 0 && (
+                          <div className="mb-2">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                              {t('transactions') || 'Transactions'} ({searchResults.transactions.length})
+                            </div>
+                            {searchResults.transactions.map((transaction) => (
+                              <button
+                                key={transaction.id}
+                                onClick={() => handleSearchResultClick('transaction', transaction.id)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <CreditCard size={18} className="text-purple-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{transaction.id}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    {transaction.type} • {transaction.status} {transaction.customer && `• ${transaction.customer}`}
+                                  </div>
+                                </div>
+                                <div className="text-sm font-semibold text-gray-700 flex-shrink-0">
+                                  ${transaction.amount}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Withdrawals Section */}
+                        {searchResults.withdrawals.length > 0 && (
+                          <div className="mb-2">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                              {t('withdrawals') || 'Withdrawals'} ({searchResults.withdrawals.length})
+                            </div>
+                            {searchResults.withdrawals.map((withdrawal) => (
+                              <button
+                                key={withdrawal.id}
+                                onClick={() => handleSearchResultClick('withdrawal', withdrawal.id)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Wallet size={18} className="text-orange-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{withdrawal.id}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    {withdrawal.method} • {withdrawal.status} • {withdrawal.date}
+                                  </div>
+                                </div>
+                                <div className="text-sm font-semibold text-gray-700 flex-shrink-0">
+                                  ${withdrawal.amount}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Chats Section */}
+                        {searchResults.chats.length > 0 && (
+                          <div className="mb-2">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                              {t('chats') || 'Chats'} ({searchResults.chats.length})
+                            </div>
+                            {searchResults.chats.map((chat) => (
+                              <button
+                                key={chat.id}
+                                onClick={() => handleSearchResultClick('chat', chat.id)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <MessageCircle size={18} className="text-indigo-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{chat.name}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5 truncate">
+                                    {chat.orderId || chat.type} • {chat.lastMessage}
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Pages/Navigation Section */}
+                        {searchResults.pages.length > 0 && (
+                          <div className="mb-2">
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                              {t('pages') || 'Pages'} ({searchResults.pages.length})
+                            </div>
+                            {searchResults.pages.map((page, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleSearchResultClick('page', index, page.path)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Navigation size={18} className="text-gray-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{page.name}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5 truncate">
+                                    {page.description}
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* View All Results */}
+                        {totalResults > 0 && (
+                          <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
+                            <button
+                              onClick={() => {
+                                navigate(`/products?search=${encodeURIComponent(searchQuery)}`)
+                                setSearchQuery('')
+                                setShowSearchResults(false)
+                              }}
+                              className="w-full text-sm text-primary-600 hover:text-primary-700 font-medium text-center py-2"
+                            >
+                              {t('viewAllResults') || `View all ${totalResults} results`}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="px-4 py-8 text-center">
+                        <Search size={32} className="mx-auto text-gray-300 mb-2" />
+                        <p className="text-sm text-gray-500">{t('noResultsFound') || 'No results found'}</p>
+                        <p className="text-xs text-gray-400 mt-1">Try searching for products, orders, users, transactions, or pages</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ) : (

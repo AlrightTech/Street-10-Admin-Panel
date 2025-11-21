@@ -3,7 +3,7 @@ import Header from '@/components/layout/Header'
 import Modal from '@/components/ui/Modal'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Menu, Eye, EyeOff, Check, ChevronUp, ChevronDown, Megaphone, Settings, DollarSign, Headphones, FolderOpen, Users as UsersIcon, ShoppingCart, Ticket, CheckCircle } from 'lucide-react'
+import { Menu, Eye, EyeOff, Check, ChevronUp, ChevronDown, Megaphone, Settings, DollarSign, Headphones, FolderOpen, Users as UsersIcon, ShoppingCart, Ticket, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function AddNewSubAdminPage() {
   const navigate = useNavigate()
@@ -14,17 +14,30 @@ export default function AddNewSubAdminPage() {
   
   // Step 1: Basic Info
   const [basicInfo, setBasicInfo] = useState({
-    fullName: 'Touseef Ahmed',
-    email: 'alice.johnson@example.com',
-    password: '********',
-    confirmPassword: '********',
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
     status: 'active'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [errors, setErrors] = useState<{[key: string]: string}>({})
   
   // Step 2: Role Assignment
-  const [selectedRole, setSelectedRole] = useState<string | null>('marketing-admin')
+  const [selectedRole, setSelectedRole] = useState<string | null>(null)
+  
+  const handleRoleSelect = (roleId: string) => {
+    setSelectedRole(roleId)
+    // Clear role error when a role is selected
+    if (errors.role) {
+      setErrors({
+        ...errors,
+        role: ''
+      })
+    }
+  }
   
   // Step 3: Permission Control
   const [expandedGroups, setExpandedGroups] = useState<{[key: string]: boolean}>({
@@ -68,6 +81,149 @@ export default function AddNewSubAdminPage() {
       ...basicInfo,
       [name]: value
     })
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      })
+    }
+  }
+
+  const handleBlur = (fieldName: string) => {
+    // Validate individual field on blur
+    if (currentStep === 1) {
+      const newErrors: {[key: string]: string} = { ...errors }
+      
+      if (fieldName === 'fullName') {
+        if (!basicInfo.fullName.trim()) {
+          newErrors.fullName = 'Full name is required'
+        } else if (basicInfo.fullName.trim().length < 2) {
+          newErrors.fullName = 'Full name must be at least 2 characters'
+        } else {
+          delete newErrors.fullName
+        }
+      } else if (fieldName === 'email') {
+        if (!basicInfo.email.trim()) {
+          newErrors.email = 'Email address is required'
+        } else if (!validateEmail(basicInfo.email)) {
+          newErrors.email = 'Please enter a valid email address'
+        } else {
+          delete newErrors.email
+        }
+      } else if (fieldName === 'phone') {
+        if (!basicInfo.phone.trim()) {
+          newErrors.phone = 'Phone number is required'
+        } else if (!validatePhone(basicInfo.phone)) {
+          newErrors.phone = 'Please enter a valid phone number (10-15 digits)'
+        } else {
+          delete newErrors.phone
+        }
+      } else if (fieldName === 'password') {
+        if (!basicInfo.password) {
+          newErrors.password = 'Password is required'
+        } else if (!validatePassword(basicInfo.password)) {
+          newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, and number'
+        } else {
+          delete newErrors.password
+        }
+      } else if (fieldName === 'confirmPassword') {
+        if (!basicInfo.confirmPassword) {
+          newErrors.confirmPassword = 'Please confirm your password'
+        } else if (basicInfo.password !== basicInfo.confirmPassword) {
+          newErrors.confirmPassword = 'Passwords do not match'
+        } else {
+          delete newErrors.confirmPassword
+        }
+      }
+      
+      setErrors(newErrors)
+    }
+  }
+
+  // Validation functions
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const validatePhone = (phone: string): boolean => {
+    if (!phone || !phone.trim()) {
+      return false
+    }
+    // Remove all non-digit characters to count digits
+    const digitsOnly = phone.replace(/\D/g, '')
+    
+    // Must have at least 10 digits and at most 15 digits (international standard)
+    if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+      return false
+    }
+    
+    // Allow international format: +, digits, spaces, hyphens, parentheses
+    // But must contain actual digits
+    const phoneRegex = /^\+?[\d\s\-()]+$/
+    if (!phoneRegex.test(phone)) {
+      return false
+    }
+    
+    // Ensure it's not just special characters
+    return digitsOnly.length >= 10
+  }
+
+  const validatePassword = (password: string): boolean => {
+    // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+    return passwordRegex.test(password)
+  }
+
+  const validateStep1 = (): boolean => {
+    const newErrors: {[key: string]: string} = {}
+
+    // Full Name validation
+    if (!basicInfo.fullName.trim()) {
+      newErrors.fullName = 'Full name is required'
+    } else if (basicInfo.fullName.trim().length < 2) {
+      newErrors.fullName = 'Full name must be at least 2 characters'
+    }
+
+    // Email validation
+    if (!basicInfo.email.trim()) {
+      newErrors.email = 'Email address is required'
+    } else if (!validateEmail(basicInfo.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    // Phone validation
+    if (!basicInfo.phone.trim()) {
+      newErrors.phone = 'Phone number is required'
+    } else if (!validatePhone(basicInfo.phone)) {
+      newErrors.phone = 'Please enter a valid phone number (10-15 digits)'
+    }
+
+    // Password validation
+    if (!basicInfo.password) {
+      newErrors.password = 'Password is required'
+    } else if (!validatePassword(basicInfo.password)) {
+      newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, and number'
+    }
+
+    // Confirm Password validation
+    if (!basicInfo.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password'
+    } else if (basicInfo.password !== basicInfo.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const validateStep2 = (): boolean => {
+    if (!selectedRole) {
+      setErrors({ ...errors, role: 'Please select a role' })
+      return false
+    }
+    return true
   }
 
   const togglePermission = (permissionKey: string) => {
@@ -103,9 +259,39 @@ export default function AddNewSubAdminPage() {
     return { granted, total: permissionKeys.length }
   }
 
-  const nextStep = () => {
+  const nextStep = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
+    
+    if (currentStep === 1) {
+      if (!validateStep1()) {
+        // Scroll to first error
+        const firstErrorField = Object.keys(errors)[0] || 
+          (basicInfo.fullName.trim() ? '' : 'fullName') ||
+          (basicInfo.email.trim() ? '' : 'email') ||
+          (basicInfo.phone.trim() ? '' : 'phone') ||
+          (basicInfo.password ? '' : 'password') ||
+          'confirmPassword'
+        if (firstErrorField) {
+          const element = document.getElementById(firstErrorField)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            element.focus()
+          }
+        }
+        return
+      }
+    } else if (currentStep === 2) {
+      if (!validateStep2()) {
+        return
+      }
+    }
+    
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1)
+      // Clear errors when moving to next step
+      setErrors({})
     }
   }
 
@@ -115,7 +301,34 @@ export default function AddNewSubAdminPage() {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
+    
+    // Validate all steps before submission
+    const step1Valid = validateStep1()
+    const step2Valid = validateStep2()
+    
+    if (!step1Valid || !step2Valid) {
+      // If validation fails, go back to the step with errors
+      if (!step1Valid) {
+        setCurrentStep(1)
+        // Scroll to first error
+        setTimeout(() => {
+          const firstErrorField = Object.keys(errors)[0] || 'fullName'
+          const element = document.getElementById(firstErrorField)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            element.focus()
+          }
+        }, 100)
+      } else if (!step2Valid) {
+        setCurrentStep(2)
+      }
+      return
+    }
+    
     // Handle form submission
     setShowSuccessModal(true)
   }
@@ -319,7 +532,7 @@ export default function AddNewSubAdminPage() {
                     {/* Full Name */}
                     <div>
                       <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                        Full Name
+                        Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -327,15 +540,26 @@ export default function AddNewSubAdminPage() {
                         name="fullName"
                         value={basicInfo.fullName}
                         onChange={handleBasicInfoChange}
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                        onBlur={() => handleBlur('fullName')}
+                        required
+                        minLength={2}
+                        className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                          errors.fullName ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter full name"
                       />
+                      {errors.fullName && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          <AlertCircle size={14} />
+                          {errors.fullName}
+                        </p>
+                      )}
                     </div>
 
                     {/* Email Address */}
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email Address
+                        Email Address <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
@@ -343,15 +567,52 @@ export default function AddNewSubAdminPage() {
                         name="email"
                         value={basicInfo.email}
                         onChange={handleBasicInfoChange}
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                        onBlur={() => handleBlur('email')}
+                        required
+                        className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                          errors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter email address"
                       />
+                      {errors.email && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          <AlertCircle size={14} />
+                          {errors.email}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Phone Number */}
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={basicInfo.phone}
+                        onChange={handleBasicInfoChange}
+                        onBlur={() => handleBlur('phone')}
+                        required
+                        pattern="[\d\s\-\+\(\)]{10,}"
+                        className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                          errors.phone ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="+1 234 567 8900"
+                      />
+                      {errors.phone && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          <AlertCircle size={14} />
+                          {errors.phone}
+                        </p>
+                      )}
                     </div>
 
                     {/* Password */}
                     <div>
                       <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
+                        Password <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -360,7 +621,12 @@ export default function AddNewSubAdminPage() {
                           name="password"
                           value={basicInfo.password}
                           onChange={handleBasicInfoChange}
-                          className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                          onBlur={() => handleBlur('password')}
+                          required
+                          minLength={8}
+                          className={`mt-1 block w-full px-4 py-2 pr-10 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                            errors.password ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="Enter password"
                         />
                         <button
@@ -372,12 +638,23 @@ export default function AddNewSubAdminPage() {
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
+                      {errors.password && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          <AlertCircle size={14} />
+                          {errors.password}
+                        </p>
+                      )}
+                      {!errors.password && basicInfo.password && (
+                        <p className="mt-1 text-xs text-gray-500">
+                          Must be at least 8 characters with uppercase, lowercase, and number
+                        </p>
+                      )}
                     </div>
 
                     {/* Confirm Password */}
                     <div>
                       <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password
+                        Confirm Password <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -386,7 +663,12 @@ export default function AddNewSubAdminPage() {
                           name="confirmPassword"
                           value={basicInfo.confirmPassword}
                           onChange={handleBasicInfoChange}
-                          className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                          onBlur={() => handleBlur('confirmPassword')}
+                          required
+                          minLength={8}
+                          className={`mt-1 block w-full px-4 py-2 pr-10 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                            errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="Confirm password"
                         />
                         <button
@@ -398,6 +680,12 @@ export default function AddNewSubAdminPage() {
                           {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
+                      {errors.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          <AlertCircle size={14} />
+                          {errors.confirmPassword}
+                        </p>
+                      )}
                     </div>
 
                     {/* Status */}
@@ -437,7 +725,7 @@ export default function AddNewSubAdminPage() {
                     <button
                       type="button"
                       onClick={nextStep}
-                      className="px-6 py-2 bg-orange-500 text-white rounded-lg shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                      className="px-6 py-2 bg-orange-500 text-white rounded-lg shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next Step
                     </button>
@@ -450,6 +738,15 @@ export default function AddNewSubAdminPage() {
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Role Assignment</h2>
                   <p className="text-gray-600 mb-6">Select an admin role. Default permissions will be applied automatically.</p>
+                  
+                  {errors.role && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600 flex items-center gap-2">
+                        <AlertCircle size={16} />
+                        {errors.role}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {roleOptions.map((role) => {
@@ -458,7 +755,7 @@ export default function AddNewSubAdminPage() {
                       return (
                         <div
                           key={role.id}
-                          onClick={() => setSelectedRole(role.id)}
+                          onClick={() => handleRoleSelect(role.id)}
                           className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
                             isSelected 
                               ? 'border-orange-500 bg-orange-50' 
@@ -675,34 +972,82 @@ export default function AddNewSubAdminPage() {
                   <p className="text-gray-600 mb-4 text-sm">Enter the admin user's personal details and login credentials</p>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         name="fullName"
                         value={basicInfo.fullName}
                         onChange={handleBasicInfoChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        onBlur={() => handleBlur('fullName')}
+                        required
+                        minLength={2}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          errors.fullName ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       />
+                      {errors.fullName && (
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertCircle size={12} />
+                          {errors.fullName}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email Address <span className="text-red-500">*</span></label>
                       <input
                         type="email"
                         name="email"
                         value={basicInfo.email}
                         onChange={handleBasicInfoChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        onBlur={() => handleBlur('email')}
+                        required
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          errors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       />
+                      {errors.email && (
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertCircle size={12} />
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={basicInfo.phone}
+                        onChange={handleBasicInfoChange}
+                        onBlur={() => handleBlur('phone')}
+                        required
+                        pattern="[\d\s\-\+\(\)]{10,}"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          errors.phone ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="+1 234 567 8900"
+                      />
+                      {errors.phone && (
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertCircle size={12} />
+                          {errors.phone}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Password <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <input
                           type={showPassword ? 'text' : 'password'}
                           name="password"
                           value={basicInfo.password}
                           onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm"
+                          onBlur={() => handleBlur('password')}
+                          required
+                          minLength={8}
+                          className={`w-full px-3 py-2 pr-10 border rounded-lg text-sm ${
+                            errors.password ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         />
                         <button
                           type="button"
@@ -712,16 +1057,32 @@ export default function AddNewSubAdminPage() {
                           {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
+                      {errors.password && (
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertCircle size={12} />
+                          {errors.password}
+                        </p>
+                      )}
+                      {!errors.password && basicInfo.password && (
+                        <p className="mt-1 text-xs text-gray-500">
+                          Must be at least 8 characters with uppercase, lowercase, and number
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span className="text-red-500">*</span></label>
                       <div className="relative">
                         <input
                           type={showConfirmPassword ? 'text' : 'password'}
                           name="confirmPassword"
                           value={basicInfo.confirmPassword}
                           onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm"
+                          onBlur={() => handleBlur('confirmPassword')}
+                          required
+                          minLength={8}
+                          className={`w-full px-3 py-2 pr-10 border rounded-lg text-sm ${
+                            errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         />
                         <button
                           type="button"
@@ -731,6 +1092,12 @@ export default function AddNewSubAdminPage() {
                           {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
+                      {errors.confirmPassword && (
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertCircle size={12} />
+                          {errors.confirmPassword}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
@@ -775,6 +1142,15 @@ export default function AddNewSubAdminPage() {
                 <div className="bg-white rounded-lg shadow-sm p-4">
                   <h2 className="text-lg font-semibold text-gray-900 mb-2">Role Assignment</h2>
                   <p className="text-gray-600 mb-4 text-sm">Select an admin role. Default permissions will be applied automatically.</p>
+                  
+                  {errors.role && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-xs text-red-600 flex items-center gap-2">
+                        <AlertCircle size={14} />
+                        {errors.role}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-3 mb-6">
                     {roleOptions.map((role) => {
                       const Icon = role.icon
@@ -782,7 +1158,7 @@ export default function AddNewSubAdminPage() {
                       return (
                         <div
                           key={role.id}
-                          onClick={() => setSelectedRole(role.id)}
+                          onClick={() => handleRoleSelect(role.id)}
                           className={`border-2 rounded-lg p-3 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-200'}`}
                         >
                           <div className="flex items-center justify-between">
