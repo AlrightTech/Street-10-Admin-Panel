@@ -3,6 +3,8 @@ import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, User, Shield, Activity, Key, UserX, Edit, Check, X, ArrowLeft, Info, Plus, Clock } from 'lucide-react'
+import SuccessModal from '@/components/ui/SuccessModal'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 // Mock data - in real app, fetch from API based on ID
 const mockVendorData = {
@@ -36,6 +38,10 @@ export default function SubVendorDetailPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [status, setStatus] = useState(mockVendorData.status === 'Active')
+  
+  // Modal states
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -269,10 +275,14 @@ export default function SubVendorDetailPage() {
               </button>
               <button
                 onClick={() => {
-                  if (confirm('Are you sure you want to deactivate this user?')) {
-                    // Handle deactivation
-                    alert('User deactivated')
-                  }
+                  setConfirmModal({
+                    isOpen: true,
+                    message: 'Are you sure you want to deactivate this user?',
+                    onConfirm: () => {
+                      // Handle deactivation
+                      setSuccessModal({ isOpen: true, message: 'User deactivated' })
+                    }
+                  })
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm font-medium w-full sm:w-auto"
               >
@@ -379,9 +389,14 @@ export default function SubVendorDetailPage() {
               </button>
               <button
                 onClick={() => {
-                  if (confirm('Are you sure?')) {
-                    alert('User deactivated')
-                  }
+                  setConfirmModal({
+                    isOpen: true,
+                    message: 'Are you sure you want to deactivate this user?',
+                    onConfirm: () => {
+                      // Handle deactivation
+                      setSuccessModal({ isOpen: true, message: 'User deactivated' })
+                    }
+                  })
                 }}
                 className="w-full px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium"
               >
@@ -391,6 +406,23 @@ export default function SubVendorDetailPage() {
           </div>
         </main>
       </div>
+
+      {/* Modals */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, message: '' })}
+        message={successModal.message}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} })}
+        onConfirm={confirmModal.onConfirm}
+        message={confirmModal.message}
+        confirmText="Deactivate"
+        cancelText="Cancel"
+        confirmButtonColor="red"
+      />
     </div>
   )
 }

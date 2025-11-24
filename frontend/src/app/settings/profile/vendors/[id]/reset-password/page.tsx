@@ -3,6 +3,9 @@ import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import SuccessModal from '@/components/ui/SuccessModal'
+import ErrorModal from '@/components/ui/ErrorModal'
+import InfoModal from '@/components/ui/InfoModal'
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
@@ -20,6 +23,11 @@ export default function ResetPasswordPage() {
     confirm: false
   })
   const [isChanging, setIsChanging] = useState(false)
+  
+  // Modal states
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' })
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' })
+  const [infoModal, setInfoModal] = useState({ isOpen: false, message: '' })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -28,21 +36,24 @@ export default function ResetPasswordPage() {
 
   const handleChangePassword = async () => {
     if (passwords.newPassword !== passwords.confirmPassword) {
-      alert('Passwords do not match')
+      setErrorModal({ isOpen: true, message: 'Passwords do not match' })
       return
     }
     if (passwords.newPassword.length < 8) {
-      alert('Password must be at least 8 characters')
+      setInfoModal({ isOpen: true, message: 'Password must be at least 8 characters' })
       return
     }
 
     setIsChanging(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1000))
-      alert('Password changed successfully!')
-      navigate(`/settings/profile/vendors/${vendorId}`)
+      setSuccessModal({ isOpen: true, message: 'Password changed successfully!' })
+      setTimeout(() => {
+        setSuccessModal({ isOpen: false, message: '' })
+        navigate(`/settings/profile/vendors/${vendorId}`)
+      }, 1500)
     } catch (error) {
-      alert('Failed to change password')
+      setErrorModal({ isOpen: true, message: 'Failed to change password' })
     } finally {
       setIsChanging(false)
     }
@@ -240,6 +251,28 @@ export default function ResetPasswordPage() {
           </div>
         </main>
       </div>
+
+      {/* Modals */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => {
+          setSuccessModal({ isOpen: false, message: '' })
+          navigate(`/settings/profile/vendors/${vendorId}`)
+        }}
+        message={successModal.message}
+      />
+      
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        message={errorModal.message}
+      />
+      
+      <InfoModal
+        isOpen={infoModal.isOpen}
+        onClose={() => setInfoModal({ isOpen: false, message: '' })}
+        message={infoModal.message}
+      />
     </div>
   )
 }

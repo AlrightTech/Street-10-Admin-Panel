@@ -3,6 +3,7 @@ import Header from '@/components/layout/Header'
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Key, ArrowLeft, Check, X } from 'lucide-react'
+import SuccessModal from '@/components/ui/SuccessModal'
 
 type VendorPermissions = {
   viewProducts: boolean
@@ -53,6 +54,7 @@ export default function EditSubVendorPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   // Frontend-only: Load vendor from localStorage
   const fetchVendor = useCallback(async () => {
@@ -121,9 +123,42 @@ export default function EditSubVendorPage() {
     setPermissions({ ...permissions, [key]: !permissions[key] })
   }
 
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    if (!email.trim()) return false
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
   const handleSave = async () => {
     if (!vendorId) {
       setSaveError('Vendor ID is missing')
+      return
+    }
+
+    // Validate form fields
+    if (!formData.fullName.trim()) {
+      setSaveError('Full name is required')
+      return
+    }
+
+    if (formData.fullName.trim().length < 2) {
+      setSaveError('Full name must be at least 2 characters')
+      return
+    }
+
+    if (!formData.email.trim()) {
+      setSaveError('Email is required')
+      return
+    }
+
+    if (!validateEmail(formData.email)) {
+      setSaveError('Please enter a valid email address')
+      return
+    }
+
+    if (!formData.role.trim()) {
+      setSaveError('Role is required')
       return
     }
 
@@ -159,8 +194,11 @@ export default function EditSubVendorPage() {
         localStorage.setItem('subVendors', JSON.stringify(vendors))
       }
 
-      alert('Changes saved successfully!')
+      setShowSuccessModal(true)
+      setTimeout(() => {
+        setShowSuccessModal(false)
       navigate(`/settings/profile/vendors/${vendorId}`)
+      }, 1500)
     } catch (error) {
       console.error('Failed to save vendor:', error)
       setSaveError(error instanceof Error ? error.message : 'Failed to save changes')
@@ -229,6 +267,11 @@ export default function EditSubVendorPage() {
                   <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
                     <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {saveError && (
+                        <div className="md:col-span-2 bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                          <p className="text-sm text-red-600">{saveError}</p>
+                        </div>
+                      )}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                         <input
@@ -237,8 +280,13 @@ export default function EditSubVendorPage() {
                           value={formData.fullName}
                           onChange={handleInputChange}
                           placeholder="John Doe"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                            saveError && !formData.fullName.trim() ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         />
+                        {saveError && !formData.fullName.trim() && (
+                          <p className="text-red-500 text-xs mt-1">Full name is required</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
@@ -248,8 +296,15 @@ export default function EditSubVendorPage() {
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="john.doe@example.com"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                            saveError && (!formData.email.trim() || !validateEmail(formData.email)) ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         />
+                        {saveError && (!formData.email.trim() || !validateEmail(formData.email)) && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {!formData.email.trim() ? 'Email is required' : 'Please enter a valid email address'}
+                          </p>
+                        )}
                       </div>
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
@@ -257,7 +312,9 @@ export default function EditSubVendorPage() {
                           name="role"
                           value={formData.role}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                            saveError && !formData.role.trim() ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         >
                           <option value="Product Manager">Product Manager</option>
                           <option value="Order Manager">Order Manager</option>
@@ -407,6 +464,11 @@ export default function EditSubVendorPage() {
                 <div className="bg-white rounded-lg shadow-sm p-4">
                   <h2 className="text-base font-semibold text-gray-900 mb-3">Basic Information</h2>
                   <div className="space-y-3">
+                    {saveError && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <p className="text-sm text-red-600">{saveError}</p>
+                      </div>
+                    )}
                     <div>
                       <label className="block text-xs text-gray-600 mb-1">Full Name</label>
                       <input
@@ -414,8 +476,13 @@ export default function EditSubVendorPage() {
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          saveError && !formData.fullName.trim() ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       />
+                      {saveError && !formData.fullName.trim() && (
+                        <p className="text-red-500 text-xs mt-1">Full name is required</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs text-gray-600 mb-1">Email</label>
@@ -424,8 +491,15 @@ export default function EditSubVendorPage() {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          saveError && (!formData.email.trim() || !validateEmail(formData.email)) ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       />
+                      {saveError && (!formData.email.trim() || !validateEmail(formData.email)) && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {!formData.email.trim() ? 'Email is required' : 'Please enter a valid email address'}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs text-gray-600 mb-1">Role</label>
@@ -528,6 +602,16 @@ export default function EditSubVendorPage() {
           )}
         </main>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false)
+          navigate(`/settings/profile/vendors/${vendorId}`)
+        }}
+        message="Changes saved successfully!"
+      />
     </div>
   )
 }

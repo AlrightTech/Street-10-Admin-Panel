@@ -1,10 +1,13 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Menu, Search, Filter, MoreVertical, ChevronLeft, ChevronRight, Eye, Edit, X, RefreshCw, FileText, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ButtonLoader } from '@/components/ui/Loader'
+import SuccessModal from '@/components/ui/SuccessModal'
+import ErrorModal from '@/components/ui/ErrorModal'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 // TypeScript interfaces
 interface OrderRow {
@@ -20,14 +23,21 @@ interface OrderRow {
 
 export default function OrdersPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t, language, translateOrder } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [activeTab, setActiveTab] = useState('all')
+  // Initialize activeTab from location state if available
+  const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || 'all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
   const [loadingOrderId, setLoadingOrderId] = useState<number | null>(null)
+  
+  // Modal states
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' })
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {}, type: 'cancel' as 'cancel' | 'refund' | 'delete' })
   const [rawOrders, setRawOrders] = useState([
     { id: 1, orderNo: 'ORD-1562792771583', placedOn: '26/04/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'Online', status: 'Pending' },
     { id: 2, orderNo: 'ORD-1562792771584', placedOn: '26/04/2020', type: 'Order', items: 5, amount: 200, paymentMethod: 'COD', status: 'Completed' },
@@ -97,7 +107,19 @@ export default function OrdersPage() {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
     setCurrentPage(1)
+    // Clear location state after using it
+    if (location.state) {
+      navigate(location.pathname, { replace: true, state: {} })
+    }
   }
+
+  // Set initial tab from location state on mount
+  useEffect(() => {
+    if ((location.state as any)?.activeTab) {
+      setActiveTab((location.state as any).activeTab)
+      setCurrentPage(1)
+    }
+  }, [location.state])
 
   // Handle search change - reset to page 1
   const handleSearchChange = (value: string) => {
@@ -149,23 +171,27 @@ export default function OrdersPage() {
 
   const handleCancelOrder = async (orderId: number) => {
     setOpenDropdownId(null)
-    if (confirm(t('confirmCancelOrder'))) {
-      setLoadingOrderId(orderId)
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        // Update order status to Cancelled
-        setRawOrders(prevOrders => 
-          prevOrders.map(order => 
-            order.id === orderId 
-              ? { ...order, status: 'Cancelled' as const }
-              : order
+    setConfirmModal({
+      isOpen: true,
+      message: t('confirmCancelOrder'),
+      type: 'cancel',
+      onConfirm: async () => {
+        setLoadingOrderId(orderId)
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // Update order status to Cancelled
+          setRawOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === orderId 
+                ? { ...order, status: 'Cancelled' as const }
+                : order
+            )
           )
-        )
-        
-        // Show success message
-        alert(t('orderCancelledSuccess'))
+          
+          // Show success message
+          setSuccessModal({ isOpen: true, message: t('orderCancelledSuccess') })
         
         // Reset to page 1 if current page becomes empty
         const updatedOrders = rawOrders.map(order => 
@@ -184,34 +210,39 @@ export default function OrdersPage() {
         if (currentPage > Math.ceil(filtered.length / 5) && filtered.length > 0) {
           setCurrentPage(1)
         }
-      } catch (error) {
-        console.error('Error cancelling order:', error)
-        alert(t('orderCancelledFailed'))
-      } finally {
-        setLoadingOrderId(null)
+        } catch (error) {
+          console.error('Error cancelling order:', error)
+          setErrorModal({ isOpen: true, message: t('orderCancelledFailed') })
+        } finally {
+          setLoadingOrderId(null)
+        }
       }
-    }
+    })
   }
 
   const handleRefundOrder = async (orderId: number) => {
     setOpenDropdownId(null)
-    if (confirm(t('confirmRefundOrder'))) {
-      setLoadingOrderId(orderId)
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        // Update order status to Refunded
-        setRawOrders(prevOrders => 
-          prevOrders.map(order => 
-            order.id === orderId 
-              ? { ...order, status: 'Refunded' as const }
-              : order
+    setConfirmModal({
+      isOpen: true,
+      message: t('confirmRefundOrder'),
+      type: 'refund',
+      onConfirm: async () => {
+        setLoadingOrderId(orderId)
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // Update order status to Refunded
+          setRawOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === orderId 
+                ? { ...order, status: 'Refunded' as const }
+                : order
+            )
           )
-        )
-        
-        // Show success message
-        alert(t('refundProcessedSuccess'))
+          
+          // Show success message
+          setSuccessModal({ isOpen: true, message: t('refundProcessedSuccess') })
         
         // Reset to page 1 if current page becomes empty
         const updatedOrders = rawOrders.map(order => 
@@ -230,13 +261,14 @@ export default function OrdersPage() {
         if (currentPage > Math.ceil(filtered.length / 5) && filtered.length > 0) {
           setCurrentPage(1)
         }
-      } catch (error) {
-        console.error('Error processing refund:', error)
-        alert(t('refundProcessedFailed'))
-      } finally {
-        setLoadingOrderId(null)
+        } catch (error) {
+          console.error('Error processing refund:', error)
+          setErrorModal({ isOpen: true, message: t('refundProcessedFailed') })
+        } finally {
+          setLoadingOrderId(null)
+        }
       }
-    }
+    })
   }
 
   const handleDownloadInvoice = (orderId: number) => {
@@ -246,17 +278,21 @@ export default function OrdersPage() {
 
   const handleDeleteOrder = async (orderId: number) => {
     setOpenDropdownId(null)
-    if (confirm(t('confirmDeleteOrder'))) {
-      setLoadingOrderId(orderId)
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        // Remove order from list
-        setRawOrders(prevOrders => prevOrders.filter(order => order.id !== orderId))
-        
-        // Show success message
-        alert(t('orderDeletedSuccess'))
+    setConfirmModal({
+      isOpen: true,
+      message: t('confirmDeleteOrder'),
+      type: 'delete',
+      onConfirm: async () => {
+        setLoadingOrderId(orderId)
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // Remove order from list
+          setRawOrders(prevOrders => prevOrders.filter(order => order.id !== orderId))
+          
+          // Show success message
+          setSuccessModal({ isOpen: true, message: t('orderDeletedSuccess') })
         
         // Reset to page 1 if current page becomes empty
         const remainingOrders = rawOrders.filter(order => order.id !== orderId)
@@ -275,13 +311,14 @@ export default function OrdersPage() {
         } else if (filtered.length === 0 && currentPage > 1) {
           setCurrentPage(1)
         }
-      } catch (error) {
-        console.error('Error deleting order:', error)
-        alert(t('orderCancelledFailed'))
-      } finally {
-        setLoadingOrderId(null)
+        } catch (error) {
+          console.error('Error deleting order:', error)
+          setErrorModal({ isOpen: true, message: t('orderCancelledFailed') })
+        } finally {
+          setLoadingOrderId(null)
+        }
       }
-    }
+    })
   }
 
   // Close dropdown when clicking outside and prevent body scroll when dropdown is open
@@ -1296,6 +1333,29 @@ export default function OrdersPage() {
           </main>
         </div>
       </div>
+
+      {/* Modals */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, message: '' })}
+        message={successModal.message}
+      />
+      
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        message={errorModal.message}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {}, type: 'cancel' })}
+        onConfirm={confirmModal.onConfirm}
+        message={confirmModal.message}
+        confirmText={t('confirm') || 'Confirm'}
+        cancelText={t('cancel') || 'Cancel'}
+        confirmButtonColor={confirmModal.type === 'delete' ? 'red' : 'orange'}
+      />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Wallet, Clock, ArrowUp, Send, Download, Calendar, Search, Eye, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -22,6 +22,7 @@ export default function RequestWithdrawalPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const dateRangeInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     amount: '',
     method: '',
@@ -501,11 +502,32 @@ export default function RequestWithdrawalPage() {
               <h2 className="text-lg font-semibold text-gray-900">Withdrawal History</h2>
               <div className="flex flex-col gap-2">
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none z-10 w-4 h-4" />
                   <input
-                    type="text"
-                    placeholder="Date Range"
-                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    ref={dateRangeInputRef}
+                    id="date-range-withdrawal"
+                    type="date"
+                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm [color-scheme:light]"
+                  />
+                  <label
+                    htmlFor="date-range-withdrawal"
+                    className="absolute inset-0 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setTimeout(() => {
+                        if (dateRangeInputRef.current) {
+                          const dateInput = dateRangeInputRef.current
+                          try {
+                            const input = dateInput as any
+                            if (input.showPicker && typeof input.showPicker === 'function') {
+                              input.showPicker()
+                            }
+                          } catch {
+                            // showPicker not available or failed
+                          }
+                        }
+                      }, 10)
+                    }}
                   />
                 </div>
                 <div className="relative">

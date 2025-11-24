@@ -1,9 +1,11 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Calendar, Send, X, ArrowLeft } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import ErrorModal from '@/components/ui/ErrorModal'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 export default function AddTrackingPage() {
   const { id } = useParams<{ id: string }>()
@@ -14,6 +16,8 @@ export default function AddTrackingPage() {
   const [autoNotify, setAutoNotify] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} })
 
   const [formData, setFormData] = useState({
     deliveryCompany: '',
@@ -23,6 +27,8 @@ export default function AddTrackingPage() {
     shippingNotes: ''
   })
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const dateInputRef = useRef<HTMLInputElement>(null)
+  const mobileDateInputRef = useRef<HTMLInputElement>(null)
 
   const orderSummary = {
     orderId: `#${id}`,
@@ -142,16 +148,18 @@ export default function AddTrackingPage() {
       navigate(`/orders/${id}`)
     } catch (error) {
       console.error('Error saving tracking information:', error)
-      alert(t('trackingAddedFailed'))
+      setErrorModal({ isOpen: true, message: t('trackingAddedFailed') })
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleCancel = () => {
-    if (confirm(t('confirmCancel'))) {
-      navigate(`/orders/${id}`)
-    }
+    setConfirmModal({
+      isOpen: true,
+      message: t('confirmCancel'),
+      onConfirm: () => navigate(`/orders/${id}`)
+    })
   }
 
   return (
@@ -296,37 +304,40 @@ export default function AddTrackingPage() {
                   </label>
                   <div className="relative">
                     <input
+                      ref={dateInputRef}
                       id="estimatedDate"
                       name="estimatedDate"
                       type="date"
                       value={formatDateForInput(formData.estimatedDate)}
                       onChange={handleDateChange}
                       min={new Date().toISOString().split('T')[0]}
-                      className={`w-full px-3 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm ${
+                      className={`w-full px-3 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm [color-scheme:light] ${
                         errors.estimatedDate ? 'border-red-500' : 'border-gray-300'
                       }`}
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const dateInput = document.querySelector('input[name="estimatedDate"]') as HTMLInputElement
-                        if (dateInput) {
-                          try {
-                            if ('showPicker' in dateInput && typeof dateInput.showPicker === 'function') {
-                              dateInput.showPicker()
-                            } else {
-                              dateInput.click()
-                            }
-                          } catch {
-                            dateInput.click()
-                          }
-                        }
-                      }}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+                    <label
+                      htmlFor="estimatedDate"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10 pointer-events-auto"
                       aria-label="Open calendar"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setTimeout(() => {
+                          if (dateInputRef.current) {
+                            const dateInput = dateInputRef.current
+                            try {
+                              const input = dateInput as any
+                              if (input.showPicker && typeof input.showPicker === 'function') {
+                                input.showPicker()
+                              }
+                            } catch {
+                              // showPicker not available or failed, input click will handle it
+                            }
+                          }
+                        }, 10)
+                      }}
                     >
                       <Calendar size={18} />
-                    </button>
+                    </label>
                   </div>
                   {errors.estimatedDate && (
                     <p className="mt-1 text-xs text-red-600">{errors.estimatedDate}</p>
@@ -549,37 +560,40 @@ export default function AddTrackingPage() {
                   </label>
                   <div className="relative">
                     <input
+                      ref={dateInputRef}
                       id="estimatedDate"
                       name="estimatedDate"
                       type="date"
                       value={formatDateForInput(formData.estimatedDate)}
                       onChange={handleDateChange}
                       min={new Date().toISOString().split('T')[0]}
-                      className={`w-full px-3 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm ${
+                      className={`w-full px-3 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm [color-scheme:light] ${
                         errors.estimatedDate ? 'border-red-500' : 'border-gray-300'
                       }`}
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const dateInput = document.querySelector('input[name="estimatedDate"]') as HTMLInputElement
-                        if (dateInput) {
-                          try {
-                            if ('showPicker' in dateInput && typeof dateInput.showPicker === 'function') {
-                              dateInput.showPicker()
-                            } else {
-                              dateInput.click()
-                            }
-                          } catch {
-                            dateInput.click()
-                          }
-                        }
-                      }}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+                    <label
+                      htmlFor="estimatedDate"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10 pointer-events-auto"
                       aria-label="Open calendar"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setTimeout(() => {
+                          if (dateInputRef.current) {
+                            const dateInput = dateInputRef.current
+                            try {
+                              const input = dateInput as any
+                              if (input.showPicker && typeof input.showPicker === 'function') {
+                                input.showPicker()
+                              }
+                            } catch {
+                              // showPicker not available or failed, input click will handle it
+                            }
+                          }
+                        }, 10)
+                      }}
                     >
                       <Calendar size={18} />
-                    </button>
+                    </label>
                   </div>
                   {errors.estimatedDate && (
                     <p className="mt-1 text-xs text-red-600">{errors.estimatedDate}</p>
@@ -663,6 +677,22 @@ export default function AddTrackingPage() {
           </main>
         </div>
       </div>
+
+      {/* Modals */}
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        message={errorModal.message}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} })}
+        onConfirm={confirmModal.onConfirm}
+        message={confirmModal.message}
+        confirmText={t('confirm') || 'Confirm'}
+        cancelText={t('cancel') || 'Cancel'}
+      />
     </div>
   )
 }

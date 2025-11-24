@@ -1,8 +1,8 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Menu, TrendingUp, Calendar, Clock, ArrowDown, DollarSign, ShoppingCart, RefreshCw, Percent, BarChart3, Search, Eye, Download } from 'lucide-react'
+import { Menu, TrendingUp, Calendar, Clock, ArrowDown, DollarSign, ShoppingCart, RefreshCw, Percent, BarChart3, Search, Eye, Download, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 // TypeScript interfaces
@@ -21,22 +21,135 @@ export default function EarningsOverviewPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [dateRange, setDateRange] = useState('daily')
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
+  const [customStartDate, setCustomStartDate] = useState('')
+  const [customEndDate, setCustomEndDate] = useState('')
 
-  // Mock data for earnings trend (matching the image)
+  // Mock data for earnings trend for different time ranges
   const earningsData = {
     daily: [
-      { day: 'Mon', amount: 320 },
-      { day: 'Tue', amount: 450 },
-      { day: 'Wed', amount: 380 },
-      { day: 'Thu', amount: 530 },
-      { day: 'Fri', amount: 480 },
-      { day: 'Sat', amount: 600 },
-      { day: 'Sun', amount: 420 }
-    ]
+      { label: 'Mon', amount: 325 },
+      { label: 'Tue', amount: 450 },
+      { label: 'Wed', amount: 375 },
+      { label: 'Thu', amount: 520 },
+      { label: 'Fri', amount: 480 },
+      { label: 'Sat', amount: 600 },
+      { label: 'Sun', amount: 420 }
+    ],
+    weekly: [
+      { label: 'Week 1', amount: 2100 },
+      { label: 'Week 2', amount: 2450 },
+      { label: 'Week 3', amount: 2280 },
+      { label: 'Week 4', amount: 2650 }
+    ],
+    monthly: [
+      { label: 'Jan', amount: 8500 },
+      { label: 'Feb', amount: 9200 },
+      { label: 'Mar', amount: 8800 },
+      { label: 'Apr', amount: 10200 },
+      { label: 'May', amount: 9600 },
+      { label: 'Jun', amount: 11000 }
+    ],
+    custom: [] // Will be populated when custom dates are selected
   }
 
-  const maxAmount = 700
-  const minAmount = 300
+  // Summary data for different ranges
+  const summaryData = {
+    daily: {
+      totalEarnings: 24580,
+      thisMonth: 3240,
+      pendingBalance: 1580,
+      withdrawn: 19760,
+      ordersRevenue: 22340,
+      refundsDeducted: 540,
+      platformFees: 1220,
+      netEarnings: 20580
+    },
+    weekly: {
+      totalEarnings: 24580,
+      thisMonth: 9480,
+      pendingBalance: 1580,
+      withdrawn: 19760,
+      ordersRevenue: 22340,
+      refundsDeducted: 540,
+      platformFees: 1220,
+      netEarnings: 20580
+    },
+    monthly: {
+      totalEarnings: 24580,
+      thisMonth: 11000,
+      pendingBalance: 1580,
+      withdrawn: 19760,
+      ordersRevenue: 22340,
+      refundsDeducted: 540,
+      platformFees: 1220,
+      netEarnings: 20580
+    },
+    custom: {
+      totalEarnings: 24580,
+      thisMonth: 3240,
+      pendingBalance: 1580,
+      withdrawn: 19760,
+      ordersRevenue: 22340,
+      refundsDeducted: 540,
+      platformFees: 1220,
+      netEarnings: 20580
+    }
+  }
+
+  // Generate custom data when dates are selected
+  const generateCustomData = (startDate: string, endDate: string) => {
+    if (!startDate || !endDate) return []
+    
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+    
+    const data = []
+    for (let i = 0; i <= days; i++) {
+      const date = new Date(start)
+      date.setDate(date.getDate() + i)
+      data.push({
+        label: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        amount: Math.floor(Math.random() * 500) + 300
+      })
+    }
+    return data
+  }
+
+  // State for current chart data
+  const [currentData, setCurrentData] = useState(earningsData.daily)
+  const [chartKey, setChartKey] = useState(0)
+
+  // Update chart data when dateRange or custom dates change
+  useEffect(() => {
+    // Immediately update chart when dateRange changes
+    if (dateRange === 'custom') {
+      if (customStartDate && customEndDate) {
+        const customData = generateCustomData(customStartDate, customEndDate)
+        setCurrentData(customData)
+        setChartKey(prev => prev + 1)
+      } else {
+        // Show empty state for custom if dates not selected
+        setCurrentData([])
+        setChartKey(prev => prev + 1)
+      }
+    } else {
+      // For daily, weekly, monthly - immediately update
+      const rangeData = earningsData[dateRange as keyof typeof earningsData]
+      if (rangeData && rangeData.length > 0) {
+        setCurrentData(rangeData)
+        setChartKey(prev => prev + 1)
+      } else {
+        // Fallback to daily
+        setCurrentData(earningsData.daily)
+        setChartKey(prev => prev + 1)
+      }
+    }
+  }, [dateRange, customStartDate, customEndDate])
+
+  // Get current summary based on selected range
+  const currentSummary = summaryData[dateRange as keyof typeof summaryData] || summaryData.daily
 
   const bestProducts = [
     { id: 1, name: 'Premium Headphones', productId: 'APP001', category: 'Electronics', totalSold: 234, revenue: 4680 },
@@ -51,13 +164,151 @@ export default function EarningsOverviewPage() {
   const graphWidth = chartWidth - chartPadding.left - chartPadding.right
   const graphHeight = chartHeight - chartPadding.top - chartPadding.bottom
 
-  // Calculate line points
-  const getYPosition = (value: number) => {
-    return chartPadding.top + graphHeight - ((value - minAmount) / (maxAmount - minAmount)) * graphHeight
+  const handleCustomDateApply = () => {
+    if (customStartDate && customEndDate) {
+      setDateRange('custom')
+      setShowCustomDatePicker(false)
+    }
   }
 
-  const getXPosition = (index: number) => {
-    return chartPadding.left + (index / (earningsData.daily.length - 1)) * graphWidth
+  const handleDateRangeChange = (range: string) => {
+    if (range === 'custom') {
+      setShowCustomDatePicker(true)
+      // Don't change dateRange until custom dates are selected
+    } else {
+      // Immediately update dateRange which triggers useEffect to update chart
+      setDateRange(range)
+      setShowCustomDatePicker(false)
+    }
+  }
+
+  // Chart rendering function - recalculates on every render with new data
+  const renderChart = () => {
+    if (currentData.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          {dateRange === 'custom' ? 'Please select a date range' : 'No data available'}
+        </div>
+      )
+    }
+
+    // Fixed Y-axis range to match the image: 300 to 700
+    const maxAmount = 700
+    const minAmount = 300
+
+    const getYPosition = (value: number) => {
+      const range = maxAmount - minAmount
+      if (range === 0) return chartPadding.top + graphHeight / 2
+      return chartPadding.top + graphHeight - ((value - minAmount) / range) * graphHeight
+    }
+
+    const getXPosition = (index: number, total: number) => {
+      if (total <= 1) return chartPadding.left + graphWidth / 2
+      return chartPadding.left + (index / (total - 1)) * graphWidth
+    }
+
+    // Calculate grid lines - fixed at 300, 400, 500, 600, 700 to match image
+    const gridLines = [300, 400, 500, 600, 700]
+
+    // Create path data
+    const pathData = currentData.map((data, index) => {
+      const x = getXPosition(index, currentData.length)
+      const y = getYPosition(data.amount)
+      return `${x},${y}`
+    }).join(' L ')
+
+    return (
+      <svg 
+        key={`chart-${chartKey}-${dateRange}-${currentData.length}-${JSON.stringify(currentData[0]?.amount || 0)}`}
+        viewBox={`0 0 ${chartWidth} ${chartHeight}`} 
+        className="w-full h-auto" 
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {/* Y-axis grid lines */}
+        {gridLines.map((value, idx) => {
+          const y = getYPosition(value)
+          return (
+            <g key={`grid-${chartKey}-${idx}-${value}`}>
+              <line
+                x1={chartPadding.left}
+                y1={y}
+                x2={chartWidth - chartPadding.right}
+                y2={y}
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+              <text
+                x={chartPadding.left - 10}
+                y={y + 4}
+                textAnchor="end"
+                fontSize="12"
+                fill="#6b7280"
+              >
+                {value}
+              </text>
+            </g>
+          )
+        })}
+        
+        {/* Y-axis label */}
+        <text
+          x={25}
+          y={chartHeight / 2}
+          textAnchor="middle"
+          transform={`rotate(-90, 25, ${chartHeight / 2})`}
+          fontSize="14"
+          fill="#6b7280"
+          fontWeight="500"
+        >
+          Earnings ($)
+        </text>
+
+        {/* Line chart path */}
+        <path
+          key={`path-${chartKey}`}
+          d={`M ${pathData}`}
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Data points (circles) */}
+        {currentData.map((data, index) => {
+          const x = getXPosition(index, currentData.length)
+          const y = getYPosition(data.amount)
+          return (
+            <circle
+              key={`point-${chartKey}-${index}-${data.amount}`}
+              cx={x}
+              cy={y}
+              r="5"
+              fill="#3b82f6"
+              stroke="#fff"
+              strokeWidth="2"
+            />
+          )
+        })}
+
+        {/* X-axis labels */}
+        {currentData.map((data, index) => {
+          const x = getXPosition(index, currentData.length)
+          return (
+            <text
+              key={`label-${chartKey}-${index}-${data.label}`}
+              x={x}
+              y={chartHeight - chartPadding.bottom + 20}
+              textAnchor="middle"
+              fontSize="12"
+              fill="#6b7280"
+            >
+              {data.label}
+            </text>
+          )
+        })}
+      </svg>
+    )
   }
 
   return (
@@ -97,26 +348,11 @@ export default function EarningsOverviewPage() {
           
           <main className="flex-1 overflow-y-auto p-6">
             <div className="space-y-6">
-              {/* Header */}
-              <div className="flex items-center justify-between">
+              {/* Header Section */}
+              <div className="flex items-center justify-between relative">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">Transactions & Finance</h1>
                   <p className="text-sm text-gray-500 mt-1">Dashboard - Earnings Overview</p>
-                </div>
-                <div className="flex gap-2">
-                  {['daily', 'weekly', 'monthly', 'custom'].map((range) => (
-                    <button
-                      key={range}
-                      onClick={() => setDateRange(range)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        dateRange === range
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {range.charAt(0).toUpperCase() + range.slice(1)}
-                    </button>
-                  ))}
                 </div>
               </div>
 
@@ -130,20 +366,20 @@ export default function EarningsOverviewPage() {
                       <DollarSign size={20} className="text-white" />
                     </div>
                   </div>
-                  <p className="text-3xl font-bold mb-1">$24,580</p>
+                  <p className="text-3xl font-bold mb-1">${currentSummary.totalEarnings.toLocaleString()}</p>
                   <p className="text-sm opacity-90">All-time</p>
                 </div>
 
                 {/* This Month - Green */}
                 <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white shadow-sm">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm opacity-90">This Month</span>
+                    <span className="text-sm opacity-90">This {dateRange === 'daily' ? 'Month' : dateRange === 'weekly' ? 'Month' : dateRange === 'monthly' ? 'Period' : 'Period'}</span>
                     <div className="w-10 h-10 bg-green-400 rounded-full flex items-center justify-center">
                       <Calendar size={20} className="text-white" />
                     </div>
                   </div>
-                  <p className="text-3xl font-bold mb-1">$3,240</p>
-                  <p className="text-sm opacity-90">+12% from last month</p>
+                  <p className="text-3xl font-bold mb-1">${currentSummary.thisMonth.toLocaleString()}</p>
+                  <p className="text-sm opacity-90">+12% from last period</p>
                 </div>
 
                 {/* Pending Balance - Orange */}
@@ -154,7 +390,7 @@ export default function EarningsOverviewPage() {
                       <Clock size={20} className="text-white" />
                     </div>
                   </div>
-                  <p className="text-3xl font-bold mb-1">$1,580</p>
+                  <p className="text-3xl font-bold mb-1">${currentSummary.pendingBalance.toLocaleString()}</p>
                   <p className="text-sm opacity-90">8 pending orders</p>
                 </div>
 
@@ -166,7 +402,7 @@ export default function EarningsOverviewPage() {
                       <ArrowDown size={20} className="text-white" />
                     </div>
                   </div>
-                  <p className="text-3xl font-bold mb-1">$19,760</p>
+                  <p className="text-3xl font-bold mb-1">${currentSummary.withdrawn.toLocaleString()}</p>
                   <p className="text-sm opacity-90">Last withdrawal 3 days ago</p>
                 </div>
               </div>
@@ -182,95 +418,8 @@ export default function EarningsOverviewPage() {
                     </div>
                   </div>
                 </div>
-                <div className="relative">
-                  <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
-                    {/* Y-axis grid lines */}
-                    {[300, 400, 500, 600, 700].map((value) => {
-                      const y = getYPosition(value)
-                      return (
-                        <g key={value}>
-                          <line
-                            x1={chartPadding.left}
-                            y1={y}
-                            x2={chartWidth - chartPadding.right}
-                            y2={y}
-                            stroke="#e5e7eb"
-                            strokeWidth="1"
-                          />
-                          <text
-                            x={chartPadding.left - 10}
-                            y={y + 4}
-                            textAnchor="end"
-                            fontSize="12"
-                            fill="#6b7280"
-                          >
-                            {value}
-                          </text>
-                        </g>
-                      )
-                    })}
-                    
-                    {/* Y-axis label */}
-                    <text
-                      x={25}
-                      y={chartHeight / 2}
-                      textAnchor="middle"
-                      transform={`rotate(-90, 25, ${chartHeight / 2})`}
-                      fontSize="14"
-                      fill="#6b7280"
-                      fontWeight="500"
-                    >
-                      Earnings ($)
-                    </text>
-
-                    {/* Line chart path */}
-                    <path
-                      d={`M ${earningsData.daily.map((data, index) => {
-                        const x = getXPosition(index)
-                        const y = getYPosition(data.amount)
-                        return `${x},${y}`
-                      }).join(' L ')}`}
-                      fill="none"
-                      stroke="#3b82f6"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-
-                    {/* Data points (circles) */}
-                    {earningsData.daily.map((data, index) => {
-                      const x = getXPosition(index)
-                      const y = getYPosition(data.amount)
-                      return (
-                        <circle
-                          key={index}
-                          cx={x}
-                          cy={y}
-                          r="5"
-                          fill="#3b82f6"
-                          stroke="#fff"
-                          strokeWidth="2"
-                        />
-                      )
-                    })}
-
-                    {/* X-axis labels */}
-                    {earningsData.daily.map((data, index) => {
-                      const x = getXPosition(index)
-                      return (
-                        <text
-                          key={index}
-                          x={x}
-                          y={chartHeight - chartPadding.bottom + 20}
-                          textAnchor="middle"
-                          fontSize="12"
-                          fill="#6b7280"
-                        >
-                          {data.day}
-                        </text>
-                      )
-                    })}
-                  </svg>
+                <div key={`chart-container-${chartKey}-${dateRange}-${currentData.length}`} className="relative">
+                  {renderChart()}
                 </div>
               </div>
 
@@ -281,8 +430,13 @@ export default function EarningsOverviewPage() {
                     <ShoppingCart className="text-green-600" size={24} />
                     <span className="text-sm text-gray-500">{t('ordersRevenue')}</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">$22,340</p>
-                  <button className="text-blue-600 text-sm mt-3 hover:underline">{t('viewOrders')}</button>
+                  <p className="text-2xl font-bold text-gray-900">${currentSummary.ordersRevenue.toLocaleString()}</p>
+                  <button 
+                    onClick={() => navigate('/orders')}
+                    className="text-blue-600 text-sm mt-3 hover:underline"
+                  >
+                    {t('viewOrders')}
+                  </button>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -290,8 +444,13 @@ export default function EarningsOverviewPage() {
                     <RefreshCw className="text-red-600" size={24} />
                     <span className="text-sm text-gray-500">{t('refundsDeducted')}</span>
                   </div>
-                  <p className="text-2xl font-bold text-red-600">-$540</p>
-                  <button className="text-blue-600 text-sm mt-3 hover:underline">{t('viewRefunds')}</button>
+                  <p className="text-2xl font-bold text-red-600">-${currentSummary.refundsDeducted.toLocaleString()}</p>
+                  <button 
+                    onClick={() => navigate('/orders', { state: { activeTab: 'refunded' } })}
+                    className="text-blue-600 text-sm mt-3 hover:underline"
+                  >
+                    {t('viewRefunds')}
+                  </button>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -299,7 +458,7 @@ export default function EarningsOverviewPage() {
                     <Percent className="text-gray-600" size={24} />
                     <span className="text-sm text-gray-500">{t('platformFees')}</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">-$1,220</p>
+                  <p className="text-2xl font-bold text-gray-900">-${currentSummary.platformFees.toLocaleString()}</p>
                   <p className="text-sm text-gray-500 mt-3">5% commission</p>
                 </div>
 
@@ -308,7 +467,7 @@ export default function EarningsOverviewPage() {
                     <BarChart3 className="text-blue-600" size={24} />
                     <span className="text-sm text-gray-500">{t('netEarnings')}</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">$20,580</p>
+                  <p className="text-2xl font-bold text-gray-900">${currentSummary.netEarnings.toLocaleString()}</p>
                   <p className="text-sm text-gray-500 mt-3">{t('afterDeductions')}</p>
                 </div>
               </div>
@@ -418,21 +577,6 @@ export default function EarningsOverviewPage() {
               <h1 className="text-2xl font-bold text-gray-900">Transactions & Finance</h1>
               <p className="text-sm text-gray-500 mt-1">Dashboard - Earnings Overview</p>
             </div>
-            
-            {/* Date ranges - Scrollable on mobile */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {['daily', 'weekly', 'monthly', 'custom'].map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setDateRange(range)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 transition-colors ${
-                    dateRange === range ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
-                  }`}
-                >
-                  {range.charAt(0).toUpperCase() + range.slice(1)}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Summary Cards - Stack vertically on mobile */}
@@ -445,20 +589,20 @@ export default function EarningsOverviewPage() {
                   <DollarSign size={16} className="text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl font-bold mb-1">$24,580</p>
+              <p className="text-xl sm:text-2xl font-bold mb-1">${currentSummary.totalEarnings.toLocaleString()}</p>
               <p className="text-xs opacity-90">All-time</p>
             </div>
 
             {/* This Month */}
             <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs opacity-90">This Month</span>
+                <span className="text-xs opacity-90">This {dateRange === 'daily' ? 'Month' : dateRange === 'weekly' ? 'Month' : dateRange === 'monthly' ? 'Period' : 'Period'}</span>
                 <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
                   <Calendar size={16} className="text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl font-bold mb-1">$3,240</p>
-              <p className="text-xs opacity-90">+12% from last month</p>
+              <p className="text-xl sm:text-2xl font-bold mb-1">${currentSummary.thisMonth.toLocaleString()}</p>
+              <p className="text-xs opacity-90">+12% from last period</p>
             </div>
 
             {/* Pending Balance */}
@@ -469,7 +613,7 @@ export default function EarningsOverviewPage() {
                   <Clock size={16} className="text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl font-bold mb-1">$1,580</p>
+              <p className="text-xl sm:text-2xl font-bold mb-1">${currentSummary.pendingBalance.toLocaleString()}</p>
               <p className="text-xs opacity-90">8 pending orders</p>
             </div>
 
@@ -481,7 +625,7 @@ export default function EarningsOverviewPage() {
                   <ArrowDown size={16} className="text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl font-bold mb-1">$19,760</p>
+              <p className="text-xl sm:text-2xl font-bold mb-1">${currentSummary.withdrawn.toLocaleString()}</p>
               <p className="text-xs opacity-90">Last withdrawal 3 days ago</p>
             </div>
           </div>
@@ -495,95 +639,8 @@ export default function EarningsOverviewPage() {
                 <span className="text-xs text-gray-700">Daily Earnings</span>
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full min-w-[500px] h-auto" preserveAspectRatio="xMidYMid meet">
-                {/* Y-axis grid lines */}
-                {[300, 400, 500, 600, 700].map((value) => {
-                  const y = getYPosition(value)
-                  return (
-                    <g key={value}>
-                      <line
-                        x1={chartPadding.left}
-                        y1={y}
-                        x2={chartWidth - chartPadding.right}
-                        y2={y}
-                        stroke="#e5e7eb"
-                        strokeWidth="1"
-                      />
-                      <text
-                        x={chartPadding.left - 10}
-                        y={y + 4}
-                        textAnchor="end"
-                        fontSize="10"
-                        fill="#6b7280"
-                      >
-                        {value}
-                      </text>
-                    </g>
-                  )
-                })}
-                
-                {/* Y-axis label */}
-                <text
-                  x={20}
-                  y={chartHeight / 2}
-                  textAnchor="middle"
-                  transform={`rotate(-90, 20, ${chartHeight / 2})`}
-                  fontSize="12"
-                  fill="#6b7280"
-                  fontWeight="500"
-                >
-                  Earnings ($)
-                </text>
-
-                {/* Line chart path */}
-                <path
-                  d={`M ${earningsData.daily.map((data, index) => {
-                    const x = getXPosition(index)
-                    const y = getYPosition(data.amount)
-                    return `${x},${y}`
-                  }).join(' L ')}`}
-                  fill="none"
-                  stroke="#3b82f6"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-
-                {/* Data points */}
-                {earningsData.daily.map((data, index) => {
-                  const x = getXPosition(index)
-                  const y = getYPosition(data.amount)
-                  return (
-                    <circle
-                      key={index}
-                      cx={x}
-                      cy={y}
-                      r="4"
-                      fill="#3b82f6"
-                      stroke="#fff"
-                      strokeWidth="2"
-                    />
-                  )
-                })}
-
-                {/* X-axis labels */}
-                {earningsData.daily.map((data, index) => {
-                  const x = getXPosition(index)
-                  return (
-                    <text
-                      key={index}
-                      x={x}
-                      y={chartHeight - chartPadding.bottom + 18}
-                      textAnchor="middle"
-                      fontSize="10"
-                      fill="#6b7280"
-                    >
-                      {data.day}
-                    </text>
-                  )
-                })}
-              </svg>
+            <div key={`mobile-chart-container-${chartKey}-${dateRange}-${currentData.length}`} className="overflow-x-auto">
+              {renderChart()}
             </div>
           </div>
 

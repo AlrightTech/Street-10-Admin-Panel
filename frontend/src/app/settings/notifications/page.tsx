@@ -1,15 +1,38 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Menu, Bell, Package, Truck, Star, AlertTriangle, RefreshCcw, DollarSign } from 'lucide-react'
 import TabsBar from '@/components/ui/TabsBar'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function SettingsNotificationsPage() {
   const { t } = useLanguage()
+  const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeFilter, setActiveFilter] = useState<'all' | 'orders' | 'payouts' | 'system'>('all')
+
+  // Handle notification link clicks
+  const handleLinkClick = (linkText: string, notificationType?: string) => {
+    // Check if link text matches any of the known translations
+    if (linkText === t('viewOrder')) {
+      navigate('/orders')
+    } else if (linkText === t('trackPackage')) {
+      navigate('/orders/10198/tracking')
+    } else if (linkText === t('restockNow')) {
+      navigate('/products')
+    } else if (linkText === t('viewTransaction')) {
+      navigate('/transactions/history')
+    } else if (linkText === t('viewPolicy')) {
+      navigate('/settings/profile')
+    } else if (linkText === t('viewReview')) {
+      navigate('/products')
+    } else {
+      // Default fallback
+      navigate('/orders')
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,7 +157,13 @@ export default function SettingsNotificationsPage() {
                           <span key={tag.t} className={`px-2 py-0.5 rounded-md text-[11px] ${tag.c} border border-gray-200`}>{tag.t}</span>
                         ))}
                         {n.links.map((a) => (
-                          <button key={a} className="text-xs text-orange-600 hover:underline ml-1">{a}</button>
+                          <button 
+                            key={a} 
+                            onClick={() => handleLinkClick(a)}
+                            className="text-xs text-orange-600 hover:underline ml-1 cursor-pointer"
+                          >
+                            {a}
+                          </button>
                         ))}
                       </div>
                     </div>

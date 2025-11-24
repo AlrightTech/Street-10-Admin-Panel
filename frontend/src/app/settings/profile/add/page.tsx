@@ -135,6 +135,22 @@ export default function AddSubVendorPage() {
     }
   }
 
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    if (!email.trim()) return false
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  // Phone number validation function
+  const validatePhoneNumber = (phone: string): boolean => {
+    if (!phone.trim()) return false
+    const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}[-\s\.]?[0-9]{1,9}$/
+    const cleaned = phone.replace(/[\s\-\(\)\.]/g, '')
+    const digitsOnly = cleaned.replace(/\+/g, '')
+    return phoneRegex.test(phone) && digitsOnly.length >= 10 && digitsOnly.length <= 15
+  }
+
   const handleInviteUser = async () => {
     setSubmitError(null)
 
@@ -147,8 +163,20 @@ export default function AddSubVendorPage() {
       return
     }
 
+    if (trimmedName.length < 2) {
+      setSubmitError('Full name must be at least 2 characters')
+      setCurrentStep(1)
+      return
+    }
+
     if (!trimmedEmail) {
       setSubmitError('Email is required')
+      setCurrentStep(1)
+      return
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      setSubmitError('Please enter a valid email address')
       setCurrentStep(1)
       return
     }
@@ -160,6 +188,12 @@ export default function AddSubVendorPage() {
 
     if (!passwordCandidate) {
       setSubmitError('Password is required')
+      setCurrentStep(1)
+      return
+    }
+
+    if (passwordCandidate.length < 8) {
+      setSubmitError('Password must be at least 8 characters')
       setCurrentStep(1)
       return
     }

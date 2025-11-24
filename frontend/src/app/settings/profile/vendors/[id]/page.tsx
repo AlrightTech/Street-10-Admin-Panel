@@ -3,6 +3,8 @@ import Header from '@/components/layout/Header'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, User, Shield, Activity, Key, UserX, Edit, Check, X, ArrowLeft, Info, Plus, Clock } from 'lucide-react'
+import SuccessModal from '@/components/ui/SuccessModal'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 // Mock data - in real app, fetch from API based on ID
 const mockVendorData = {
@@ -36,6 +38,10 @@ export default function SubVendorDetailPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [status, setStatus] = useState(mockVendorData.status === 'Active')
+  
+  // Modal states
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -136,7 +142,7 @@ export default function SubVendorDetailPage() {
                   <Info className="text-blue-600" size={18} />
                   <h2 className="text-base sm:text-lg font-semibold text-gray-900">User Information</h2>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Email</p>
                     <p className="text-sm font-medium text-gray-900">{mockVendorData.email}</p>
@@ -151,12 +157,17 @@ export default function SubVendorDetailPage() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Assigned by Vendor</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-gray-900">{mockVendorData.assignedByVendor ? 'Yes' : 'No'}</p>
-                      {mockVendorData.assignedByVendor && (
-                        <Check className="text-green-600" size={16} />
-                      )}
-                    </div>
+                    {mockVendorData.assignedByVendor ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                        <Check className="text-green-600" size={14} />
+                        Yes
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                        <X className="text-red-600" size={14} />
+                        No
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -168,28 +179,36 @@ export default function SubVendorDetailPage() {
                   <h2 className="text-base sm:text-lg font-semibold text-gray-900">Role & Permissions</h2>
                 </div>
                 <div className="mb-4">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                  <p className="text-xs text-gray-500 mb-2">Current Role</p>
+                  <span className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                     {mockVendorData.role}
                   </span>
                 </div>
                 <div className="space-y-2">
+                  <p className="text-xs text-gray-500 mb-2">Permissions</p>
                   {[
                     { key: 'viewProducts', label: 'View Products', allowed: mockVendorData.permissions.viewProducts },
-                    { key: 'addEditProducts', label: 'Add/Edit Products', allowed: mockVendorData.permissions.addEditProducts },
                     { key: 'deleteProducts', label: 'Delete Products', allowed: mockVendorData.permissions.deleteProducts },
+                    { key: 'addEditProducts', label: 'Add/Edit Products', allowed: mockVendorData.permissions.addEditProducts },
                     { key: 'approveProducts', label: 'Approve/Publish Products', allowed: mockVendorData.permissions.approveProducts }
                   ].map((perm) => (
                     <div
                       key={perm.key}
-                      className={`flex items-center justify-between p-3 rounded-lg ${
-                        perm.allowed ? 'bg-green-50' : 'bg-red-50'
+                      className={`flex items-center justify-between p-3 rounded-lg border ${
+                        perm.allowed 
+                          ? 'bg-green-50 border-green-200' 
+                          : 'bg-red-50 border-red-200'
                       }`}
                     >
                       <span className="text-sm font-medium text-gray-900">{perm.label}</span>
                       {perm.allowed ? (
-                        <Check className="text-green-600" size={18} />
+                        <div className="flex items-center justify-center w-6 h-6 rounded bg-green-100">
+                          <Check className="text-green-600" size={16} />
+                        </div>
                       ) : (
-                        <X className="text-red-600" size={18} />
+                        <div className="flex items-center justify-center w-6 h-6 rounded bg-red-100">
+                          <X className="text-red-600" size={16} />
+                        </div>
                       )}
                     </div>
                   ))}
@@ -269,10 +288,14 @@ export default function SubVendorDetailPage() {
               </button>
               <button
                 onClick={() => {
-                  if (confirm('Are you sure you want to deactivate this user?')) {
-                    // Handle deactivation
-                    alert('User deactivated')
-                  }
+                  setConfirmModal({
+                    isOpen: true,
+                    message: 'Are you sure you want to deactivate this user?',
+                    onConfirm: () => {
+                      // Handle deactivation
+                      setSuccessModal({ isOpen: true, message: 'User deactivated' })
+                    }
+                  })
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm font-medium w-full sm:w-auto"
               >
@@ -339,30 +362,77 @@ export default function SubVendorDetailPage() {
             {/* Info Cards - Mobile */}
             <div className="space-y-4">
               <div className="bg-white rounded-lg shadow-sm p-4">
-                <h2 className="text-base font-semibold text-gray-900 mb-3">User Information</h2>
-                <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info className="text-blue-600" size={18} />
+                  <h2 className="text-base font-semibold text-gray-900">User Information</h2>
+                </div>
+                <div className="space-y-4 text-sm">
                   <div>
-                    <p className="text-gray-500">Email</p>
-                    <p className="font-medium">{mockVendorData.email}</p>
+                    <p className="text-xs text-gray-500 mb-1">Email</p>
+                    <p className="font-medium text-gray-900">{mockVendorData.email}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Join Date</p>
-                    <p className="font-medium">{mockVendorData.joinDate}</p>
+                    <p className="text-xs text-gray-500 mb-1">Join Date</p>
+                    <p className="font-medium text-gray-900">{mockVendorData.joinDate}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500">Last Login</p>
-                    <p className="font-medium">{mockVendorData.lastLogin}</p>
+                    <p className="text-xs text-gray-500 mb-1">Last Login</p>
+                    <p className="font-medium text-gray-900">{mockVendorData.lastLogin}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Assigned by Vendor</p>
+                    {mockVendorData.assignedByVendor ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                        <Check className="text-green-600" size={14} />
+                        Yes
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                        <X className="text-red-600" size={14} />
+                        No
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-sm p-4">
-                <h2 className="text-base font-semibold text-gray-900 mb-3">Permissions</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <Shield className="text-blue-600" size={18} />
+                  <h2 className="text-base font-semibold text-gray-900">Role & Permissions</h2>
+                </div>
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500 mb-2">Current Role</p>
+                  <span className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                    {mockVendorData.role}
+                  </span>
+                </div>
                 <div className="space-y-2">
-                  {Object.entries(mockVendorData.permissions).map(([key, value]) => (
-                    <div key={key} className={`flex items-center justify-between p-2 rounded ${value ? 'bg-green-50' : 'bg-red-50'}`}>
-                      <span className="text-sm">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                      {value ? <Check className="text-green-600" size={16} /> : <X className="text-red-600" size={16} />}
+                  <p className="text-xs text-gray-500 mb-2">Permissions</p>
+                  {[
+                    { key: 'viewProducts', label: 'View Products', allowed: mockVendorData.permissions.viewProducts },
+                    { key: 'deleteProducts', label: 'Delete Products', allowed: mockVendorData.permissions.deleteProducts },
+                    { key: 'addEditProducts', label: 'Add/Edit Products', allowed: mockVendorData.permissions.addEditProducts },
+                    { key: 'approveProducts', label: 'Approve/Publish Products', allowed: mockVendorData.permissions.approveProducts }
+                  ].map((perm) => (
+                    <div
+                      key={perm.key}
+                      className={`flex items-center justify-between p-3 rounded-lg border ${
+                        perm.allowed 
+                          ? 'bg-green-50 border-green-200' 
+                          : 'bg-red-50 border-red-200'
+                      }`}
+                    >
+                      <span className="text-sm font-medium text-gray-900">{perm.label}</span>
+                      {perm.allowed ? (
+                        <div className="flex items-center justify-center w-6 h-6 rounded bg-green-100">
+                          <Check className="text-green-600" size={16} />
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center w-6 h-6 rounded bg-red-100">
+                          <X className="text-red-600" size={16} />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -379,9 +449,14 @@ export default function SubVendorDetailPage() {
               </button>
               <button
                 onClick={() => {
-                  if (confirm('Are you sure?')) {
-                    alert('User deactivated')
-                  }
+                  setConfirmModal({
+                    isOpen: true,
+                    message: 'Are you sure you want to deactivate this user?',
+                    onConfirm: () => {
+                      // Handle deactivation
+                      setSuccessModal({ isOpen: true, message: 'User deactivated' })
+                    }
+                  })
                 }}
                 className="w-full px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium"
               >
@@ -391,6 +466,23 @@ export default function SubVendorDetailPage() {
           </div>
         </main>
       </div>
+
+      {/* Modals */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, message: '' })}
+        message={successModal.message}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} })}
+        onConfirm={confirmModal.onConfirm}
+        message={confirmModal.message}
+        confirmText="Deactivate"
+        cancelText="Cancel"
+        confirmButtonColor="red"
+      />
     </div>
   )
 }
