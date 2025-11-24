@@ -5,6 +5,7 @@ import { Menu, HelpCircle, Upload, Image as ImageIcon, Save, ShoppingBag, FileTe
 import TabsBar from '@/components/ui/TabsBar'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ButtonLoader } from '@/components/ui/Loader'
+import SuccessModal from '@/components/ui/SuccessModal'
 
 export default function StoreSettingsPage() {
   const { t } = useLanguage()
@@ -12,6 +13,7 @@ export default function StoreSettingsPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [saving, setSaving] = useState(false)
   const [autoSave, setAutoSave] = useState(true)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const logoInputRef = useRef<HTMLInputElement>(null)
   const bannerInputRef = useRef<HTMLInputElement>(null)
@@ -37,6 +39,8 @@ export default function StoreSettingsPage() {
     setSaving(true)
     await new Promise(r => setTimeout(r, 800))
     setSaving(false)
+    setShowSuccessModal(true)
+    setTimeout(() => setShowSuccessModal(false), 2000)
   }
 
   return (
@@ -432,6 +436,13 @@ export default function StoreSettingsPage() {
           </div>
         </main>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message={t('settingsSavedSuccessfully') || 'Store settings saved successfully!'}
+      />
     </div>
   )
 }

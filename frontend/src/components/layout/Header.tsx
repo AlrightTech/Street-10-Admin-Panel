@@ -119,6 +119,67 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
     setShowProfileDropdown(false)
   }
 
+  // Handle notification link clicks
+  const handleNotificationLinkClick = (linkKey: string, notification: typeof allNotifications[0]) => {
+    setShowNotifications(false)
+    
+    switch(linkKey) {
+      case 'viewOrder':
+        // Extract order ID from notification description or use a default
+        // For now, navigate to orders page - in real app, extract ID from notification data
+        navigate('/orders')
+        break
+      case 'trackPackage':
+        // Navigate to tracking page - in real app, extract order ID from notification
+        // For demo, using a sample order ID
+        navigate('/orders/10198/tracking')
+        break
+      case 'restockNow':
+        // Navigate to products page
+        navigate('/products')
+        break
+      case 'viewTransaction':
+        // Navigate to transactions page
+        navigate('/transactions/history')
+        break
+      case 'viewPolicy':
+        // Navigate to settings page
+        navigate('/settings/profile')
+        break
+      case 'viewReview':
+        // Navigate to products page (reviews are typically on product pages)
+        navigate('/products')
+        break
+      case 'viewStatement':
+        // Navigate to earnings/withdrawals page
+        navigate('/transactions/earnings/withdrawals')
+        break
+      case 'viewInventory':
+        // Navigate to products page
+        navigate('/products')
+        break
+      case 'viewRatings':
+        // Navigate to products page
+        navigate('/products')
+        break
+      case 'sendReminder':
+        // Navigate to chat or orders page
+        navigate('/chat')
+        break
+      case 'processRefund':
+        // Navigate to orders page
+        navigate('/orders')
+        break
+      case 'exploreFeature':
+        // Navigate to dashboard
+        navigate('/dashboard')
+        break
+      default:
+        // Default to orders page
+        navigate('/orders')
+    }
+  }
+
   // Comprehensive search data - in a real app, this would come from a context or API
   const searchableProducts = [
     { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200 },
@@ -775,7 +836,13 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                                 <span key={idx} className={`px-2 py-0.5 rounded-md text-[11px] ${tag.c} border border-gray-200`}>{t(tag.tKey)}</span>
                               ))}
                               {n.links.map((link, idx) => (
-                                <button key={idx} className="text-xs text-orange-600 hover:underline whitespace-nowrap">{t(link.tKey)}</button>
+                                <button 
+                                  key={idx} 
+                                  onClick={() => handleNotificationLinkClick(link.tKey, n)}
+                                  className="text-xs text-orange-600 hover:underline whitespace-nowrap cursor-pointer"
+                                >
+                                  {t(link.tKey)}
+                                </button>
                               ))}
                             </div>
                           </div>
@@ -887,16 +954,14 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                     
                     <div className="border-t border-gray-200 my-2" />
                     
-                    <button
-                      onClick={() => {
-                        setShowProfileDropdown(false)
-                        // Add help/support action
-                      }}
+                    <Link
+                      to="/help-support"
+                      onClick={() => setShowProfileDropdown(false)}
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700"
                     >
                       <HelpCircle size={18} className="text-gray-500" />
                       <span className="text-sm font-medium">{language === 'ar' ? 'المساعدة والدعم' : 'Help & Support'}</span>
-                    </button>
+                    </Link>
                     
                     <div className="border-t border-gray-200 my-2" />
                     

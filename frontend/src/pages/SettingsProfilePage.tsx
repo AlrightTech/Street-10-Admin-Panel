@@ -5,6 +5,10 @@ import { Menu, Camera, Upload, Download, Check, X, Eye, EyeOff, Plus, Trash2, Ed
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ButtonLoader } from '@/components/ui/Loader'
+import SuccessModal from '@/components/ui/SuccessModal'
+import ErrorModal from '@/components/ui/ErrorModal'
+import ConfirmModal from '@/components/ui/ConfirmModal'
+import InfoModal from '@/components/ui/InfoModal'
 
 type SubVendor = {
   id: number
@@ -152,6 +156,11 @@ export default function SettingsProfilePage() {
   const [errors, setErrors] = useState<{[key: string]: string}>({})
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  
+  // Modal states
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} })
+  const [infoModal, setInfoModal] = useState({ isOpen: false, message: '' })
 
   // Refs for file inputs
   const profileImageRef = useRef<HTMLInputElement>(null)
@@ -159,6 +168,10 @@ export default function SettingsProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
+    // Prevent email from being changed
+    if (name === 'email') {
+      return
+    }
     setFormData({
       ...formData,
       [name]: value
@@ -185,12 +198,12 @@ export default function SettingsProfilePage() {
     if (file) {
       // Validate file type
       if (!file.type.match('image/(jpeg|jpg|png|gif)')) {
-        alert(t('pleaseSelectValidImage'))
+        setInfoModal({ isOpen: true, message: t('pleaseSelectValidImage') })
         return
       }
       // Validate file size (1MB max)
       if (file.size > 1024 * 1024) {
-        alert(t('fileSizeMustBeLessThan1MB'))
+        setErrorModal({ isOpen: true, message: t('fileSizeMustBeLessThan1MB') })
         return
       }
       
@@ -208,12 +221,12 @@ export default function SettingsProfilePage() {
       // Validate file type
       const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
       if (!validTypes.includes(file.type)) {
-        alert(t('pleaseSelectValidFile'))
+        setInfoModal({ isOpen: true, message: t('pleaseSelectValidFile') })
         return
       }
       // Validate file size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
-        alert(t('fileSizeMustBeLessThan10MB'))
+        setErrorModal({ isOpen: true, message: t('fileSizeMustBeLessThan10MB') })
         return
       }
       
@@ -254,32 +267,76 @@ export default function SettingsProfilePage() {
     }
   }
 
+  // Phone number validation function
+  const validatePhoneNumber = (phone: string): boolean => {
+    if (!phone.trim()) return false
+    // Accept formats: +1 (555) 123-4567, (555) 123-4567, 555-123-4567, 5551234567, +1234567890
+    const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}[-\s\.]?[0-9]{1,9}$/
+    // Remove all non-digit characters except + for validation
+    const cleaned = phone.replace(/[\s\-\(\)\.]/g, '')
+    // Check if it has at least 10 digits (minimum for a valid phone number)
+    const digitsOnly = cleaned.replace(/\+/g, '')
+    return phoneRegex.test(phone) && digitsOnly.length >= 10 && digitsOnly.length <= 15
+  }
+
+  // Email validation function
+  const validateEmail = (email: string): boolean => {
+    if (!email.trim()) return false
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {}
     
     if (activeTab === 'personal') {
+      // Full Name validation
       if (!formData.fullName.trim()) {
-        newErrors.fullName = t('fullNameRequired')
+        newErrors.fullName = t('fullNameRequired') || 'Full name is required'
+      } else if (formData.fullName.trim().length < 2) {
+        newErrors.fullName = 'Full name must be at least 2 characters'
       }
-      if (!formData.email.trim()) {
-        newErrors.email = t('emailRequired')
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = t('invalidEmailFormat')
-      }
+      
+      // Phone validation
       if (!formData.phone.trim()) {
-        newErrors.phone = t('phoneRequired')
+        newErrors.phone = t('phoneRequired') || 'Phone number is required'
+      } else if (!validatePhoneNumber(formData.phone)) {
+        newErrors.phone = 'Please enter a valid phone number (e.g., +1 (555) 123-4567)'
       }
+      
+      // Address fields validation (optional but if provided, should be valid)
+      if (formData.streetAddress && formData.streetAddress.trim().length < 5) {
+        newErrors.streetAddress = 'Street address must be at least 5 characters'
+      }
+      if (formData.city && formData.city.trim().length < 2) {
+        newErrors.city = 'City must be at least 2 characters'
+      }
+      
     } else if (activeTab === 'password') {
       if (!passwordData.currentPassword) {
-        newErrors.currentPassword = t('currentPasswordRequired')
+        newErrors.currentPassword = t('currentPasswordRequired') || 'Current password is required'
       }
       if (!passwordData.newPassword) {
-        newErrors.newPassword = t('newPasswordRequired')
+        newErrors.newPassword = t('newPasswordRequired') || 'New password is required'
       } else if (passwordData.newPassword.length < 8) {
-        newErrors.newPassword = t('passwordMinLength')
+        newErrors.newPassword = t('passwordMinLength') || 'Password must be at least 8 characters'
       }
       if (passwordData.newPassword !== passwordData.confirmPassword) {
-        newErrors.confirmPassword = t('passwordsDoNotMatch')
+        newErrors.confirmPassword = t('passwordsDoNotMatch') || 'Passwords do not match'
+      }
+    } else if (activeTab === 'policies') {
+      // Business Information validation
+      if (policiesData.storeName && policiesData.storeName.trim().length < 2) {
+        newErrors.storeName = 'Store name must be at least 2 characters'
+      }
+      if (policiesData.businessEmail && !validateEmail(policiesData.businessEmail)) {
+        newErrors.businessEmail = 'Please enter a valid email address'
+      }
+      if (policiesData.businessPhone && !validatePhoneNumber(policiesData.businessPhone)) {
+        newErrors.businessPhone = 'Please enter a valid phone number'
+      }
+      if (policiesData.storeDescription && policiesData.storeDescription.trim().length < 10) {
+        newErrors.storeDescription = 'Store description must be at least 10 characters'
       }
     }
     
@@ -318,7 +375,7 @@ export default function SettingsProfilePage() {
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (error) {
       console.error('Error saving:', error)
-      alert(t('failedToSave') || 'Failed to save changes. Please try again.')
+      setErrorModal({ isOpen: true, message: t('failedToSave') || 'Failed to save changes. Please try again.' })
     } finally {
       setIsSaving(false)
     }
@@ -329,14 +386,18 @@ export default function SettingsProfilePage() {
   }
 
   const handleDeleteSubVendor = (id: number) => {
-    if (confirm(t('confirmDeleteVendor') || 'Are you sure you want to delete this sub vendor?')) {
-      const updatedVendors = subVendors.filter(v => v.id !== id)
-      setSubVendors(updatedVendors)
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('subVendors', JSON.stringify(updatedVendors))
+    setConfirmModal({
+      isOpen: true,
+      message: t('confirmDeleteVendor') || 'Are you sure you want to delete this sub vendor?',
+      onConfirm: () => {
+        const updatedVendors = subVendors.filter(v => v.id !== id)
+        setSubVendors(updatedVendors)
+        // Save to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('subVendors', JSON.stringify(updatedVendors))
+        }
       }
-    }
+    })
   }
 
   // Save to localStorage whenever subVendors changes
@@ -452,12 +513,19 @@ export default function SettingsProfilePage() {
             type="email"
             name="email"
             value={formData.email}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+            disabled={true}
+            readOnly={true}
+            tabIndex={-1}
+            onKeyDown={(e) => e.preventDefault()}
+            onPaste={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
+            onCopy={(e) => e.preventDefault()}
+            onChange={() => {}} // Prevent any changes
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg !bg-gray-200 !text-gray-500 !cursor-not-allowed !opacity-60 email-disabled"
+            title="Admin email cannot be changed"
+            aria-label="Admin email (read-only)"
+            aria-disabled="true"
           />
-          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">{t('phone')}</label>
@@ -505,8 +573,11 @@ export default function SettingsProfilePage() {
               name="streetAddress"
               value={formData.streetAddress}
               onChange={handleInputChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                errors.streetAddress ? 'border-red-500' : 'border-gray-300'
+              }`}
             />
+            {errors.streetAddress && <p className="text-red-500 text-xs mt-1">{errors.streetAddress}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="city">{t('city')}</label>
@@ -516,8 +587,11 @@ export default function SettingsProfilePage() {
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                errors.city ? 'border-red-500' : 'border-gray-300'
+              }`}
             />
+            {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="country">{t('country')}</label>
@@ -632,6 +706,28 @@ export default function SettingsProfilePage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between gap-4 pt-6 mt-6 border-t border-gray-200">
+        <button
+          onClick={() => navigate(-1)}
+          className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
+          {t('cancel')}
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-colors font-medium ${
+            isSaving
+              ? 'bg-gray-400 text-white cursor-not-allowed'
+              : 'bg-orange-500 text-white hover:bg-orange-600'
+          }`}
+        >
+          {isSaving && <ButtonLoader size="sm" />}
+          {isSaving ? t('saving') : t('saveChanges')}
+        </button>
       </div>
     </div>
   )
@@ -1036,9 +1132,12 @@ export default function SettingsProfilePage() {
                 onChange={handlePoliciesChange}
                 placeholder="TechNova Description"
                 tabIndex={0}
-                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"
+                className={`w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none ${
+                  errors.storeName ? 'border-red-500' : 'border-gray-300'
+                }`}
                 aria-label="Store name input"
               />
+              {errors.storeName && <p className="text-red-500 text-xs mt-1">{errors.storeName}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="businessEmail">{t('businessEmail')}</label>
@@ -1050,9 +1149,12 @@ export default function SettingsProfilePage() {
                 onChange={handlePoliciesChange}
                 placeholder="business@yourmail.com"
                 tabIndex={0}
-                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none"
+                className={`w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none ${
+                  errors.businessEmail ? 'border-red-500' : 'border-gray-300'
+                }`}
                 aria-label="Business email input"
               />
+              {errors.businessEmail && <p className="text-red-500 text-xs mt-1">{errors.businessEmail}</p>}
             </div>
           </div>
           <div>
@@ -1065,21 +1167,28 @@ export default function SettingsProfilePage() {
               placeholder={t('describeYourStore')}
               rows={4}
               tabIndex={0}
-              className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none resize-y"
+              className={`w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none resize-y ${
+                errors.storeDescription ? 'border-red-500' : 'border-gray-300'
+              }`}
               aria-label="Store description input"
             />
+            {errors.storeDescription && <p className="text-red-500 text-xs mt-1">{errors.storeDescription}</p>}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('businessPhone')}</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="businessPhone">{t('businessPhone')}</label>
               <input
+                id="businessPhone"
                 type="tel"
                 name="businessPhone"
                 value={policiesData.businessPhone}
                 onChange={handlePoliciesChange}
                 placeholder="+1 (232) 123-4567"
-                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className={`w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                  errors.businessPhone ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {errors.businessPhone && <p className="text-red-500 text-xs mt-1">{errors.businessPhone}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('supportHours')}</label>
@@ -1487,22 +1596,20 @@ export default function SettingsProfilePage() {
               Cancel
             </button>
             <button
-              type="button"
               onClick={handleSave}
               disabled={isSaving}
+              type="button"
               tabIndex={0}
-              className={`w-full sm:w-auto px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500`}
-              aria-label={isSaving ? 'Saving changes' : 'Save changes'}
-              onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !isSaving) { e.preventDefault(); e.currentTarget.click(); } }}
+              className={`flex items-center gap-2 w-full sm:w-auto px-6 py-2 rounded-lg transition-colors text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                isSaving
+                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                  : 'bg-orange-500 text-white hover:bg-orange-600'
+              }`}
+              aria-label="Save changes"
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!isSaving) e.currentTarget.click(); } }}
             >
-              {isSaving ? (
-                <>
-                  <ButtonLoader size="sm" />
-                  {t('saving')}
-                </>
-              ) : (
-                t('saveChanges')
-              )}
+              {isSaving && <ButtonLoader size="sm" />}
+              {isSaving ? t('saving') : t('saveChanges')}
             </button>
           </div>
         </div>
@@ -1560,13 +1667,12 @@ export default function SettingsProfilePage() {
                 </p>
               </div>
 
-              {/* Success Message */}
-              {saveSuccess && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-                  <Check className="text-green-600" size={20} />
-                  <p className="text-green-800 font-medium">{t('settingsSavedSuccessfully') || 'Settings saved successfully!'}</p>
-                </div>
-              )}
+              {/* Success Modal */}
+              <SuccessModal
+                isOpen={saveSuccess}
+                onClose={() => setSaveSuccess(false)}
+                message={t('settingsSavedSuccessfully') || 'Changes saved successfully!'}
+              />
 
               {/* Tabs */}
               <div className="bg-white rounded-lg shadow-sm border-b border-gray-200">
@@ -1619,28 +1725,6 @@ export default function SettingsProfilePage() {
                 {renderTabContent()}
 
                 {/* Action Buttons */}
-                {(activeTab === 'personal' || activeTab === 'password') && (
-                  <div className="flex items-center justify-between gap-4 pt-6 mt-6 border-t border-gray-200">
-                    <button
-                      onClick={() => navigate(-1)}
-                      className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                    >
-                      {t('cancel')}
-                    </button>
-                    <button
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-colors font-medium ${
-                        isSaving
-                          ? 'bg-gray-400 text-white cursor-not-allowed'
-                          : 'bg-orange-500 text-white hover:bg-orange-600'
-                      }`}
-                    >
-                      {isSaving && <ButtonLoader size="sm" />}
-                      {isSaving ? t('saving') : t('saveChanges')}
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </main>
@@ -1671,13 +1755,6 @@ export default function SettingsProfilePage() {
             </p>
           </div>
 
-          {/* Success Message */}
-          {saveSuccess && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 flex items-center gap-2">
-              <Check className="text-green-600" size={18} />
-              <p className="text-green-800 text-sm font-medium">Saved successfully!</p>
-            </div>
-          )}
 
           {/* Mobile Tabs */}
           <div className="flex overflow-x-auto gap-2 mb-4 pb-2 scrollbar-hide">
@@ -1764,7 +1841,7 @@ export default function SettingsProfilePage() {
                     isSaving
                       ? 'bg-gray-400 text-white cursor-not-allowed'
                       : 'bg-orange-500 text-white hover:bg-orange-600'
-                    }`}
+                  }`}
                 >
                   {isSaving && <ButtonLoader size="sm" />}
                   {isSaving ? t('saving') : activeTab === 'policies' ? t('saveChanges') : t('save')}
@@ -1774,6 +1851,35 @@ export default function SettingsProfilePage() {
           </div>
         </main>
       </div>
+
+      {/* All Modals */}
+      <SuccessModal
+        isOpen={saveSuccess}
+        onClose={() => setSaveSuccess(false)}
+        message={t('settingsSavedSuccessfully') || 'Changes saved successfully!'}
+      />
+      
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        message={errorModal.message}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} })}
+        onConfirm={confirmModal.onConfirm}
+        message={confirmModal.message}
+        confirmText={t('confirm') || 'Confirm'}
+        cancelText={t('cancel') || 'Cancel'}
+        confirmButtonColor="red"
+      />
+      
+      <InfoModal
+        isOpen={infoModal.isOpen}
+        onClose={() => setInfoModal({ isOpen: false, message: '' })}
+        message={infoModal.message}
+      />
     </div>
   )
 }

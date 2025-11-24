@@ -5,19 +5,22 @@ import { Menu, Clock, Package, RefreshCw, Shield, Eye, Save } from 'lucide-react
 import TabsBar from '@/components/ui/TabsBar'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ButtonLoader } from '@/components/ui/Loader'
+import SuccessModal from '@/components/ui/SuccessModal'
 
 export default function PolicySettingsPage() {
   const { t } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   const handleSavePolicies = async () => {
     setSaving(true)
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 800))
     setSaving(false)
-    alert(t('settingsSavedSuccessfully') || 'Policies saved successfully!')
+    setShowSuccessModal(true)
+    setTimeout(() => setShowSuccessModal(false), 2000)
   }
 
   return (
@@ -322,6 +325,13 @@ export default function PolicySettingsPage() {
           </div>
         </main>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message={t('settingsSavedSuccessfully') || 'Policies saved successfully!'}
+      />
     </div>
   )
 }

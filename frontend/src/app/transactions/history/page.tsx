@@ -1,6 +1,6 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Search, Filter, Calendar, TrendingUp, Clock, FileText, ChevronLeft, ChevronRight, Eye, ChevronDown, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -30,6 +30,8 @@ export default function TransactionHistoryPage() {
     status: '',
     search: ''
   })
+  const dateInputRef = useRef<HTMLInputElement>(null)
+  const mobileDateInputRef = useRef<HTMLInputElement>(null)
 
   // Mock transaction data
   const transactions = [
@@ -208,47 +210,53 @@ export default function TransactionHistoryPage() {
                   <div className="relative">
                     <label htmlFor="transaction-date" className="sr-only">Date</label>
                     <input
+                      ref={dateInputRef}
                       id="transaction-date"
-                      type="text"
-                      placeholder="mm/dd/yyyy"
-                      maxLength={10}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-                      value={filters.date}
+                      type="date"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm [color-scheme:light]"
+                      value={filters.date ? (() => {
+                        // Convert mm/dd/yyyy to yyyy-mm-dd for date input
+                        const parts = filters.date.split('/')
+                        if (parts.length === 3) {
+                          return `${parts[2]}-${parts[1]}-${parts[0]}`
+                        }
+                        return ''
+                      })() : ''}
                       onChange={(e) => {
-                        const formatted = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2}\/\d{2})(\d)/, '$1/$2').slice(0, 10)
-                        setFilters({ ...filters, date: formatted })
+                        if (e.target.value) {
+                          const dateParts = e.target.value.split('-')
+                          setFilters({ ...filters, date: `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}` })
+                        } else {
+                          setFilters({ ...filters, date: '' })
+                        }
                       }}
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const dateInput = document.getElementById('transaction-date') as HTMLInputElement
-                        if (dateInput) {
-                          dateInput.type = 'date'
-                      try {
-                        const input = dateInput as any
-                        if (input.showPicker && typeof input.showPicker === 'function') {
-                          input.showPicker()
-                        } else {
-                          dateInput.click()
-                        }
-                      } catch {
-                        dateInput.click()
-                      }
-                          setTimeout(() => {
-                            if (dateInput.value) {
-                              const dateParts = dateInput.value.split('-')
-                              setFilters({ ...filters, date: `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}` })
-                            }
-                            dateInput.type = 'text'
-                          }, 100)
-                        }
-                      }}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+                    <label
+                      htmlFor="transaction-date"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10 pointer-events-auto"
                       aria-label="Open calendar"
+                      onClick={(e) => {
+                        // Don't prevent default - let the label handle it naturally
+                        e.stopPropagation()
+                        // The label will automatically focus the input
+                        // But we can also manually trigger the picker
+                        setTimeout(() => {
+                          if (dateInputRef.current) {
+                            const dateInput = dateInputRef.current
+                            try {
+                              const input = dateInput as any
+                              if (input.showPicker && typeof input.showPicker === 'function') {
+                                input.showPicker()
+                              }
+                            } catch {
+                              // showPicker not available or failed, input click will handle it
+                            }
+                          }
+                        }, 10)
+                      }}
                     >
                       <Calendar size={18} />
-                    </button>
+                    </label>
                   </div>
 
                   {/* Status */}
@@ -498,52 +506,53 @@ export default function TransactionHistoryPage() {
 
               <div className="relative">
               <input
-                  type="text"
-                  placeholder="mm/dd/yyyy"
-                  maxLength={10}
-                  className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm"
-                value={filters.date}
+                  ref={mobileDateInputRef}
+                  id="transaction-date-mobile"
+                  type="date"
+                  className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm [color-scheme:light]"
+                  value={filters.date ? (() => {
+                    // Convert mm/dd/yyyy to yyyy-mm-dd for date input
+                    const parts = filters.date.split('/')
+                    if (parts.length === 3) {
+                      return `${parts[2]}-${parts[1]}-${parts[0]}`
+                    }
+                    return ''
+                  })() : ''}
                   onChange={(e) => {
-                    const formatted = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2}\/\d{2})(\d)/, '$1/$2').slice(0, 10)
-                    setFilters({ ...filters, date: formatted })
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const dateInput = document.getElementById('transaction-date-mobile') as HTMLInputElement
-                    if (dateInput) {
-                      dateInput.type = 'date'
-                      try {
-                        const input = dateInput as any
-                        if (input.showPicker && typeof input.showPicker === 'function') {
-                          input.showPicker()
-                        } else {
-                          dateInput.click()
-                        }
-                      } catch {
-                        dateInput.click()
-                      }
-                      setTimeout(() => {
-                        if (dateInput.value) {
-                          const dateParts = dateInput.value.split('-')
-                          setFilters({ ...filters, date: `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}` })
-                        }
-                        dateInput.type = 'text'
-                      }, 100)
+                    if (e.target.value) {
+                      const dateParts = e.target.value.split('-')
+                      setFilters({ ...filters, date: `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}` })
+                    } else {
+                      setFilters({ ...filters, date: '' })
                     }
                   }}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+                />
+                <label
+                  htmlFor="transaction-date-mobile"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10 pointer-events-auto"
                   aria-label="Open calendar"
+                  onClick={(e) => {
+                    // Don't prevent default - let the label handle it naturally
+                    e.stopPropagation()
+                    // The label will automatically focus the input
+                    // But we can also manually trigger the picker
+                    setTimeout(() => {
+                      if (mobileDateInputRef.current) {
+                        const dateInput = mobileDateInputRef.current
+                        try {
+                          const input = dateInput as any
+                          if (input.showPicker && typeof input.showPicker === 'function') {
+                            input.showPicker()
+                          }
+                        } catch {
+                          // showPicker not available or failed, input click will handle it
+                        }
+                      }
+                    }, 10)
+                  }}
                 >
                   <Calendar size={16} />
-                </button>
-                <input
-                  id="transaction-date-mobile"
-                  type="text"
-                  className="hidden"
-                  aria-hidden="true"
-                />
+                </label>
               </div>
             </div>
 

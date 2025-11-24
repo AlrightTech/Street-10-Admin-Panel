@@ -1,6 +1,6 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, TrendingUp, Clock, CheckCircle, Plus, Calendar, Search, Eye, Download, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -21,6 +21,7 @@ export default function WithdrawalHistoryPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const dateRangeInputRef = useRef<HTMLInputElement>(null)
 
   const withdrawals = [
     { id: 'WD-2024-001', date: 'Dec 15, 2024', amount: 2500, method: 'PayPal', status: 'Pending', reference: 'WD-2024-001' },
@@ -159,11 +160,31 @@ export default function WithdrawalHistoryPage() {
                       <option>{t('rejected')}</option>
                     </select>
                     <div className="relative flex-1 max-w-xs">
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={18} />
                       <input
-                        type="text"
-                        placeholder="2024-01-01 to 2024-12-31"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        ref={dateRangeInputRef}
+                        type="date"
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm [color-scheme:light]"
+                      />
+                      <label
+                        htmlFor="date-range"
+                        className="absolute inset-0 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setTimeout(() => {
+                            if (dateRangeInputRef.current) {
+                              const dateInput = dateRangeInputRef.current
+                              try {
+                                const input = dateInput as any
+                                if (input.showPicker && typeof input.showPicker === 'function') {
+                                  input.showPicker()
+                                }
+                              } catch {
+                                // showPicker not available or failed
+                              }
+                            }
+                          }, 10)
+                        }}
                       />
                     </div>
                   </div>

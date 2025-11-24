@@ -3,6 +3,7 @@ import Header from '@/components/layout/Header'
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Key, ArrowLeft, Check, X } from 'lucide-react'
+import SuccessModal from '@/components/ui/SuccessModal'
 
 type VendorPermissions = {
   viewProducts: boolean
@@ -53,6 +54,7 @@ export default function EditSubVendorPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   // Frontend-only: Load vendor from localStorage
   const fetchVendor = useCallback(async () => {
@@ -159,8 +161,11 @@ export default function EditSubVendorPage() {
         localStorage.setItem('subVendors', JSON.stringify(vendors))
       }
 
-      alert('Changes saved successfully!')
-      navigate(`/settings/profile/vendors/${vendorId}`)
+      setShowSuccessModal(true)
+      setTimeout(() => {
+        setShowSuccessModal(false)
+        navigate(`/settings/profile/vendors/${vendorId}`)
+      }, 1500)
     } catch (error) {
       console.error('Failed to save vendor:', error)
       setSaveError(error instanceof Error ? error.message : 'Failed to save changes')
@@ -528,6 +533,16 @@ export default function EditSubVendorPage() {
           )}
         </main>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false)
+          navigate(`/settings/profile/vendors/${vendorId}`)
+        }}
+        message="Changes saved successfully!"
+      />
     </div>
   )
 }

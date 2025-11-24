@@ -152,8 +152,8 @@
   }
 
   input[type="radio"]:focus {
-    outline: 2px solid #4C50A2;
-    outline-offset: 2px;
+    outline: none !important;
+    box-shadow: none !important;
   }
 
   /* Scrollbar hide utility for horizontal scroll tabs */
@@ -210,6 +210,34 @@
     appearance: textfield;
   }
 
+  /* Remove focus outlines and borders from all form elements */
+  select:focus,
+  input:focus,
+  textarea:focus,
+  button:focus,
+  select:active,
+  input:active,
+  textarea:active,
+  button:active {
+    outline: none !important;
+    border-color: inherit !important;
+    box-shadow: none !important;
+    ring: none !important;
+    --tw-ring-offset-shadow: none !important;
+    --tw-ring-shadow: none !important;
+  }
+
+  /* Remove focus ring from all elements globally */
+  *:focus,
+  *:focus-visible,
+  *:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+    --tw-ring-offset-shadow: none !important;
+    --tw-ring-shadow: none !important;
+  }
+
   /* Modal Animations */
   @keyframes fadeIn {
     from {
@@ -229,5 +257,18 @@
       opacity: 1;
       transform: translateY(0) scale(1);
     }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  /* Disabled email input - prevents pointer events */
+  .email-disabled {
+    pointer-events: none;
   }
 }

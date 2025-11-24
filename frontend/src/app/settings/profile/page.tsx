@@ -5,6 +5,10 @@ import { Menu, Camera, Upload, Download, Check, X, Eye, EyeOff, Plus, Trash2, Ed
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ButtonLoader } from '@/components/ui/Loader'
+import SuccessModal from '@/components/ui/SuccessModal'
+import ErrorModal from '@/components/ui/ErrorModal'
+import ConfirmModal from '@/components/ui/ConfirmModal'
+import InfoModal from '@/components/ui/InfoModal'
 
 type SubVendor = {
   id: number
@@ -152,6 +156,11 @@ export default function SettingsProfilePage() {
   const [errors, setErrors] = useState<{[key: string]: string}>({})
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  
+  // Modal states
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} })
+  const [infoModal, setInfoModal] = useState({ isOpen: false, message: '' })
 
   // Refs for file inputs
   const profileImageRef = useRef<HTMLInputElement>(null)
@@ -159,6 +168,10 @@ export default function SettingsProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
+    // Prevent email from being changed
+    if (name === 'email') {
+      return
+    }
     setFormData({
       ...formData,
       [name]: value
@@ -185,12 +198,12 @@ export default function SettingsProfilePage() {
     if (file) {
       // Validate file type
       if (!file.type.match('image/(jpeg|jpg|png|gif)')) {
-        alert(t('pleaseSelectValidImage'))
+        setInfoModal({ isOpen: true, message: t('pleaseSelectValidImage') })
         return
       }
       // Validate file size (1MB max)
       if (file.size > 1024 * 1024) {
-        alert(t('fileSizeMustBeLessThan1MB'))
+        setErrorModal({ isOpen: true, message: t('fileSizeMustBeLessThan1MB') })
         return
       }
       
@@ -208,12 +221,12 @@ export default function SettingsProfilePage() {
       // Validate file type
       const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
       if (!validTypes.includes(file.type)) {
-        alert(t('pleaseSelectValidFile'))
+        setInfoModal({ isOpen: true, message: t('pleaseSelectValidFile') })
         return
       }
       // Validate file size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
-        alert(t('fileSizeMustBeLessThan10MB'))
+        setErrorModal({ isOpen: true, message: t('fileSizeMustBeLessThan10MB') })
         return
       }
       
@@ -261,11 +274,7 @@ export default function SettingsProfilePage() {
       if (!formData.fullName.trim()) {
         newErrors.fullName = t('fullNameRequired')
       }
-      if (!formData.email.trim()) {
-        newErrors.email = t('emailRequired')
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = t('invalidEmailFormat')
-      }
+      // Email is disabled/read-only for admin, so no validation needed
       if (!formData.phone.trim()) {
         newErrors.phone = t('phoneRequired')
       }
@@ -318,7 +327,7 @@ export default function SettingsProfilePage() {
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (error) {
       console.error('Error saving:', error)
-      alert(t('failedToSave') || 'Failed to save changes. Please try again.')
+      setErrorModal({ isOpen: true, message: t('failedToSave') || 'Failed to save changes. Please try again.' })
     } finally {
       setIsSaving(false)
     }
@@ -329,14 +338,18 @@ export default function SettingsProfilePage() {
   }
 
   const handleDeleteSubVendor = (id: number) => {
-    if (confirm(t('confirmDeleteVendor') || 'Are you sure you want to delete this sub vendor?')) {
-      const updatedVendors = subVendors.filter(v => v.id !== id)
-      setSubVendors(updatedVendors)
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('subVendors', JSON.stringify(updatedVendors))
+    setConfirmModal({
+      isOpen: true,
+      message: t('confirmDeleteVendor') || 'Are you sure you want to delete this sub vendor?',
+      onConfirm: () => {
+        const updatedVendors = subVendors.filter(v => v.id !== id)
+        setSubVendors(updatedVendors)
+        // Save to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('subVendors', JSON.stringify(updatedVendors))
+        }
       }
-    }
+    })
   }
 
   // Save to localStorage whenever subVendors changes
@@ -452,12 +465,19 @@ export default function SettingsProfilePage() {
             type="email"
             name="email"
             value={formData.email}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+            disabled={true}
+            readOnly={true}
+            tabIndex={-1}
+            onKeyDown={(e) => e.preventDefault()}
+            onPaste={(e) => e.preventDefault()}
+            onCut={(e) => e.preventDefault()}
+            onCopy={(e) => e.preventDefault()}
+            onChange={() => {}} // Prevent any changes
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg !bg-gray-200 !text-gray-500 !cursor-not-allowed !opacity-60 email-disabled"
+            title="Admin email cannot be changed"
+            aria-label="Admin email (read-only)"
+            aria-disabled="true"
           />
-          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="phone">{t('phone')}</label>
@@ -1774,6 +1794,35 @@ export default function SettingsProfilePage() {
           </div>
         </main>
       </div>
+
+      {/* All Modals */}
+      <SuccessModal
+        isOpen={saveSuccess}
+        onClose={() => setSaveSuccess(false)}
+        message={t('settingsSavedSuccessfully') || 'Changes saved successfully!'}
+      />
+      
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        message={errorModal.message}
+      />
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} })}
+        onConfirm={confirmModal.onConfirm}
+        message={confirmModal.message}
+        confirmText={t('confirm') || 'Confirm'}
+        cancelText={t('cancel') || 'Cancel'}
+        confirmButtonColor="red"
+      />
+      
+      <InfoModal
+        isOpen={infoModal.isOpen}
+        onClose={() => setInfoModal({ isOpen: false, message: '' })}
+        message={infoModal.message}
+      />
     </div>
   )
 }

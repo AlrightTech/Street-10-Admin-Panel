@@ -46,6 +46,7 @@ const SubAdminFinancePage = lazy(() => import('@/pages/SubAdminFinancePage'))
 const SubAdminHostsProvidersPage = lazy(() => import('@/pages/SubAdminHostsProvidersPage'))
 const SubAdminMarketingPage = lazy(() => import('@/pages/SubAdminMarketingPage'))
 const SubAdminSettingsPage = lazy(() => import('@/pages/SubAdminSettingsPage'))
+const HelpSupportPage = lazy(() => import('@/app/help-support/page'))
 
 // Loading fallback component
 const PageLoader = () => (
@@ -96,6 +97,9 @@ function App() {
               
               {/* Chat */}
               <Route path="/chat" element={<ChatPage />} />
+              
+              {/* Help & Support */}
+              <Route path="/help-support" element={<HelpSupportPage />} />
               
               {/* Settings */}
               <Route path="/settings/store" element={<SettingsStorePage />} />
