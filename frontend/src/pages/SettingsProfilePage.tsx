@@ -521,14 +521,7 @@ export default function SettingsProfilePage() {
             onCut={(e) => e.preventDefault()}
             onCopy={(e) => e.preventDefault()}
             onChange={() => {}} // Prevent any changes
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg !bg-gray-200 !text-gray-500 !cursor-not-allowed !opacity-60"
-            style={{ 
-              pointerEvents: 'none',
-              backgroundColor: '#e5e7eb',
-              color: '#6b7280',
-              cursor: 'not-allowed',
-              opacity: 0.6
-            }}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg !bg-gray-200 !text-gray-500 !cursor-not-allowed !opacity-60 email-disabled"
             title="Admin email cannot be changed"
             aria-label="Admin email (read-only)"
             aria-disabled="true"

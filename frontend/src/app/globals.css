@@ -266,4 +266,9 @@
   .animate-slideUp {
     animation: slideUp 0.3s ease-out;
   }
+
+  /* Disabled email input - prevents pointer events */
+  .email-disabled {
+    pointer-events: none;
+  }
 }
