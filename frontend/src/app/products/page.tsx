@@ -634,13 +634,14 @@ export default function ProductsPage() {
                                   aria-label="Delete product"
                                 >
                                   <Trash2 size={14} className="sm:w-4 sm:h-4" />
-                              </button>
+                                </button>
                               </div>
                             </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
+                          </td>
+                        </tr>
+                        ))
+                      )}
+                    </tbody>
                     </table>
                   </div>
 
@@ -1164,13 +1165,12 @@ export default function ProductsPage() {
                                 aria-label="Delete product"
                               >
                                 <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                      )}
-                </tbody>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
                 </div>
 
