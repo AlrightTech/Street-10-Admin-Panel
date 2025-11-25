@@ -138,11 +138,12 @@ export default function EarningsOverviewPage() {
       // For daily, weekly, monthly - immediately update
       const rangeData = earningsData[dateRange as keyof typeof earningsData]
       if (rangeData && rangeData.length > 0) {
-        setCurrentData(rangeData)
+        // Create a new array to force React to detect the change
+        setCurrentData([...rangeData])
         setChartKey(prev => prev + 1)
       } else {
         // Fallback to daily
-        setCurrentData(earningsData.daily)
+        setCurrentData([...earningsData.daily])
         setChartKey(prev => prev + 1)
       }
     }
@@ -179,6 +180,8 @@ export default function EarningsOverviewPage() {
       // Immediately update dateRange which triggers useEffect to update chart
       setDateRange(range)
       setShowCustomDatePicker(false)
+      // Force chart update
+      setChartKey(prev => prev + 1)
     }
   }
 
@@ -192,9 +195,26 @@ export default function EarningsOverviewPage() {
       )
     }
 
-    // Fixed Y-axis range to match the image: 300 to 700
-    const maxAmount = 700
-    const minAmount = 300
+    // Dynamic Y-axis range based on data
+    const amounts = currentData.map(d => d.amount)
+    const dataMax = Math.max(...amounts)
+    const dataMin = Math.min(...amounts)
+    
+    // Add padding to Y-axis (10% above max, 10% below min)
+    const padding = (dataMax - dataMin) * 0.1 || 100
+    const maxAmount = Math.ceil(dataMax + padding)
+    const minAmount = Math.max(0, Math.floor(dataMin - padding))
+    
+    // Generate grid lines dynamically (5-7 lines)
+    const range = maxAmount - minAmount
+    const step = Math.ceil(range / 5)
+    const gridLines: number[] = []
+    for (let i = minAmount; i <= maxAmount; i += step) {
+      gridLines.push(i)
+    }
+    if (gridLines[gridLines.length - 1] < maxAmount) {
+      gridLines.push(maxAmount)
+    }
 
     const getYPosition = (value: number) => {
       const range = maxAmount - minAmount
@@ -207,9 +227,6 @@ export default function EarningsOverviewPage() {
       return chartPadding.left + (index / (total - 1)) * graphWidth
     }
 
-    // Calculate grid lines - fixed at 300, 400, 500, 600, 700 to match image
-    const gridLines = [300, 400, 500, 600, 700]
-
     // Create path data
     const pathData = currentData.map((data, index) => {
       const x = getXPosition(index, currentData.length)
@@ -219,7 +236,7 @@ export default function EarningsOverviewPage() {
 
     return (
       <svg 
-        key={`chart-${chartKey}-${dateRange}-${currentData.length}-${JSON.stringify(currentData[0]?.amount || 0)}`}
+        key={`chart-${chartKey}-${dateRange}-${currentData.length}-${currentData[0]?.label || ''}-${currentData[0]?.amount || 0}-${maxAmount}-${minAmount}`}
         viewBox={`0 0 ${chartWidth} ${chartHeight}`} 
         className="w-full h-auto" 
         preserveAspectRatio="xMidYMid meet"
@@ -411,14 +428,131 @@ export default function EarningsOverviewPage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Earnings Trend</h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    {/* Date Range Selector Buttons */}
+                    <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                      <button
+                        onClick={() => handleDateRangeChange('daily')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          dateRange === 'daily'
+                            ? 'bg-white text-blue-600 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Daily
+                      </button>
+                      <button
+                        onClick={() => handleDateRangeChange('weekly')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          dateRange === 'weekly'
+                            ? 'bg-white text-blue-600 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Weekly
+                      </button>
+                      <button
+                        onClick={() => handleDateRangeChange('monthly')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          dateRange === 'monthly'
+                            ? 'bg-white text-blue-600 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        onClick={() => handleDateRangeChange('custom')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          dateRange === 'custom'
+                            ? 'bg-white text-blue-600 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Custom
+                      </button>
+                    </div>
                     <div className="flex items-center gap-2 px-3 py-1">
                       <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                      <span className="text-sm text-gray-700">Daily Earnings</span>
+                      <span className="text-sm text-gray-700">
+                        {dateRange === 'daily' ? 'Daily Earnings' : 
+                         dateRange === 'weekly' ? 'Weekly Earnings' : 
+                         dateRange === 'monthly' ? 'Monthly Earnings' : 
+                         'Custom Earnings'}
+                      </span>
                     </div>
                   </div>
                 </div>
-                <div key={`chart-container-${chartKey}-${dateRange}-${currentData.length}`} className="relative">
+                
+                {/* Custom Date Picker Modal */}
+                {showCustomDatePicker && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Select Custom Date Range</h3>
+                        <button
+                          onClick={() => {
+                            setShowCustomDatePicker(false)
+                            if (!customStartDate || !customEndDate) {
+                              setDateRange('daily')
+                            }
+                          }}
+                          className="text-gray-400 hover:text-gray-600"
+                          aria-label="Close date picker"
+                          title="Close"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                          <input
+                            type="date"
+                            value={customStartDate}
+                            onChange={(e) => setCustomStartDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            aria-label="Start date"
+                            title="Select start date"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                          <input
+                            type="date"
+                            value={customEndDate}
+                            onChange={(e) => setCustomEndDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            aria-label="End date"
+                            title="Select end date"
+                          />
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                          <button
+                            onClick={handleCustomDateApply}
+                            disabled={!customStartDate || !customEndDate}
+                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            Apply
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowCustomDatePicker(false)
+                              setCustomStartDate('')
+                              setCustomEndDate('')
+                              setDateRange('daily')
+                            }}
+                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div key={`chart-container-${chartKey}-${dateRange}`} className="relative">
                   {renderChart()}
                 </div>
               </div>
@@ -632,14 +766,128 @@ export default function EarningsOverviewPage() {
 
           {/* Earnings Trend Chart - Mobile Line Chart */}
           <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Earnings Trend</h2>
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
-                <span className="text-xs text-gray-700">Daily Earnings</span>
+            <div className="flex flex-col gap-3 mb-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Earnings Trend</h2>
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
+                  <span className="text-xs text-gray-700">Daily Earnings</span>
+                </div>
+              </div>
+              {/* Date Range Selector Buttons - Mobile */}
+              <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1 overflow-x-auto">
+                <button
+                  onClick={() => handleDateRangeChange('daily')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                    dateRange === 'daily'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Daily
+                </button>
+                <button
+                  onClick={() => handleDateRangeChange('weekly')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                    dateRange === 'weekly'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Weekly
+                </button>
+                <button
+                  onClick={() => handleDateRangeChange('monthly')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                    dateRange === 'monthly'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => handleDateRangeChange('custom')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                    dateRange === 'custom'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Custom
+                </button>
               </div>
             </div>
-            <div key={`mobile-chart-container-${chartKey}-${dateRange}-${currentData.length}`} className="overflow-x-auto">
+            
+            {/* Custom Date Picker Modal - Mobile */}
+            {showCustomDatePicker && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Select Custom Date Range</h3>
+                    <button
+                      onClick={() => {
+                        setShowCustomDatePicker(false)
+                        if (!customStartDate || !customEndDate) {
+                          setDateRange('daily')
+                        }
+                      }}
+                      className="text-gray-400 hover:text-gray-600"
+                      aria-label="Close date picker"
+                      title="Close"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                      <input
+                        type="date"
+                        value={customStartDate}
+                        onChange={(e) => setCustomStartDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-label="Start date"
+                        title="Select start date"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                      <input
+                        type="date"
+                        value={customEndDate}
+                        onChange={(e) => setCustomEndDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        aria-label="End date"
+                        title="Select end date"
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={handleCustomDateApply}
+                        disabled={!customStartDate || !customEndDate}
+                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Apply
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowCustomDatePicker(false)
+                          setCustomStartDate('')
+                          setCustomEndDate('')
+                          setDateRange('daily')
+                        }}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div key={`mobile-chart-container-${chartKey}-${dateRange}`} className="overflow-x-auto">
               {renderChart()}
             </div>
           </div>

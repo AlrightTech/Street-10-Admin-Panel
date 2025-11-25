@@ -1,13 +1,32 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
 import { useMemo, useRef, useState, useEffect } from 'react'
-import { Menu, Search, Plus, Phone, Video, Info, Send, Paperclip, Smile, Truck, Eye, AlertTriangle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Menu, Search, Plus, Phone, Video, Info, Send, Paperclip, Smile, Truck, Eye, AlertTriangle, Mic, MicOff, Volume2, VolumeX, X, VideoOff, Maximize2, Minimize2, Share2, Download, Ban, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function ChatPage() {
   const { t } = useLanguage()
+  const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [showInfoPanel, setShowInfoPanel] = useState(false)
+  const [showInfoDropdown, setShowInfoDropdown] = useState(false)
+  const [showCallModal, setShowCallModal] = useState(false)
+  const [callStatus, setCallStatus] = useState<'connecting' | 'ringing' | 'active' | 'ended'>('connecting')
+  const [callDuration, setCallDuration] = useState(0)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isSpeakerOn, setIsSpeakerOn] = useState(false)
+  const callTimerRef = useRef<NodeJS.Timeout | null>(null)
+  
+  const [showVideoCallModal, setShowVideoCallModal] = useState(false)
+  const [videoCallStatus, setVideoCallStatus] = useState<'connecting' | 'ringing' | 'active' | 'ended'>('connecting')
+  const [videoCallDuration, setVideoCallDuration] = useState(0)
+  const [isVideoMuted, setIsVideoMuted] = useState(false)
+  const [isVideoCameraOn, setIsVideoCameraOn] = useState(true)
+  const [isVideoSpeakerOn, setIsVideoSpeakerOn] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(false)
+  const videoCallTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   type Message = { id: string; author: 'me' | 'them'; text: string; time: string }
   type Conversation = {
@@ -142,12 +161,208 @@ export default function ChatPage() {
 
   const [mobileTab, setMobileTab] = useState<'messages'|'chat'|'details'>('chat')
 
-  // Close emoji picker when clicking outside
+  // Handler functions for buttons
+  const handleNewChat = () => {
+    // Create a new conversation or open new chat modal
+    const newId = Math.random().toString(36).slice(2)
+    const newConversation: Conversation = {
+      id: newId,
+      name: 'New Customer',
+      type: 'customer',
+      lastTime: 'now',
+      messages: []
+    }
+    setConversations(prev => [newConversation, ...prev])
+    setActiveId(newId)
+  }
+
+  const handlePhoneCall = () => {
+    setShowCallModal(true)
+    setCallStatus('connecting')
+    setCallDuration(0)
+    setIsMuted(false)
+    setIsSpeakerOn(false)
+    
+    // Simulate call progression
+    setTimeout(() => {
+      setCallStatus('ringing')
+    }, 1500)
+    
+    setTimeout(() => {
+      setCallStatus('active')
+      // Start call timer
+      const startTime = Date.now()
+      callTimerRef.current = setInterval(() => {
+        setCallDuration(Math.floor((Date.now() - startTime) / 1000))
+      }, 1000)
+    }, 3000)
+  }
+
+  const handleEndCall = () => {
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current)
+      callTimerRef.current = null
+    }
+    setCallStatus('ended')
+    setTimeout(() => {
+      setShowCallModal(false)
+      setCallDuration(0)
+    }, 1000)
+  }
+
+  const formatCallDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (callTimerRef.current) {
+        clearInterval(callTimerRef.current)
+      }
+      if (videoCallTimerRef.current) {
+        clearInterval(videoCallTimerRef.current)
+      }
+    }
+  }, [])
+
+  const handleVideoCall = () => {
+    setShowVideoCallModal(true)
+    setVideoCallStatus('connecting')
+    setVideoCallDuration(0)
+    setIsVideoMuted(false)
+    setIsVideoCameraOn(true)
+    setIsVideoSpeakerOn(false)
+    setIsMinimized(false)
+    
+    // Simulate call progression
+    setTimeout(() => {
+      setVideoCallStatus('ringing')
+    }, 1500)
+    
+    setTimeout(() => {
+      setVideoCallStatus('active')
+      // Start call timer
+      const startTime = Date.now()
+      videoCallTimerRef.current = setInterval(() => {
+        setVideoCallDuration(Math.floor((Date.now() - startTime) / 1000))
+      }, 1000)
+    }, 3000)
+  }
+
+  const handleEndVideoCall = () => {
+    if (videoCallTimerRef.current) {
+      clearInterval(videoCallTimerRef.current)
+      videoCallTimerRef.current = null
+    }
+    setVideoCallStatus('ended')
+    setTimeout(() => {
+      setShowVideoCallModal(false)
+      setVideoCallDuration(0)
+    }, 1000)
+  }
+
+  const handleInfoClick = () => {
+    setShowInfoDropdown(!showInfoDropdown)
+  }
+
+  const handleShareConversation = () => {
+    setShowInfoDropdown(false)
+    // In a real app, this would share the conversation
+    if (navigator.share) {
+      navigator.share({
+        title: `Conversation with ${active.name}`,
+        text: `Chat conversation with ${active.name}`,
+      }).catch(() => {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(`Conversation with ${active.name}`)
+        alert('Conversation link copied to clipboard')
+      })
+    } else {
+      navigator.clipboard.writeText(`Conversation with ${active.name}`)
+      alert('Conversation link copied to clipboard')
+    }
+  }
+
+  const handleExportChat = () => {
+    setShowInfoDropdown(false)
+    // Export chat as text file
+    const chatText = active.messages.map(m => 
+      `${m.time} - ${m.author === 'me' ? 'You' : active.name}: ${m.text}`
+    ).join('\n')
+    
+    const blob = new Blob([chatText], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `chat-${active.name}-${Date.now()}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleBlockUser = () => {
+    setShowInfoDropdown(false)
+    if (window.confirm(`Are you sure you want to block ${active.name}?`)) {
+      // In a real app, this would block the user
+      alert(`${active.name} has been blocked`)
+    }
+  }
+
+  const handleDeleteConversation = () => {
+    setShowInfoDropdown(false)
+    if (window.confirm(`Are you sure you want to delete this conversation with ${active.name}?`)) {
+      setConversations(prev => {
+        const updated = prev.filter(c => c.id !== activeId)
+        // Set the next active conversation
+        if (updated.length > 0) {
+          const nextId = updated[0].id
+          setActiveId(nextId)
+        } else {
+          setActiveId('')
+        }
+        return updated
+      })
+    }
+  }
+
+  const handleViewFullOrder = () => {
+    if (active.orderId) {
+      const orderNumber = active.orderId.replace('#', '')
+      navigate(`/orders/${orderNumber}`)
+    } else {
+      navigate('/orders')
+    }
+  }
+
+  const handleTrackShipment = () => {
+    if (active.orderId) {
+      const orderNumber = active.orderId.replace('#', '')
+      navigate(`/orders/${orderNumber}/tracking`)
+    } else {
+      navigate('/orders')
+    }
+  }
+
+  const handleReportIssue = () => {
+    // Navigate to report issue page or show modal
+    navigate('/support/report')
+    // Or show a modal:
+    // alert('Report Issue functionality - This would open a form to report an issue')
+  }
+
+  // Close emoji picker and info dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
       if (showEmojiPicker && !target.closest('.emoji-picker-container')) {
         setShowEmojiPicker(false)
+      }
+      if (showInfoDropdown && !target.closest('.info-dropdown-container')) {
+        setShowInfoDropdown(false)
       }
     }
 
@@ -155,7 +370,47 @@ export default function ChatPage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showEmojiPicker])
+  }, [showEmojiPicker, showInfoDropdown])
+
+  // Lock body scroll when call modal is open
+  useEffect(() => {
+    if (showCallModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showCallModal])
+
+  // Handle Escape key to close call modals
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showCallModal) {
+        handleEndCall()
+      }
+      if (e.key === 'Escape' && showVideoCallModal) {
+        handleEndVideoCall()
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [showCallModal, showVideoCallModal])
+
+  // Lock body scroll when video call modal is open
+  useEffect(() => {
+    if (showVideoCallModal) {
+      document.body.style.overflow = 'hidden'
+    } else if (!showCallModal) {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      if (!showCallModal) {
+        document.body.style.overflow = 'unset'
+      }
+    }
+  }, [showVideoCallModal, showCallModal])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -194,7 +449,12 @@ export default function ChatPage() {
               <aside className="col-span-12 md:col-span-3 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col overflow-hidden">
                 <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
                   <h2 className="text-base sm:text-lg font-bold text-gray-900">{t('messages')}</h2>
-                  <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" aria-label={t('newMessage')}>
+                  <button 
+                    onClick={handleNewChat}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" 
+                    aria-label={t('newMessage')}
+                    type="button"
+                  >
                     <Plus size={18} className="sm:w-5 sm:h-5 text-gray-700" />
                   </button>
                 </div>
@@ -276,15 +536,74 @@ export default function ChatPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 sm:gap-2">
-                    <button className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Call">
+                    <button 
+                      onClick={handlePhoneCall}
+                      className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors" 
+                      aria-label="Call"
+                      type="button"
+                      title="Call"
+                    >
                       <Phone size={16} className="sm:w-[18px] sm:h-[18px] text-gray-700" />
                     </button>
-                    <button className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Video">
+                    <button 
+                      onClick={handleVideoCall}
+                      className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors" 
+                      aria-label="Video"
+                      type="button"
+                      title="Video Call"
+                    >
                       <Video size={16} className="sm:w-[18px] sm:h-[18px] text-gray-700" />
                     </button>
-                    <button className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Info">
-                      <Info size={16} className="sm:w-[18px] sm:h-[18px] text-gray-700" />
-                    </button>
+                    <div className="relative info-dropdown-container">
+                      <button 
+                        onClick={handleInfoClick}
+                        className={`p-1.5 sm:p-2 rounded-lg transition-colors ${showInfoDropdown ? 'bg-primary-100' : 'hover:bg-gray-100'}`}
+                        aria-label="Info"
+                        type="button"
+                        title="Info"
+                      >
+                        <Info size={16} className="sm:w-[18px] sm:h-[18px] text-gray-700" />
+                      </button>
+                      
+                      {/* Info Dropdown Menu */}
+                      {showInfoDropdown && (
+                        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 animate-slideUp">
+                          <button
+                            onClick={handleShareConversation}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                            type="button"
+                          >
+                            <Share2 size={16} />
+                            Share Conversation
+                          </button>
+                          <button
+                            onClick={handleExportChat}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                            type="button"
+                          >
+                            <Download size={16} />
+                            Export Chat
+                          </button>
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <button
+                            onClick={handleBlockUser}
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                            type="button"
+                          >
+                            <Ban size={16} />
+                            Block User
+                          </button>
+                          <button
+                            onClick={handleDeleteConversation}
+                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                            type="button"
+                          >
+                            <Trash2 size={16} />
+                            Delete Conversation
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -473,15 +792,27 @@ export default function ChatPage() {
                 <div>
                   <h3 className="text-base font-semibold text-gray-900 mb-3">{t('actions')}</h3>
                   <div className="space-y-2">
-                    <button className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-primary-500 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2 font-medium">
+                    <button 
+                      onClick={handleViewFullOrder}
+                      className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-primary-500 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2 font-medium"
+                      type="button"
+                    >
                       <Eye size={16} />
                       {t('viewFullOrder')}
                     </button>
-                    <button className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 font-medium">
+                    <button 
+                      onClick={handleTrackShipment}
+                      className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 font-medium"
+                      type="button"
+                    >
                       <Truck size={16} />
                       {t('trackShipment')}
                     </button>
-                    <button className="w-full text-sm px-4 py-2.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 font-medium">
+                    <button 
+                      onClick={handleReportIssue}
+                      className="w-full text-sm px-4 py-2.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 font-medium"
+                      type="button"
+                    >
                       <AlertTriangle size={16} />
                       {t('reportIssue')}
                     </button>
@@ -568,6 +899,76 @@ export default function ChatPage() {
                       {active.orderId && <span className="text-[11px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">Order {active.orderId}</span>}
                     </div>
                     <p className="text-xs text-gray-500">{active.country || '—'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={handlePhoneCall}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" 
+                    aria-label="Call"
+                    type="button"
+                    title="Call"
+                  >
+                    <Phone size={16} className="text-gray-700" />
+                  </button>
+                  <button 
+                    onClick={handleVideoCall}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" 
+                    aria-label="Video"
+                    type="button"
+                    title="Video Call"
+                  >
+                    <Video size={16} className="text-gray-700" />
+                  </button>
+                  <div className="relative info-dropdown-container">
+                    <button 
+                      onClick={handleInfoClick}
+                      className={`p-1.5 rounded-lg transition-colors ${showInfoDropdown ? 'bg-primary-100' : 'hover:bg-gray-100'}`}
+                      aria-label="Info"
+                      type="button"
+                      title="Info"
+                    >
+                      <Info size={16} className="text-gray-700" />
+                    </button>
+                    
+                    {/* Info Dropdown Menu - Mobile */}
+                    {showInfoDropdown && (
+                      <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 animate-slideUp">
+                        <button
+                          onClick={handleShareConversation}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                          type="button"
+                        >
+                          <Share2 size={16} />
+                          Share Conversation
+                        </button>
+                        <button
+                          onClick={handleExportChat}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                          type="button"
+                        >
+                          <Download size={16} />
+                          Export Chat
+                        </button>
+                        <div className="border-t border-gray-200 my-1"></div>
+                        <button
+                          onClick={handleBlockUser}
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          type="button"
+                        >
+                          <Ban size={16} />
+                          Block User
+                        </button>
+                        <button
+                          onClick={handleDeleteConversation}
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          type="button"
+                        >
+                          <Trash2 size={16} />
+                          Delete Conversation
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -668,10 +1069,334 @@ export default function ChatPage() {
                   <p className="text-gray-600">Lahore, Pakistan</p>
                 </div>
               </div>
+              {/* Actions */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">{t('actions')}</h3>
+                <div className="space-y-2">
+                  <button 
+                    onClick={handleViewFullOrder}
+                    className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-primary-500 hover:bg-primary-50 transition-colors flex items-center justify-center gap-2 font-medium"
+                    type="button"
+                  >
+                    <Eye size={16} />
+                    {t('viewFullOrder')}
+                  </button>
+                  <button 
+                    onClick={handleTrackShipment}
+                    className="w-full text-sm px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 font-medium"
+                    type="button"
+                  >
+                    <Truck size={16} />
+                    {t('trackShipment')}
+                  </button>
+                  <button 
+                    onClick={handleReportIssue}
+                    className="w-full text-sm px-4 py-2.5 rounded-lg border border-red-200 text-red-700 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 font-medium"
+                    type="button"
+                  >
+                    <AlertTriangle size={16} />
+                    {t('reportIssue')}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </main>
       </div>
+
+      {/* Phone Call Modal */}
+      {showCallModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 transform transition-all animate-slideUp">
+            {/* Close button */}
+            <button
+              onClick={handleEndCall}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Close"
+              type="button"
+            >
+              <X size={20} className="text-gray-600" />
+            </button>
+
+            {/* Call Content */}
+            <div className="flex flex-col items-center text-center pt-4">
+              {/* Avatar */}
+              <div className="relative mb-6">
+                <img 
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(active.name)}`} 
+                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-primary-500 shadow-lg" 
+                  alt={active.name} 
+                />
+                {callStatus === 'active' && (
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-green-500 w-4 h-4 rounded-full border-2 border-white animate-pulse"></div>
+                )}
+              </div>
+
+              {/* Name */}
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{active.name}</h3>
+              
+              {/* Status */}
+              <div className="mb-6">
+                {callStatus === 'connecting' && (
+                  <p className="text-sm text-gray-600 animate-pulse">Connecting...</p>
+                )}
+                {callStatus === 'ringing' && (
+                  <p className="text-sm text-orange-600 font-medium animate-pulse">Ringing...</p>
+                )}
+                {callStatus === 'active' && (
+                  <div>
+                    <p className="text-sm text-green-600 font-medium mb-1">Call in progress</p>
+                    <p className="text-lg font-mono font-semibold text-gray-900">{formatCallDuration(callDuration)}</p>
+                  </div>
+                )}
+                {callStatus === 'ended' && (
+                  <p className="text-sm text-gray-600">Call ended</p>
+                )}
+              </div>
+
+              {/* Call Controls */}
+              {callStatus === 'active' && (
+                <div className="w-full space-y-4">
+                  {/* Mute and Speaker */}
+                  <div className="flex items-center justify-center gap-4">
+                    <button
+                      onClick={() => setIsMuted(!isMuted)}
+                      className={`p-4 rounded-full transition-colors ${
+                        isMuted 
+                          ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                      aria-label={isMuted ? 'Unmute' : 'Mute'}
+                      type="button"
+                    >
+                      {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
+                    </button>
+                    <button
+                      onClick={() => setIsSpeakerOn(!isSpeakerOn)}
+                      className={`p-4 rounded-full transition-colors ${
+                        isSpeakerOn 
+                          ? 'bg-primary-100 text-primary-600 hover:bg-primary-200' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                      aria-label={isSpeakerOn ? 'Turn off speaker' : 'Turn on speaker'}
+                      type="button"
+                    >
+                      {isSpeakerOn ? <Volume2 size={24} /> : <VolumeX size={24} />}
+                    </button>
+                  </div>
+
+                  {/* End Call Button */}
+                  <button
+                    onClick={handleEndCall}
+                    className="w-full py-4 px-6 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 shadow-lg"
+                    type="button"
+                  >
+                    <Phone size={20} className="rotate-[135deg]" />
+                    End Call
+                  </button>
+                </div>
+              )}
+
+              {/* Connecting/Ringing Controls */}
+              {(callStatus === 'connecting' || callStatus === 'ringing') && (
+                <div className="w-full space-y-4">
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce [animation-delay:0ms]"></div>
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce [animation-delay:150ms]"></div>
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce [animation-delay:300ms]"></div>
+                  </div>
+                  <button
+                    onClick={handleEndCall}
+                    className="w-full py-4 px-6 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 shadow-lg"
+                    type="button"
+                  >
+                    <Phone size={20} className="rotate-[135deg]" />
+                    Cancel Call
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video Call Modal */}
+      {showVideoCallModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm">
+          <div className={`relative bg-black rounded-2xl shadow-2xl w-full h-full ${isMinimized ? 'max-w-md max-h-[600px]' : 'max-w-7xl'} transition-all duration-300`}>
+            {/* Header Controls */}
+            <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(active.name)}`} 
+                  className="w-10 h-10 rounded-full border-2 border-white/30" 
+                  alt={active.name} 
+                />
+                <div>
+                  <h3 className="text-white font-semibold">{active.name}</h3>
+                  {videoCallStatus === 'active' && (
+                    <p className="text-white/70 text-sm font-mono">{formatCallDuration(videoCallDuration)}</p>
+                  )}
+                  {videoCallStatus !== 'active' && (
+                    <p className="text-white/70 text-sm">
+                      {videoCallStatus === 'connecting' && 'Connecting...'}
+                      {videoCallStatus === 'ringing' && 'Ringing...'}
+                      {videoCallStatus === 'ended' && 'Call ended'}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsMinimized(!isMinimized)}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  aria-label={isMinimized ? 'Maximize' : 'Minimize'}
+                  type="button"
+                >
+                  {isMinimized ? <Maximize2 size={20} className="text-white" /> : <Minimize2 size={20} className="text-white" />}
+                </button>
+                <button
+                  onClick={handleEndVideoCall}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  aria-label="Close"
+                  type="button"
+                >
+                  <X size={20} className="text-white" />
+                </button>
+              </div>
+            </div>
+
+            {/* Video Feeds */}
+            <div className="relative w-full h-full flex items-center justify-center p-4">
+              {/* Remote Video (Main) */}
+              <div className="relative w-full h-full rounded-lg overflow-hidden bg-gradient-to-br from-primary-500/20 to-orange-500/20 flex items-center justify-center">
+                {videoCallStatus === 'active' ? (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <img 
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(active.name)}`} 
+                      className="w-32 h-32 rounded-full border-4 border-white/30" 
+                      alt={active.name} 
+                    />
+                    {/* In a real app, this would be the actual video stream */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-white/50 text-sm">Video feed would appear here</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-white">
+                    <img 
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(active.name)}`} 
+                      className="w-32 h-32 rounded-full border-4 border-white/30 mb-4" 
+                      alt={active.name} 
+                    />
+                    <h3 className="text-2xl font-bold mb-2">{active.name}</h3>
+                    {videoCallStatus === 'connecting' && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:0ms]"></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:150ms]"></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-bounce [animation-delay:300ms]"></div>
+                      </div>
+                    )}
+                    {videoCallStatus === 'ringing' && (
+                      <p className="text-orange-400 font-medium animate-pulse">Ringing...</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Local Video (Picture-in-Picture) */}
+              {videoCallStatus === 'active' && isVideoCameraOn && (
+                <div className="absolute bottom-24 right-4 w-48 h-36 rounded-lg overflow-hidden border-2 border-white/30 bg-gray-900 shadow-2xl">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                    <div className="text-white/50 text-xs text-center p-2">
+                      Your video
+                    </div>
+                    {/* In a real app, this would be the local video stream */}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Call Controls - Bottom */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+              {videoCallStatus === 'active' && (
+                <div className="flex items-center gap-3 bg-black/50 backdrop-blur-md rounded-full px-6 py-4">
+                  {/* Mute/Unmute */}
+                  <button
+                    onClick={() => setIsVideoMuted(!isVideoMuted)}
+                    className={`p-3 rounded-full transition-colors ${
+                      isVideoMuted 
+                        ? 'bg-red-500 text-white hover:bg-red-600' 
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                    aria-label={isVideoMuted ? 'Unmute' : 'Mute'}
+                    type="button"
+                  >
+                    {isVideoMuted ? <MicOff size={20} /> : <Mic size={20} />}
+                  </button>
+
+                  {/* Camera On/Off */}
+                  <button
+                    onClick={() => setIsVideoCameraOn(!isVideoCameraOn)}
+                    className={`p-3 rounded-full transition-colors ${
+                      !isVideoCameraOn 
+                        ? 'bg-red-500 text-white hover:bg-red-600' 
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                    aria-label={isVideoCameraOn ? 'Turn off camera' : 'Turn on camera'}
+                    type="button"
+                  >
+                    {isVideoCameraOn ? <Video size={20} /> : <VideoOff size={20} />}
+                  </button>
+
+                  {/* Speaker */}
+                  <button
+                    onClick={() => setIsVideoSpeakerOn(!isVideoSpeakerOn)}
+                    className={`p-3 rounded-full transition-colors ${
+                      isVideoSpeakerOn 
+                        ? 'bg-primary-500 text-white hover:bg-primary-600' 
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                    aria-label={isVideoSpeakerOn ? 'Turn off speaker' : 'Turn on speaker'}
+                    type="button"
+                  >
+                    {isVideoSpeakerOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                  </button>
+
+                  {/* End Call */}
+                  <button
+                    onClick={handleEndVideoCall}
+                    className="p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors ml-2"
+                    aria-label="End call"
+                    type="button"
+                  >
+                    <Phone size={20} className="rotate-[135deg]" />
+                  </button>
+                </div>
+              )}
+
+              {/* Connecting/Ringing Controls */}
+              {(videoCallStatus === 'connecting' || videoCallStatus === 'ringing') && (
+                <div className="flex items-center gap-3 bg-black/50 backdrop-blur-md rounded-full px-6 py-4">
+                  <div className="flex items-center gap-2 text-white text-sm">
+                    <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce [animation-delay:0ms]"></div>
+                    <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce [animation-delay:150ms]"></div>
+                    <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce [animation-delay:300ms]"></div>
+                  </div>
+                  <button
+                    onClick={handleEndVideoCall}
+                    className="p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    aria-label="Cancel call"
+                    type="button"
+                  >
+                    <Phone size={20} className="rotate-[135deg]" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

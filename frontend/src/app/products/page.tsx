@@ -17,16 +17,21 @@ export default function ProductsPage() {
   const [productToDelete, setProductToDelete] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [togglingProductId, setTogglingProductId] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterCategory, setFilterCategory] = useState('All Categories')
+  const [filterStatus, setFilterStatus] = useState('All Status')
+  const [filterStock, setFilterStock] = useState('All Stock')
+  const [sortBy, setSortBy] = useState('Sort by: Date Added')
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false)
   const itemsPerPage = 5
-  const totalPages = 8
 
   // Mock product data - matching the image EXACTLY
   const [rawProducts, setRawProducts] = useState([
-    { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200, orders: 5, stock: 752, status: false, slug: 'apple-airpods-pro-2nd' },
-    { id: 2, name: 'Premium T-Shirt', sku: 'TS-002', category: 'Clothing', price: 200, orders: 55, stock: 554, status: true, slug: 'premium-t-shirt' },
-    { id: 3, name: 'Running Shoes', sku: 'YM-003', category: 'Sports', price: 200, orders: 6, stock: 156, status: true, slug: 'running-shoes' },
-    { id: 4, name: 'Yoga Mat Pro', sku: 'RS-004', category: 'Sports', price: 200, orders: 45, stock: 528, status: true, slug: 'yoga-mat-pro' },
-    { id: 5, name: 'Coffee Mug Set', sku: 'CM-005', category: 'Home & Garden', price: 200, orders: 23, stock: 276, status: false, slug: 'coffee-mug-set' },
+    { id: 1, name: 'Apple AirPods Pro (2nd)', sku: 'WH-001', category: 'Electronics', price: 200, orders: 5, stock: 752, status: false, slug: 'apple-airpods-pro-2nd', dateAdded: new Date('2024-01-15') },
+    { id: 2, name: 'Premium T-Shirt', sku: 'TS-002', category: 'Clothing', price: 200, orders: 55, stock: 554, status: true, slug: 'premium-t-shirt', dateAdded: new Date('2024-02-10') },
+    { id: 3, name: 'Running Shoes', sku: 'YM-003', category: 'Sports', price: 200, orders: 6, stock: 156, status: true, slug: 'running-shoes', dateAdded: new Date('2024-03-05') },
+    { id: 4, name: 'Yoga Mat Pro', sku: 'RS-004', category: 'Sports', price: 200, orders: 45, stock: 528, status: true, slug: 'yoga-mat-pro', dateAdded: new Date('2024-03-20') },
+    { id: 5, name: 'Coffee Mug Set', sku: 'CM-005', category: 'Home & Garden', price: 200, orders: 23, stock: 276, status: false, slug: 'coffee-mug-set', dateAdded: new Date('2024-04-12') },
   ])
 
   // Automatically translate products based on current language
@@ -37,17 +42,96 @@ export default function ProductsPage() {
   const activeCount = products.filter(p => p.status).length
   const inactiveCount = products.filter(p => !p.status).length
   
-  // Filter products based on active tab
-  const filteredProducts = activeTab === 'all' 
-    ? products 
-    : activeTab === 'active' 
-      ? products.filter(p => p.status)
-      : products.filter(p => !p.status)
+  // Filter and sort products
+  const filteredAndSortedProducts = useMemo(() => {
+    let result = products
+
+    // Filter by active tab
+    if (activeTab === 'active') {
+      result = result.filter(p => p.status)
+    } else if (activeTab === 'inactive') {
+      result = result.filter(p => !p.status)
+    }
+
+    // Filter by search query
+    if (searchQuery && searchQuery.trim().length > 0) {
+      const query = searchQuery.toLowerCase().trim()
+      result = result.filter(p => {
+        const productName = (p.name || '').toLowerCase()
+        const productSku = (p.sku || '').toLowerCase()
+        const productCategory = (p.category || '').toLowerCase()
+        
+        // Search in translated name
+        const nameMatch = productName.includes(query)
+        // Search in SKU
+        const skuMatch = productSku.includes(query)
+        // Search in category
+        const categoryMatch = productCategory.includes(query)
+        // Also search in original product name from rawProducts
+        const rawProduct = rawProducts.find(rp => rp.id === p.id)
+        const originalName = (rawProduct?.name || '').toLowerCase()
+        const originalNameMatch = originalName.includes(query)
+        
+        return nameMatch || skuMatch || categoryMatch || originalNameMatch
+      })
+    }
+
+    // Filter by category
+    if (filterCategory !== 'All Categories') {
+      result = result.filter(p => p.category === filterCategory)
+    }
+
+    // Filter by status
+    if (filterStatus === 'Active') {
+      result = result.filter(p => p.status)
+    } else if (filterStatus === 'Inactive') {
+      result = result.filter(p => !p.status)
+    }
+
+    // Filter by stock
+    if (filterStock === 'In Stock') {
+      result = result.filter(p => p.stock > 0)
+    } else if (filterStock === 'Low Stock') {
+      result = result.filter(p => p.stock > 0 && p.stock < 200)
+    } else if (filterStock === 'Out of Stock') {
+      result = result.filter(p => p.stock === 0)
+    }
+
+    // Sort products
+    if (sortBy === 'Sort by: Name') {
+      result = [...result].sort((a, b) => a.name.localeCompare(b.name))
+    } else if (sortBy === 'Sort by: Price') {
+      result = [...result].sort((a, b) => a.price - b.price)
+    } else if (sortBy === 'Sort by: Orders') {
+      result = [...result].sort((a, b) => b.orders - a.orders)
+    } else if (sortBy === 'Sort by: Date Added') {
+      result = [...result].sort((a, b) => {
+        const dateA = rawProducts.find(p => p.id === a.id)?.dateAdded || new Date(0)
+        const dateB = rawProducts.find(p => p.id === b.id)?.dateAdded || new Date(0)
+        return dateB.getTime() - dateA.getTime()
+      })
+    }
+
+    return result
+  }, [products, activeTab, searchQuery, filterCategory, filterStatus, filterStock, sortBy, rawProducts])
 
   // Pagination
+  const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+  const paginatedProducts = filteredAndSortedProducts.slice(startIndex, endIndex)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, filterCategory, filterStatus, filterStock, sortBy, activeTab])
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
 
   // Toggle product status
   const handleToggleStatus = async (productId: number) => {
@@ -107,6 +191,18 @@ export default function ProductsPage() {
       document.body.style.overflow = ''
     }
   }, [deleteModalOpen])
+
+  // Close filter dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (showFilterDropdown && !target.closest('.filter-dropdown-container')) {
+        setShowFilterDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showFilterDropdown])
 
   // Get visible pages for pagination
   const getVisiblePages = () => {
@@ -182,7 +278,12 @@ export default function ProductsPage() {
               {/* Filter Dropdowns - Hidden on mobile */}
               <div className="hidden md:block bg-white rounded-lg p-4 shadow-sm mb-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by category">
+                  <select 
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by category"
+                  >
                     <option>All Categories</option>
                     <option>Electronics</option>
                     <option>Clothing</option>
@@ -190,20 +291,35 @@ export default function ProductsPage() {
                     <option>Home & Garden</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by status">
+                  <select 
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by status"
+                  >
                     <option>All Status</option>
                     <option>Active</option>
                     <option>Inactive</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by stock">
+                  <select 
+                    value={filterStock}
+                    onChange={(e) => setFilterStock(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by stock"
+                  >
                     <option>All Stock</option>
                     <option>In Stock</option>
                     <option>Low Stock</option>
                     <option>Out of Stock</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Sort products">
+                  <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Sort products"
+                  >
                     <option>Sort by: Date Added</option>
                     <option>Sort by: Name</option>
                     <option>Sort by: Price</option>
@@ -258,17 +374,152 @@ export default function ProductsPage() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                       <input
                         type="text"
-                        placeholder={t('searchTransactionProducts')}
-                        className="w-full sm:w-48 md:w-64 pl-9 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        onKeyDown={(e) => {
+                          // Prevent form submission if inside a form
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                          }
+                        }}
+                        placeholder={t('searchTransactionProducts') || 'Search products...'}
+                        className={`w-full sm:w-48 md:w-64 pl-9 sm:pl-10 ${searchQuery ? 'pr-8' : 'pr-3'} py-2 border ${searchQuery ? 'border-primary-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm transition-colors`}
+                        autoComplete="off"
+                        id="product-search-input"
                       />
+                      {searchQuery && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('')
+                            setCurrentPage(1)
+                          }}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          type="button"
+                          aria-label="Clear search"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
                     </div>
-                    <button 
-                      className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm" 
-                      aria-label="Filter"
-                    >
-                      <Filter size={18} />
-                      <span className="hidden md:inline">Filter</span>
-                    </button>
+                    {searchQuery && (
+                      <div className="hidden sm:block text-xs text-gray-500 whitespace-nowrap">
+                        {filteredAndSortedProducts.length} {filteredAndSortedProducts.length === 1 ? 'result' : 'results'}
+                      </div>
+                    )}
+                    <div className="relative filter-dropdown-container">
+                      <button 
+                        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                        className={`hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
+                        aria-label="Filter"
+                        type="button"
+                      >
+                        <Filter size={18} />
+                        <span className="hidden md:inline">Filter</span>
+                      </button>
+                      
+                      {/* Filter Dropdown */}
+                      {showFilterDropdown && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40 lg:hidden"
+                            onClick={() => setShowFilterDropdown(false)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[60]">
+                            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                              <h3 className="text-sm font-semibold text-gray-900">{t('filterProducts') || 'Filter Products'}</h3>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                                type="button"
+                                aria-label="Close filter"
+                              >
+                                <X size={18} />
+                              </button>
+                            </div>
+                            <div className="px-4 py-3 space-y-4 max-h-[60vh] overflow-y-auto">
+                              {/* Category Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('category') || 'Category'}</label>
+                                <select
+                                  value={filterCategory}
+                                  onChange={(e) => setFilterCategory(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Categories</option>
+                                  <option>Electronics</option>
+                                  <option>Clothing</option>
+                                  <option>Sports</option>
+                                  <option>Home & Garden</option>
+                                </select>
+                              </div>
+                              {/* Status Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status') || 'Status'}</label>
+                                <select
+                                  value={filterStatus}
+                                  onChange={(e) => setFilterStatus(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Status</option>
+                                  <option>Active</option>
+                                  <option>Inactive</option>
+                                </select>
+                              </div>
+                              {/* Stock Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('stock') || 'Stock'}</label>
+                                <select
+                                  value={filterStock}
+                                  onChange={(e) => setFilterStock(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Stock</option>
+                                  <option>In Stock</option>
+                                  <option>Low Stock</option>
+                                  <option>Out of Stock</option>
+                                </select>
+                              </div>
+                              {/* Sort */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('sortBy') || 'Sort By'}</label>
+                                <select
+                                  value={sortBy}
+                                  onChange={(e) => setSortBy(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>Sort by: Date Added</option>
+                                  <option>Sort by: Name</option>
+                                  <option>Sort by: Price</option>
+                                  <option>Sort by: Orders</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
+                              <button
+                                onClick={() => {
+                                  setFilterCategory('All Categories')
+                                  setFilterStatus('All Status')
+                                  setFilterStock('All Stock')
+                                  setSortBy('Sort by: Date Added')
+                                  setShowFilterDropdown(false)
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:scale-[0.98] transition-all duration-200"
+                                type="button"
+                              >
+                                {t('reset') || 'Reset'}
+                              </button>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
+                                type="button"
+                              >
+                                {t('apply') || 'Apply'}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -288,7 +539,30 @@ export default function ProductsPage() {
                         </tr>
                       </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
+                      {paginatedProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-12 text-center">
+                            <div className="flex flex-col items-center justify-center">
+                              <Search className="w-12 h-12 text-gray-400 mb-4" />
+                              <p className="text-gray-600 font-medium text-sm">
+                                {searchQuery.trim() 
+                                  ? (t('noProductsFound') || `No products found for "${searchQuery}"`)
+                                  : (t('noProducts') || 'No products available')
+                                }
+                              </p>
+                              {searchQuery.trim() && (
+                                <button
+                                  onClick={() => setSearchQuery('')}
+                                  className="mt-2 text-primary-500 hover:text-primary-600 text-sm underline"
+                                >
+                                  {t('clearSearch') || 'Clear search'}
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
                         <tr key={product.id} className="hover:bg-gray-50">
                           {/* Product Column - Clickable */}
                           <td className="py-3 px-3 sm:px-4 cursor-pointer" onClick={() => handleViewProduct(product.id)}>
@@ -417,7 +691,26 @@ export default function ProductsPage() {
 
               {/* Mobile Product Cards */}
               <div className="md:hidden space-y-3">
-                {paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
+                {paginatedProducts.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                    <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 font-medium text-sm mb-2">
+                      {searchQuery.trim() 
+                        ? (t('noProductsFound') || `No products found for "${searchQuery}"`)
+                        : (t('noProducts') || 'No products available')
+                      }
+                    </p>
+                    {searchQuery.trim() && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="text-primary-500 hover:text-primary-600 text-sm underline"
+                      >
+                        {t('clearSearch') || 'Clear search'}
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
                   <div 
                     key={product.id} 
                     className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer"
@@ -494,7 +787,8 @@ export default function ProductsPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                ))
+                )}
               </div>
 
               {/* Mobile Pagination */}
@@ -565,7 +859,12 @@ export default function ProductsPage() {
               {/* Filter Dropdowns - Hidden on mobile */}
               <div className="hidden md:block bg-white rounded-lg p-4 shadow-sm mb-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by category">
+                  <select 
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by category"
+                  >
                     <option>All Categories</option>
                     <option>Electronics</option>
                     <option>Clothing</option>
@@ -573,20 +872,35 @@ export default function ProductsPage() {
                     <option>Home & Garden</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by status">
+                  <select 
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by status"
+                  >
                     <option>All Status</option>
                     <option>Active</option>
                     <option>Inactive</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by stock">
+                  <select 
+                    value={filterStock}
+                    onChange={(e) => setFilterStock(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by stock"
+                  >
                     <option>All Stock</option>
                     <option>In Stock</option>
                     <option>Low Stock</option>
                     <option>Out of Stock</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Sort products">
+                  <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Sort products"
+                  >
                     <option>Sort by: Date Added</option>
                     <option>Sort by: Name</option>
                     <option>Sort by: Price</option>
@@ -641,17 +955,152 @@ export default function ProductsPage() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                       <input
                         type="text"
-                        placeholder={t('searchTransactionProducts')}
-                        className="w-full sm:w-48 md:w-64 pl-9 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        onKeyDown={(e) => {
+                          // Prevent form submission if inside a form
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                          }
+                        }}
+                        placeholder={t('searchTransactionProducts') || 'Search products...'}
+                        className={`w-full sm:w-48 md:w-64 pl-9 sm:pl-10 ${searchQuery ? 'pr-8' : 'pr-3'} py-2 border ${searchQuery ? 'border-primary-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm transition-colors`}
+                        autoComplete="off"
+                        id="product-search-input"
                       />
+                      {searchQuery && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('')
+                            setCurrentPage(1)
+                          }}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          type="button"
+                          aria-label="Clear search"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
                     </div>
-                    <button 
-                      className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm" 
-                      aria-label="Filter"
-                    >
-                      <Filter size={18} />
-                      {t('search')}
-                    </button>
+                    {searchQuery && (
+                      <div className="hidden sm:block text-xs text-gray-500 whitespace-nowrap">
+                        {filteredAndSortedProducts.length} {filteredAndSortedProducts.length === 1 ? 'result' : 'results'}
+                      </div>
+                    )}
+                    <div className="relative filter-dropdown-container">
+                      <button 
+                        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                        className={`hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
+                        aria-label="Filter"
+                        type="button"
+                      >
+                        <Filter size={18} />
+                        <span className="hidden md:inline">Filter</span>
+                      </button>
+                      
+                      {/* Filter Dropdown - Mobile */}
+                      {showFilterDropdown && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40"
+                            onClick={() => setShowFilterDropdown(false)}
+                          />
+                          <div className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:w-72 bg-white rounded-t-xl lg:rounded-xl shadow-2xl border-t lg:border border-gray-200 py-2 z-[60]">
+                            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                              <h3 className="text-sm font-semibold text-gray-900">{t('filterProducts') || 'Filter Products'}</h3>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                                type="button"
+                                aria-label="Close filter"
+                              >
+                                <X size={18} />
+                              </button>
+                            </div>
+                            <div className="px-4 py-3 space-y-4 max-h-[60vh] overflow-y-auto">
+                              {/* Category Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('category') || 'Category'}</label>
+                                <select
+                                  value={filterCategory}
+                                  onChange={(e) => setFilterCategory(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Categories</option>
+                                  <option>Electronics</option>
+                                  <option>Clothing</option>
+                                  <option>Sports</option>
+                                  <option>Home & Garden</option>
+                                </select>
+                              </div>
+                              {/* Status Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status') || 'Status'}</label>
+                                <select
+                                  value={filterStatus}
+                                  onChange={(e) => setFilterStatus(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Status</option>
+                                  <option>Active</option>
+                                  <option>Inactive</option>
+                                </select>
+                              </div>
+                              {/* Stock Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('stock') || 'Stock'}</label>
+                                <select
+                                  value={filterStock}
+                                  onChange={(e) => setFilterStock(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Stock</option>
+                                  <option>In Stock</option>
+                                  <option>Low Stock</option>
+                                  <option>Out of Stock</option>
+                                </select>
+                              </div>
+                              {/* Sort */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('sortBy') || 'Sort By'}</label>
+                                <select
+                                  value={sortBy}
+                                  onChange={(e) => setSortBy(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>Sort by: Date Added</option>
+                                  <option>Sort by: Name</option>
+                                  <option>Sort by: Price</option>
+                                  <option>Sort by: Orders</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
+                              <button
+                                onClick={() => {
+                                  setFilterCategory('All Categories')
+                                  setFilterStatus('All Status')
+                                  setFilterStock('All Stock')
+                                  setSortBy('Sort by: Date Added')
+                                  setShowFilterDropdown(false)
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:scale-[0.98] transition-all duration-200"
+                                type="button"
+                              >
+                                {t('reset') || 'Reset'}
+                              </button>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
+                                type="button"
+                              >
+                                {t('apply') || 'Apply'}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -715,12 +1164,13 @@ export default function ProductsPage() {
                                 aria-label="Delete product"
                               >
                                 <Trash2 size={18} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                      )}
+                </tbody>
                   </table>
                 </div>
 

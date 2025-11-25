@@ -16,8 +16,8 @@ export default function AddTrackingPage() {
   const [autoNotify, setAutoNotify] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' })
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} })
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '', title: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', title: '', onConfirm: () => {} })
 
   const [formData, setFormData] = useState({
     deliveryCompany: '',
@@ -148,7 +148,11 @@ export default function AddTrackingPage() {
       navigate(`/orders/${id}`)
     } catch (error) {
       console.error('Error saving tracking information:', error)
-      setErrorModal({ isOpen: true, message: t('trackingAddedFailed') })
+      setErrorModal({ 
+        isOpen: true, 
+        title: t('saveFailed') || 'Save Failed',
+        message: t('trackingAddedFailed') 
+      })
     } finally {
       setIsLoading(false)
     }
@@ -157,6 +161,7 @@ export default function AddTrackingPage() {
   const handleCancel = () => {
     setConfirmModal({
       isOpen: true,
+      title: t('cancelChanges') || 'Cancel Changes',
       message: t('confirmCancel'),
       onConfirm: () => navigate(`/orders/${id}`)
     })
@@ -681,14 +686,16 @@ export default function AddTrackingPage() {
       {/* Modals */}
       <ErrorModal
         isOpen={errorModal.isOpen}
-        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        onClose={() => setErrorModal({ isOpen: false, message: '', title: '' })}
+        title={errorModal.title}
         message={errorModal.message}
       />
       
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} })}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', title: '', onConfirm: () => {} })}
         onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
         message={confirmModal.message}
         confirmText={t('confirm') || 'Confirm'}
         cancelText={t('cancel') || 'Cancel'}
