@@ -1,10 +1,19 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Menu, Upload, X, ChevronDown, Info } from 'lucide-react'
+import { Menu, Upload, X, ChevronDown, Info, FileText, Image as ImageIcon, CheckCircle2, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ButtonLoader } from '@/components/ui/Loader'
+
+interface UploadedFile {
+  file: File
+  preview: string
+  name: string
+  id: string
+  size: number
+  status?: 'uploading' | 'success' | 'error'
+}
 
 export default function AddProductPage() {
   const navigate = useNavigate()
@@ -12,6 +21,14 @@ export default function AddProductPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  
+  // File upload refs and states
+  const mediaInputRef = useRef<HTMLInputElement>(null)
+  const documentInputRef = useRef<HTMLInputElement>(null)
+  const [mediaFiles, setMediaFiles] = useState<UploadedFile[]>([])
+  const [documentFiles, setDocumentFiles] = useState<UploadedFile[]>([])
+  const [isDraggingMedia, setIsDraggingMedia] = useState(false)
+  const [isDraggingDoc, setIsDraggingDoc] = useState(false)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -48,6 +65,276 @@ export default function AddProductPage() {
 
   const handleCancel = () => {
     navigate('/products')
+  }
+
+  // File upload handlers
+  const handleMediaClick = () => {
+    if (mediaInputRef.current) {
+      mediaInputRef.current.click()
+    }
+  }
+
+  const handleDocumentClick = () => {
+    if (documentInputRef.current) {
+      documentInputRef.current.click()
+    }
+  }
+
+  // Format file size
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+  }
+
+  // Handle media file change
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    files.forEach(file => {
+      // Validate image file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      if (!validTypes.includes(file.type.toLowerCase())) {
+        alert(`${file.name}: Invalid file type. Please select JPEG, PNG, GIF, or WebP image.`)
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024
+      if (file.size > maxSize) {
+        alert(`${file.name}: File size too large. Maximum size is 5MB.`)
+        return
+      }
+
+      const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const newFile: UploadedFile = {
+        file,
+        preview: '',
+        name: file.name,
+        id: fileId,
+        size: file.size,
+        status: 'uploading'
+      }
+
+      setMediaFiles(prev => [...prev, newFile])
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setMediaFiles(prev => prev.map(f => 
+          f.id === fileId 
+            ? { ...f, preview: reader.result as string, status: 'success' as const }
+            : f
+        ))
+      }
+      reader.onerror = () => {
+        setMediaFiles(prev => prev.filter(f => f.id !== fileId))
+        alert(`${file.name}: Failed to read file`)
+      }
+      reader.readAsDataURL(file)
+    })
+
+    // Reset input
+    if (e.target) {
+      e.target.value = ''
+    }
+  }
+
+  // Handle document file change
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    files.forEach(file => {
+      const validExtensions = ['.pdf', '.doc', '.docx', '.txt']
+      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase()
+      
+      if (!validExtensions.includes(fileExtension)) {
+        alert(`${file.name}: Invalid file type. Please select PDF, DOC, DOCX, or TXT file.`)
+        return
+      }
+
+      const maxSize = 10 * 1024 * 1024
+      if (file.size > maxSize) {
+        alert(`${file.name}: File size too large. Maximum size is 10MB.`)
+        return
+      }
+
+      const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const newFile: UploadedFile = {
+        file,
+        preview: '',
+        name: file.name,
+        id: fileId,
+        size: file.size,
+        status: 'uploading'
+      }
+
+      setDocumentFiles(prev => [...prev, newFile])
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setDocumentFiles(prev => prev.map(f => 
+          f.id === fileId 
+            ? { ...f, preview: reader.result as string, status: 'success' as const }
+            : f
+        ))
+      }
+      reader.onerror = () => {
+        setDocumentFiles(prev => prev.filter(f => f.id !== fileId))
+        alert(`${file.name}: Failed to read file`)
+      }
+      reader.readAsDataURL(file)
+    })
+
+    // Reset input
+    if (e.target) {
+      e.target.value = ''
+    }
+  }
+
+  // Remove media file
+  const removeMediaFile = (id: string) => {
+    setMediaFiles(prev => prev.filter(f => f.id !== id))
+  }
+
+  // Remove document file
+  const removeDocumentFile = (id: string) => {
+    setDocumentFiles(prev => prev.filter(f => f.id !== id))
+  }
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleMediaDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingMedia(false)
+    
+    const files = Array.from(e.dataTransfer.files)
+    if (files.length === 0) return
+
+    files.forEach(file => {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      if (!validTypes.includes(file.type.toLowerCase())) {
+        alert(`${file.name}: Invalid file type`)
+        return
+      }
+      
+      const maxSize = 5 * 1024 * 1024
+      if (file.size > maxSize) {
+        alert(`${file.name}: File size too large (Max: 5MB)`)
+        return
+      }
+
+      const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const newFile: UploadedFile = {
+        file,
+        preview: '',
+        name: file.name,
+        id: fileId,
+        size: file.size,
+        status: 'uploading'
+      }
+
+      setMediaFiles(prev => [...prev, newFile])
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setMediaFiles(prev => prev.map(f => 
+          f.id === fileId 
+            ? { ...f, preview: reader.result as string, status: 'success' as const }
+            : f
+        ))
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleDocumentDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingDoc(false)
+    
+    const files = Array.from(e.dataTransfer.files)
+    if (files.length === 0) return
+
+    files.forEach(file => {
+      const validExtensions = ['.pdf', '.doc', '.docx', '.txt']
+      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase()
+      
+      if (!validExtensions.includes(fileExtension)) {
+        alert(`${file.name}: Invalid file type`)
+        return
+      }
+
+      const maxSize = 10 * 1024 * 1024
+      if (file.size > maxSize) {
+        alert(`${file.name}: File size too large (Max: 10MB)`)
+        return
+      }
+
+      const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const newFile: UploadedFile = {
+        file,
+        preview: '',
+        name: file.name,
+        id: fileId,
+        size: file.size,
+        status: 'uploading'
+      }
+
+      setDocumentFiles(prev => [...prev, newFile])
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setDocumentFiles(prev => prev.map(f => 
+          f.id === fileId 
+            ? { ...f, preview: reader.result as string, status: 'success' as const }
+            : f
+        ))
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleMediaDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingMedia(true)
+  }
+
+  const handleMediaDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDraggingMedia(false)
+    }
+  }
+
+  const handleDocDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingDoc(true)
+  }
+
+  const handleDocDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDraggingDoc(false)
+    }
   }
 
   return (
@@ -133,6 +420,7 @@ export default function AddProductPage() {
                           value={formData.category}
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                          aria-label="Select category"
                         >
                           <option value="">{t('selectCategory')}</option>
                           <option>Electronic</option>
@@ -151,6 +439,7 @@ export default function AddProductPage() {
                           value={formData.condition}
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                          aria-label="Select condition"
                         >
                           <option value="">{t('selectCondition')}</option>
                           <option>Excellent</option>
@@ -179,32 +468,236 @@ export default function AddProductPage() {
                 {/* Upload Media */}
                 <div className="border-t pt-4 sm:pt-6">
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">{t('uploadMedia')}</h3>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center">
+                  <input
+                    ref={mediaInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    multiple
+                    onChange={handleMediaChange}
+                    className="hidden"
+                    aria-label="Upload media files"
+                  />
+                  <div
+                    onClick={(e) => {
+                      const target = e.target as HTMLElement
+                      if (target.closest('button')) {
+                        return
+                      }
+                      handleMediaClick()
+                    }}
+                    onDrop={handleMediaDrop}
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleMediaDragEnter}
+                    onDragLeave={handleMediaDragLeave}
+                    className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-all ${
+                      isDraggingMedia
+                        ? 'border-amber-500 bg-amber-50 scale-[1.02]'
+                        : 'border-gray-300 hover:border-amber-500 hover:bg-gray-50'
+                    }`}
+                  >
                     <div className="flex justify-center mb-3 sm:mb-4">
                       <Upload size={48} className="text-amber-600" />
                     </div>
-                    <p className="text-gray-700 text-sm sm:text-base mb-1">{t('dragDropImage')}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
-                      {t('supportFormats')}
+                    <p className="text-gray-700 text-sm sm:text-base mb-1 font-medium">
+                      {isDraggingMedia ? 'Drop images here' : t('dragDropImage') || 'Drag & drop images here'}
                     </p>
-                    <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      {t('addAnotherMedia')}
-                    </a>
+                    <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+                      {t('supportFormats') || 'Supports: JPEG, PNG, GIF, WebP (Max 5MB per file)'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleMediaClick()
+                      }}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:scale-95 transition-all text-sm font-medium shadow-md hover:shadow-lg"
+                    >
+                      <Upload size={18} />
+                      <span>{t('addAnotherMedia') || 'Browse Files'}</span>
+                    </button>
+                    <p className="text-xs text-gray-400 mt-2">or click anywhere on this area to browse</p>
                   </div>
+                  
+                  {/* Media Preview */}
+                  {mediaFiles.length > 0 && (
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm font-medium text-gray-700">
+                          {mediaFiles.length} {mediaFiles.length === 1 ? 'image' : 'images'} uploaded
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Remove all ${mediaFiles.length} images?`)) {
+                              setMediaFiles([])
+                            }
+                          }}
+                          className="text-xs text-red-600 hover:text-red-700 font-medium underline"
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {mediaFiles.map((media) => (
+                          <div key={media.id} className="relative group">
+                            <div className="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-100 relative">
+                              {media.status === 'uploading' && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                  <Loader2 className="animate-spin text-white" size={24} />
+                                </div>
+                              )}
+                              {media.status === 'success' && media.preview && (
+                                <>
+                                  <img
+                                    src={media.preview}
+                                    alt={media.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <div className="absolute top-1 left-1 bg-green-500 text-white rounded-full p-1">
+                                    <CheckCircle2 size={12} />
+                                  </div>
+                                </>
+                              )}
+                              {!media.preview && (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <ImageIcon size={32} className="text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                removeMediaFile(media.id)
+                              }}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                              title="Remove"
+                            >
+                              <X size={16} />
+                            </button>
+                            <div className="mt-1">
+                              <p className="text-xs text-gray-700 truncate font-medium">{media.name}</p>
+                              <p className="text-xs text-gray-500">{formatFileSize(media.size)}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Upload Doc */}
                 <div className="border-t pt-4 sm:pt-6">
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">{t('uploadDoc')}</h3>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center">
+                  <input
+                    ref={documentInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    multiple
+                    onChange={handleDocumentChange}
+                    className="hidden"
+                    aria-label="Upload documents"
+                  />
+                  <div
+                    onClick={(e) => {
+                      const target = e.target as HTMLElement
+                      if (target.closest('button')) {
+                        return
+                      }
+                      handleDocumentClick()
+                    }}
+                    onDrop={handleDocumentDrop}
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDocDragEnter}
+                    onDragLeave={handleDocDragLeave}
+                    className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-all ${
+                      isDraggingDoc
+                        ? 'border-amber-500 bg-amber-50 scale-[1.02]'
+                        : 'border-gray-300 hover:border-amber-500 hover:bg-gray-50'
+                    }`}
+                  >
                     <div className="flex justify-center mb-3 sm:mb-4">
-                      <Upload size={48} className="text-amber-600" />
+                      <FileText size={48} className="text-amber-600" />
                     </div>
-                    <p className="text-gray-700 text-sm sm:text-base mb-1">{t('dragDropDocument')}</p>
-                    <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      {t('addAnotherDoc')}
-                    </a>
+                    <p className="text-gray-700 text-sm sm:text-base mb-1 font-medium">
+                      {isDraggingDoc ? 'Drop documents here' : t('dragDropDocument') || 'Drag & drop documents here'}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+                      {t('supportFormats') || 'Supports: PDF, DOC, DOCX, TXT (Max 10MB per file)'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDocumentClick()
+                      }}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:scale-95 transition-all text-sm font-medium shadow-md hover:shadow-lg"
+                    >
+                      <Upload size={18} />
+                      <span>{t('addAnotherDoc') || 'Browse Files'}</span>
+                    </button>
+                    <p className="text-xs text-gray-400 mt-2">or click anywhere on this area to browse</p>
                   </div>
+                  
+                  {/* Document Preview */}
+                  {documentFiles.length > 0 && (
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm font-medium text-gray-700">
+                          {documentFiles.length} {documentFiles.length === 1 ? 'document' : 'documents'} uploaded
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Remove all ${documentFiles.length} documents?`)) {
+                              setDocumentFiles([])
+                            }
+                          }}
+                          className="text-xs text-red-600 hover:text-red-700 font-medium underline"
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {documentFiles.map((doc) => (
+                          <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 group">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <div className="flex-shrink-0">
+                                {doc.status === 'uploading' ? (
+                                  <Loader2 className="animate-spin text-amber-600" size={20} />
+                                ) : doc.status === 'success' ? (
+                                  <div className="bg-green-100 rounded-full p-2">
+                                    <CheckCircle2 size={16} className="text-green-600" />
+                                  </div>
+                                ) : (
+                                  <FileText size={20} className="text-gray-400" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
+                                <p className="text-xs text-gray-500">{formatFileSize(doc.size)}</p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                removeDocumentFile(doc.id)
+                              }}
+                              className="flex-shrink-0 ml-2 text-red-600 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Remove"
+                            >
+                              <X size={18} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* SEO & Marketing */}
@@ -262,6 +755,7 @@ export default function AddProductPage() {
                         value={formData.price}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        aria-label="Product price"
                       />
                     </div>
                     <div>
@@ -275,6 +769,7 @@ export default function AddProductPage() {
                         value={formData.discountPrice}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        aria-label="Discount price"
                       />
                     </div>
                     <div>
@@ -285,6 +780,7 @@ export default function AddProductPage() {
                         value={formData.stockQuantity}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        aria-label="Stock quantity"
                       />
                     </div>
                   </div>
@@ -296,6 +792,7 @@ export default function AddProductPage() {
                       value={formData.stockStatus}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm max-w-xs"
+                      aria-label="Stock status"
                     />
                   </div>
                 </div>
@@ -312,6 +809,7 @@ export default function AddProductPage() {
                         value={formData.brand}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        aria-label="Product brand"
                       />
                     </div>
                     <div>
@@ -322,6 +820,7 @@ export default function AddProductPage() {
                         value={formData.weight}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        aria-label="Product weight"
                       />
                     </div>
                     <div>
@@ -332,6 +831,7 @@ export default function AddProductPage() {
                         value={formData.dimensions}
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        aria-label="Product dimensions"
                       />
                     </div>
                   </div>

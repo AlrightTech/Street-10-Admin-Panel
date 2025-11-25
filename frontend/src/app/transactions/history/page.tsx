@@ -30,6 +30,12 @@ export default function TransactionHistoryPage() {
     status: '',
     search: ''
   })
+  const [appliedFilters, setAppliedFilters] = useState({
+    transactionType: '',
+    date: '',
+    status: '',
+    search: ''
+  })
   const dateInputRef = useRef<HTMLInputElement>(null)
   const mobileDateInputRef = useRef<HTMLInputElement>(null)
 
@@ -116,17 +122,61 @@ export default function TransactionHistoryPage() {
 
   const handleClearFilters = () => {
     setFilters({ transactionType: '', date: '', status: '', search: '' })
+    setAppliedFilters({ transactionType: '', date: '', status: '', search: '' })
+    setCurrentPage(1)
   }
 
-  const hasActiveFilters = filters.transactionType || filters.date || filters.status || filters.search
+  const hasActiveFilters = appliedFilters.transactionType || appliedFilters.date || appliedFilters.status || appliedFilters.search
 
   const handleApplyFilters = () => {
-    // Apply filters logic here
-    console.log('Applying filters:', filters)
+    // Apply the current filter values
+    setAppliedFilters({ ...filters })
+    setCurrentPage(1) // Reset to first page when filters change
   }
 
-  const totalPages = 8
+  // Filter transactions based on applied filters
+  const filteredTransactions = transactions.filter(transaction => {
+    // Filter by transaction type
+    if (appliedFilters.transactionType && transaction.type.toLowerCase() !== appliedFilters.transactionType.toLowerCase()) {
+      return false
+    }
+    
+    // Filter by status
+    if (appliedFilters.status && transaction.status.toLowerCase() !== appliedFilters.status.toLowerCase()) {
+      return false
+    }
+    
+    // Filter by date
+    if (appliedFilters.date) {
+      // Convert transaction date to match filter date format
+      const transactionDate = new Date(transaction.date)
+      const filterDateParts = appliedFilters.date.split('/')
+      if (filterDateParts.length === 3) {
+        const filterDate = new Date(parseInt(filterDateParts[2]), parseInt(filterDateParts[0]) - 1, parseInt(filterDateParts[1]))
+        if (transactionDate.toDateString() !== filterDate.toDateString()) {
+          return false
+        }
+      }
+    }
+    
+    // Filter by search (transaction ID or order ID)
+    if (appliedFilters.search.trim()) {
+      const searchLower = appliedFilters.search.toLowerCase()
+      const matchesId = transaction.id.toLowerCase().includes(searchLower)
+      const matchesOrderId = transaction.orderId?.toLowerCase().includes(searchLower) || false
+      if (!matchesId && !matchesOrderId) {
+        return false
+      }
+    }
+    
+    return true
+  })
+
   const itemsPerPage = 5
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex)
 
   // Get visible pages for pagination
   const getVisiblePages = () => {
@@ -364,7 +414,27 @@ export default function TransactionHistoryPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {transactions.map((transaction: Transaction) => {
+                      {paginatedTransactions.length === 0 ? (
+                        <tr>
+                          <td colSpan={9} className="px-6 py-12 text-center">
+                            <div className="flex flex-col items-center justify-center">
+                              <Filter className="w-12 h-12 text-gray-400 mb-4" />
+                              <p className="text-gray-600 font-medium text-sm">
+                                {hasActiveFilters ? 'No transactions found matching your filters' : 'No transactions available'}
+                              </p>
+                              {hasActiveFilters && (
+                                <button
+                                  onClick={handleClearFilters}
+                                  className="mt-2 text-blue-600 hover:text-blue-700 text-sm underline"
+                                >
+                                  Clear filters
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        paginatedTransactions.map((transaction: Transaction) => {
                         const typeBadge = getTypeBadge(transaction.type)
                         const statusBadge = getStatusBadge(transaction.status)
                         return (
@@ -412,7 +482,8 @@ export default function TransactionHistoryPage() {
                             </td>
                           </tr>
                         )
-                      })}
+                      })
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -619,7 +690,23 @@ export default function TransactionHistoryPage() {
 
           {/* Transactions List as Cards */}
           <div className="space-y-3">
-            {transactions.map((transaction) => {
+            {filteredTransactions.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <Filter className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 font-medium text-sm mb-2">
+                  {hasActiveFilters ? 'No transactions found matching your filters' : 'No transactions available'}
+                </p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-blue-600 hover:text-blue-700 text-sm underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+            ) : (
+              filteredTransactions.slice(startIndex, endIndex).map((transaction) => {
               const typeBadge = getTypeBadge(transaction.type)
               const statusBadge = getStatusBadge(transaction.status)
               return (
@@ -674,7 +761,8 @@ export default function TransactionHistoryPage() {
                   </div>
                 </div>
               )
-            })}
+            })
+            )}
           </div>
 
           {/* Pagination */}

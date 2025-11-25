@@ -15,6 +15,7 @@ import {
   Bell
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/contexts/LanguageContext'
 import SalesChart from './SalesChart'
 
@@ -34,6 +35,7 @@ interface DashboardData {
 
 export default function DashboardContent() {
   const { t, language } = useLanguage()
+  const navigate = useNavigate()
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
@@ -219,6 +221,13 @@ export default function DashboardContent() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">{t('recentOrders')}</h2>
+            <button 
+              onClick={() => navigate('/orders')}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              type="button"
+            >
+              {t('viewAll')} &gt;
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -231,22 +240,30 @@ export default function DashboardContent() {
                 </tr>
               </thead>
               <tbody className="text-gray-900">
-                {(recentOrders || []).map((order, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium">{order.id}</td>
-                    <td className="py-3 px-4">{order.customer}</td>
-                    <td className="py-3 px-4 font-semibold">${order.amount.toFixed(2)}</td>
-                  <td className="py-3 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
-                        order.status === 'Completed' ? 'bg-green-500' :
-                        order.status === 'Processing' ? 'bg-yellow-500' :
-                        order.status === 'Shipped' ? 'bg-blue-500' : 'bg-red-500'
-                      }`}>
-                        {t(order.status.toLowerCase())}
-                      </span>
-                  </td>
-                </tr>
-                ))}
+                {(recentOrders || []).map((order, index) => {
+                  // Extract order number from order.id (e.g., "#ORD-89" -> "89")
+                  const orderNumber = order.id.replace(/[^0-9]/g, '')
+                  return (
+                    <tr 
+                      key={index} 
+                      onClick={() => navigate(`/orders/${orderNumber}`)}
+                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <td className="py-3 px-4 font-medium">{order.id}</td>
+                      <td className="py-3 px-4">{order.customer}</td>
+                      <td className="py-3 px-4 font-semibold">${order.amount.toFixed(2)}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
+                          order.status === 'Completed' ? 'bg-green-500' :
+                          order.status === 'Processing' ? 'bg-yellow-500' :
+                          order.status === 'Shipped' ? 'bg-blue-500' : 'bg-red-500'
+                        }`}>
+                          {t(order.status.toLowerCase())}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -352,7 +369,11 @@ export default function DashboardContent() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('bestSellingProducts')}</h2>
           <div className="space-y-3">
             {(bestSellingProducts || []).map((product, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+              <div 
+                key={index} 
+                onClick={() => navigate('/products')}
+                className="bg-gray-50 rounded-lg p-3 flex items-center justify-between hover:bg-gray-100 cursor-pointer transition-colors"
+              >
                 <div className="flex items-center space-x-3 flex-1">
                   <div className={`p-2 rounded-lg ${
                     index === 0 ? 'bg-blue-500' :
@@ -384,25 +405,37 @@ export default function DashboardContent() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('productInsights')}</h2>
           <div className="space-y-3">
             {/* Low Stock Item */}
-            <div className="flex items-center justify-between bg-pink-100 rounded-lg p-3">
+            <button
+              onClick={() => navigate('/products')}
+              className="w-full flex items-center justify-between bg-pink-100 rounded-lg p-3 hover:bg-pink-200 transition-colors"
+              type="button"
+            >
               <div className="flex items-center space-x-3">
                 <AlertCircle size={20} className="text-red-500" />
                 <span className="text-sm font-medium text-gray-900">{t('lowStock')}</span>
               </div>
               <span className="text-sm font-medium text-red-600">8 {t('items')}</span>
-            </div>
+            </button>
             
             {/* Out of Stock Item */}
-            <div className="flex items-center justify-between bg-orange-100 rounded-lg p-3">
+            <button
+              onClick={() => navigate('/products')}
+              className="w-full flex items-center justify-between bg-orange-100 rounded-lg p-3 hover:bg-orange-200 transition-colors"
+              type="button"
+            >
               <div className="flex items-center space-x-3">
                 <Circle size={20} className="text-orange-500" />
                 <span className="text-sm font-medium text-gray-900">{t('outOfStock')}</span>
               </div>
               <span className="text-sm font-medium text-orange-600">3 {t('items')}</span>
-            </div>
+            </button>
             
             {/* Quick Add Product Button */}
-            <button className="w-full bg-blue-100 py-3 px-4 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center space-x-2">
+            <button 
+              onClick={() => navigate('/products/add')}
+              className="w-full bg-blue-100 py-3 px-4 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center space-x-2"
+              type="button"
+            >
               <span className="text-2xl text-blue-600">+</span>
               <span className="text-blue-600 font-bold">{t('quickAddProduct')}</span>
             </button>
@@ -482,7 +515,11 @@ export default function DashboardContent() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('topSellingProductsTitle')}</h2>
           <div className="space-y-4">
             {(topSellingProducts || []).map((product, index) => (
-              <div key={index} className="flex items-center justify-between">
+              <div 
+                key={index} 
+                onClick={() => navigate('/products')}
+                className="flex items-center justify-between hover:bg-gray-50 p-2 rounded-lg cursor-pointer transition-colors"
+              >
                 <div className="flex items-center space-x-3">
                   <img 
                     src={product.image} 
@@ -560,9 +597,13 @@ export default function DashboardContent() {
                     />
                   ))}
                 </div>
-                <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+                <button 
+                  onClick={() => navigate('/products')}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  type="button"
+                >
                   {t('viewAll')} &gt;
-                </a>
+                </button>
               </div>
             </>
           )}

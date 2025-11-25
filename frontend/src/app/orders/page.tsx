@@ -33,11 +33,14 @@ export default function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
   const [loadingOrderId, setLoadingOrderId] = useState<number | null>(null)
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false)
+  const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [filterPaymentMethod, setFilterPaymentMethod] = useState<string>('all')
   
   // Modal states
-  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '' })
-  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' })
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {}, type: 'cancel' as 'cancel' | 'refund' | 'delete' })
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '', title: '' })
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '', title: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', title: '', onConfirm: () => {}, type: 'cancel' as 'cancel' | 'refund' | 'delete' })
   const [rawOrders, setRawOrders] = useState([
     { id: 1, orderNo: 'ORD-1562792771583', placedOn: '26/04/2020', type: 'Subscription', items: 5, amount: 200, paymentMethod: 'Online', status: 'Pending' },
     { id: 2, orderNo: 'ORD-1562792771584', placedOn: '26/04/2020', type: 'Order', items: 5, amount: 200, paymentMethod: 'COD', status: 'Completed' },
@@ -67,10 +70,29 @@ export default function OrdersPage() {
     })
   }
 
-  // Filter orders based on search query
+  // Filter orders based on search query and additional filters
   const filteredOrders = getFilteredByTab().filter(order => {
-    if (!searchQuery.trim()) return true
-    return order.orderNo.toLowerCase().includes(searchQuery.toLowerCase())
+    // Search filter
+    if (searchQuery.trim() && !order.orderNo.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false
+    }
+    // Payment method filter
+    if (filterPaymentMethod !== 'all' && order.paymentMethod !== filterPaymentMethod) {
+      return false
+    }
+    // Status filter
+    if (filterStatus !== 'all') {
+      const statusMap: { [key: string]: string } = {
+        'pending': 'Pending',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled',
+        'refunded': 'Refunded'
+      }
+      if (order.status !== statusMap[filterStatus]) {
+        return false
+      }
+    }
+    return true
   })
 
   // Pagination
@@ -173,6 +195,7 @@ export default function OrdersPage() {
     setOpenDropdownId(null)
     setConfirmModal({
       isOpen: true,
+      title: t('cancelOrder') || 'Cancel Order',
       message: t('confirmCancelOrder'),
       type: 'cancel',
       onConfirm: async () => {
@@ -191,7 +214,11 @@ export default function OrdersPage() {
           )
           
           // Show success message
-          setSuccessModal({ isOpen: true, message: t('orderCancelledSuccess') })
+          setSuccessModal({ 
+            isOpen: true, 
+            title: t('orderCancelled') || 'Order Cancelled',
+            message: t('orderCancelledSuccess') 
+          })
         
         // Reset to page 1 if current page becomes empty
         const updatedOrders = rawOrders.map(order => 
@@ -212,7 +239,11 @@ export default function OrdersPage() {
         }
         } catch (error) {
           console.error('Error cancelling order:', error)
-          setErrorModal({ isOpen: true, message: t('orderCancelledFailed') })
+          setErrorModal({ 
+            isOpen: true, 
+            title: t('cancelFailed') || 'Cancel Failed',
+            message: t('orderCancelledFailed') 
+          })
         } finally {
           setLoadingOrderId(null)
         }
@@ -224,6 +255,7 @@ export default function OrdersPage() {
     setOpenDropdownId(null)
     setConfirmModal({
       isOpen: true,
+      title: t('issueRefund') || 'Issue Refund',
       message: t('confirmRefundOrder'),
       type: 'refund',
       onConfirm: async () => {
@@ -242,7 +274,11 @@ export default function OrdersPage() {
           )
           
           // Show success message
-          setSuccessModal({ isOpen: true, message: t('refundProcessedSuccess') })
+          setSuccessModal({ 
+            isOpen: true, 
+            title: t('refundProcessed') || 'Refund Processed',
+            message: t('refundProcessedSuccess') 
+          })
         
         // Reset to page 1 if current page becomes empty
         const updatedOrders = rawOrders.map(order => 
@@ -263,7 +299,11 @@ export default function OrdersPage() {
         }
         } catch (error) {
           console.error('Error processing refund:', error)
-          setErrorModal({ isOpen: true, message: t('refundProcessedFailed') })
+          setErrorModal({ 
+            isOpen: true, 
+            title: t('refundFailed') || 'Refund Failed',
+            message: t('refundProcessedFailed') 
+          })
         } finally {
           setLoadingOrderId(null)
         }
@@ -280,6 +320,7 @@ export default function OrdersPage() {
     setOpenDropdownId(null)
     setConfirmModal({
       isOpen: true,
+      title: t('deleteOrder') || 'Delete Order',
       message: t('confirmDeleteOrder'),
       type: 'delete',
       onConfirm: async () => {
@@ -292,7 +333,11 @@ export default function OrdersPage() {
           setRawOrders(prevOrders => prevOrders.filter(order => order.id !== orderId))
           
           // Show success message
-          setSuccessModal({ isOpen: true, message: t('orderDeletedSuccess') })
+          setSuccessModal({ 
+            isOpen: true, 
+            title: t('orderDeleted') || 'Order Deleted',
+            message: t('orderDeletedSuccess') 
+          })
         
         // Reset to page 1 if current page becomes empty
         const remainingOrders = rawOrders.filter(order => order.id !== orderId)
@@ -313,7 +358,11 @@ export default function OrdersPage() {
         }
         } catch (error) {
           console.error('Error deleting order:', error)
-          setErrorModal({ isOpen: true, message: t('orderCancelledFailed') })
+          setErrorModal({ 
+            isOpen: true, 
+            title: t('deleteFailed') || 'Delete Failed',
+            message: t('orderCancelledFailed') 
+          })
         } finally {
           setLoadingOrderId(null)
         }
@@ -321,31 +370,42 @@ export default function OrdersPage() {
     })
   }
 
+  // Close dropdown when modals open
+  useEffect(() => {
+    if (confirmModal.isOpen || successModal.isOpen || errorModal.isOpen) {
+      setOpenDropdownId(null)
+      setShowFilterDropdown(false)
+    }
+  }, [confirmModal.isOpen, successModal.isOpen, errorModal.isOpen])
+
   // Close dropdown when clicking outside and prevent body scroll when dropdown is open
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (openDropdownId !== null) {
-        const target = event.target as HTMLElement
-        if (!target.closest('.order-dropdown-container')) {
-          setOpenDropdownId(null)
-        }
+      const target = event.target as HTMLElement
+      if (openDropdownId !== null && !target.closest('.order-dropdown-container')) {
+        setOpenDropdownId(null)
+      }
+      if (showFilterDropdown && !target.closest('.filter-dropdown-container')) {
+        setShowFilterDropdown(false)
       }
     }
 
-    // Prevent body scroll when dropdown is open
-    if (openDropdownId !== null) {
+    // Prevent body scroll when dropdown is open (but not when modals are open)
+    if ((openDropdownId !== null || showFilterDropdown) && !confirmModal.isOpen && !successModal.isOpen && !errorModal.isOpen) {
       document.body.style.overflow = 'hidden'
-    } else {
+    } else if (!confirmModal.isOpen && !successModal.isOpen && !errorModal.isOpen) {
       document.body.style.overflow = ''
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-      // Reset body overflow when component unmounts
-      document.body.style.overflow = ''
+      // Reset body overflow when component unmounts (only if modals aren't open)
+      if (!confirmModal.isOpen && !successModal.isOpen && !errorModal.isOpen) {
+        document.body.style.overflow = ''
+      }
     }
-  }, [openDropdownId])
+  }, [openDropdownId, showFilterDropdown, confirmModal.isOpen, successModal.isOpen, errorModal.isOpen])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -455,13 +515,93 @@ export default function OrdersPage() {
                         className="w-full lg:w-64 pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
                       />
                     </div>
-                    <button 
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm flex-shrink-0" 
-                      aria-label="Filter orders"
-                    >
-                      <Filter size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      <span className="hidden sm:inline">{t('filter')}</span>
-                    </button>
+                    <div className="relative filter-dropdown-container flex-shrink-0">
+                      <button 
+                        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                        className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
+                        aria-label="Filter orders"
+                        type="button"
+                      >
+                        <Filter size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        <span className="hidden sm:inline">{t('filter')}</span>
+                      </button>
+                      
+                      {/* Filter Dropdown */}
+                      {showFilterDropdown && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40 lg:hidden"
+                            onClick={() => setShowFilterDropdown(false)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[60] lg:z-[60]">
+                            <div className="px-4 py-3 border-b border-gray-200">
+                              <div className="flex items-center justify-between">
+                                <h3 className="text-sm font-semibold text-gray-900">{t('filterOrders')}</h3>
+                                <button
+                                  onClick={() => setShowFilterDropdown(false)}
+                                  className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                                  type="button"
+                                  aria-label="Close filter"
+                                >
+                                  <X size={16} />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 space-y-4 max-h-[60vh] overflow-y-auto">
+                              {/* Status Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status')}</label>
+                                <select
+                                  value={filterStatus}
+                                  onChange={(e) => setFilterStatus(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option value="all">{t('all')}</option>
+                                  <option value="pending">{t('pending')}</option>
+                                  <option value="completed">{t('completed')}</option>
+                                  <option value="cancelled">{t('cancelled')}</option>
+                                  <option value="refunded">{t('refunded')}</option>
+                                </select>
+                              </div>
+                              {/* Payment Method Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('paymentMethod')}</label>
+                                <select
+                                  value={filterPaymentMethod}
+                                  onChange={(e) => setFilterPaymentMethod(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option value="all">{t('all')}</option>
+                                  <option value="Online">Online</option>
+                                  <option value="COD">COD</option>
+                                  <option value="Wallet">Wallet</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
+                              <button
+                                onClick={() => {
+                                  setFilterPaymentMethod('all')
+                                  setFilterStatus('all')
+                                  setShowFilterDropdown(false)
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:scale-[0.98] transition-all duration-200"
+                                type="button"
+                              >
+                                {t('reset')}
+                              </button>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
+                                type="button"
+                              >
+                                {t('apply')}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -526,7 +666,7 @@ export default function OrdersPage() {
                                   
                                   {/* Dropdown */}
                                   <div 
-                                    className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:left-auto lg:right-0 lg:top-full lg:mt-1 z-50 bg-white lg:rounded-lg lg:shadow-xl lg:border lg:border-gray-200 lg:w-56 flex flex-col max-h-[80vh] lg:max-h-[400px]"
+                                    className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:left-auto lg:right-0 lg:top-full lg:mt-1 z-[55] bg-white lg:rounded-xl lg:shadow-2xl lg:border lg:border-gray-200 lg:w-56 flex flex-col max-h-[80vh] lg:max-h-[400px]"
                                     onWheel={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
                                     onClick={(e) => e.stopPropagation()}
@@ -768,7 +908,7 @@ export default function OrdersPage() {
                                   
                                   {/* Dropdown */}
                                   <div 
-                                    className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-lg shadow-xl border-t border-gray-200 flex flex-col max-h-[80vh]"
+                                    className="fixed bottom-0 left-0 right-0 z-[55] bg-white rounded-t-xl shadow-2xl border-t border-gray-200 flex flex-col max-h-[80vh]"
                                     onWheel={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
                                     onClick={(e) => e.stopPropagation()}
@@ -1074,13 +1214,91 @@ export default function OrdersPage() {
                       className="w-full pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
                     />
                   </div>
-                  <button 
-                    className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm flex-shrink-0" 
-                    aria-label="Filter orders"
-                  >
-                    <Filter size={16} className="sm:w-[18px] sm:h-[18px]" />
-                    <span className="hidden sm:inline">Filter</span>
-                  </button>
+                  <div className="relative filter-dropdown-container flex-shrink-0">
+                    <button 
+                      onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                      className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
+                      aria-label="Filter orders"
+                      type="button"
+                    >
+                      <Filter size={16} className="sm:w-[18px] sm:h-[18px]" />
+                      <span className="hidden sm:inline">Filter</span>
+                    </button>
+                    
+                    {/* Filter Dropdown - Mobile */}
+                    {showFilterDropdown && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowFilterDropdown(false)}
+                        />
+                        <div className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:w-72 bg-white rounded-t-xl lg:rounded-xl shadow-2xl border-t lg:border border-gray-200 py-2 z-[60]">
+                          <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                            <h3 className="text-sm font-semibold text-gray-900">{t('filterOrders')}</h3>
+                            <button
+                              onClick={() => setShowFilterDropdown(false)}
+                              className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                              type="button"
+                              aria-label="Close filter"
+                            >
+                              <X size={18} />
+                            </button>
+                          </div>
+                          <div className="px-4 py-3 space-y-4 max-h-[60vh] overflow-y-auto">
+                            {/* Status Filter */}
+                            <div>
+                              <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status')}</label>
+                              <select
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                              >
+                                <option value="all">{t('all')}</option>
+                                <option value="pending">{t('pending')}</option>
+                                <option value="completed">{t('completed')}</option>
+                                <option value="cancelled">{t('cancelled')}</option>
+                                <option value="refunded">{t('refunded')}</option>
+                              </select>
+                            </div>
+                            {/* Payment Method Filter */}
+                            <div>
+                              <label className="text-xs font-medium text-gray-700 mb-2 block">{t('paymentMethod')}</label>
+                              <select
+                                value={filterPaymentMethod}
+                                onChange={(e) => setFilterPaymentMethod(e.target.value)}
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                              >
+                                <option value="all">{t('all')}</option>
+                                <option value="Online">Online</option>
+                                <option value="COD">COD</option>
+                                <option value="Wallet">Wallet</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
+                            <button
+                              onClick={() => {
+                                setFilterPaymentMethod('all')
+                                setFilterStatus('all')
+                                setShowFilterDropdown(false)
+                              }}
+                              className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:scale-[0.98] transition-all duration-200"
+                              type="button"
+                            >
+                              {t('reset')}
+                            </button>
+                            <button
+                              onClick={() => setShowFilterDropdown(false)}
+                              className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
+                              type="button"
+                            >
+                              {t('apply')}
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1130,7 +1348,7 @@ export default function OrdersPage() {
                                   
                                   {/* Dropdown */}
                                   <div 
-                                    className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-lg shadow-xl border-t border-gray-200 flex flex-col max-h-[80vh]"
+                                    className="fixed bottom-0 left-0 right-0 z-[55] bg-white rounded-t-xl shadow-2xl border-t border-gray-200 flex flex-col max-h-[80vh]"
                                     onWheel={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
                                     onClick={(e) => e.stopPropagation()}
@@ -1337,24 +1555,27 @@ export default function OrdersPage() {
       {/* Modals */}
       <SuccessModal
         isOpen={successModal.isOpen}
-        onClose={() => setSuccessModal({ isOpen: false, message: '' })}
+        onClose={() => setSuccessModal({ isOpen: false, message: '', title: '' })}
+        title={successModal.title}
         message={successModal.message}
       />
       
       <ErrorModal
         isOpen={errorModal.isOpen}
-        onClose={() => setErrorModal({ isOpen: false, message: '' })}
+        onClose={() => setErrorModal({ isOpen: false, message: '', title: '' })}
+        title={errorModal.title}
         message={errorModal.message}
       />
       
       <ConfirmModal
         isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => {}, type: 'cancel' })}
+        onClose={() => setConfirmModal({ isOpen: false, message: '', title: '', onConfirm: () => {}, type: 'cancel' })}
         onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
         message={confirmModal.message}
         confirmText={t('confirm') || 'Confirm'}
         cancelText={t('cancel') || 'Cancel'}
-        confirmButtonColor={confirmModal.type === 'delete' ? 'red' : 'orange'}
+        confirmButtonColor={confirmModal.type === 'delete' ? 'red' : confirmModal.type === 'refund' ? 'red' : 'orange'}
       />
     </div>
   )

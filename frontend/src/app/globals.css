@@ -267,6 +267,19 @@
     animation: slideUp 0.3s ease-out;
   }
 
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
   /* Disabled email input - prevents pointer events */
   .email-disabled {
     pointer-events: none;
