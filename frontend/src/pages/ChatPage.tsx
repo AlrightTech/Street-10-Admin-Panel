@@ -17,7 +17,7 @@ export default function ChatPage() {
   const [callDuration, setCallDuration] = useState(0)
   const [isMuted, setIsMuted] = useState(false)
   const [isSpeakerOn, setIsSpeakerOn] = useState(false)
-  const callTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const callTimerRef = useRef<number | null>(null)
   
   const [showVideoCallModal, setShowVideoCallModal] = useState(false)
   const [videoCallStatus, setVideoCallStatus] = useState<'connecting' | 'ringing' | 'active' | 'ended'>('connecting')
@@ -26,7 +26,7 @@ export default function ChatPage() {
   const [isVideoCameraOn, setIsVideoCameraOn] = useState(true)
   const [isVideoSpeakerOn, setIsVideoSpeakerOn] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
-  const videoCallTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const videoCallTimerRef = useRef<number | null>(null)
 
   type Message = { id: string; author: 'me' | 'them'; text: string; time: string }
   type Conversation = {
@@ -192,15 +192,15 @@ export default function ChatPage() {
       setCallStatus('active')
       // Start call timer
       const startTime = Date.now()
-      callTimerRef.current = setInterval(() => {
+      callTimerRef.current = window.setInterval(() => {
         setCallDuration(Math.floor((Date.now() - startTime) / 1000))
-      }, 1000)
+      }, 1000) as unknown as number
     }, 3000)
   }
 
   const handleEndCall = () => {
     if (callTimerRef.current) {
-      clearInterval(callTimerRef.current)
+      window.clearInterval(callTimerRef.current)
       callTimerRef.current = null
     }
     setCallStatus('ended')
@@ -220,10 +220,10 @@ export default function ChatPage() {
   useEffect(() => {
     return () => {
       if (callTimerRef.current) {
-        clearInterval(callTimerRef.current)
+        window.clearInterval(callTimerRef.current)
       }
       if (videoCallTimerRef.current) {
-        clearInterval(videoCallTimerRef.current)
+        window.clearInterval(videoCallTimerRef.current)
       }
     }
   }, [])
@@ -246,15 +246,15 @@ export default function ChatPage() {
       setVideoCallStatus('active')
       // Start call timer
       const startTime = Date.now()
-      videoCallTimerRef.current = setInterval(() => {
+      videoCallTimerRef.current = window.setInterval(() => {
         setVideoCallDuration(Math.floor((Date.now() - startTime) / 1000))
-      }, 1000)
+      }, 1000) as unknown as number
     }, 3000)
   }
 
   const handleEndVideoCall = () => {
     if (videoCallTimerRef.current) {
-      clearInterval(videoCallTimerRef.current)
+      window.clearInterval(videoCallTimerRef.current)
       videoCallTimerRef.current = null
     }
     setVideoCallStatus('ended')
