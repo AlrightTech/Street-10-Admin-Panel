@@ -26,6 +26,71 @@ export default function OrderInvoicePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
+  // Handle download PDF
+  const handleDownloadPDF = () => {
+    // Get the invoice content (try desktop first, then mobile)
+    const invoiceElement = document.getElementById('invoice-content') || 
+                          document.getElementById('invoice-content-mobile') ||
+                          document.querySelector('.bg-white.rounded-lg.p-4')
+    
+    if (invoiceElement) {
+      // Create a new window with the invoice content
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        const invoiceHTML = invoiceElement.innerHTML
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Invoice ${invoice.invoiceNo}</title>
+              <meta charset="utf-8">
+              <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { 
+                  font-family: Arial, sans-serif; 
+                  padding: 20px; 
+                  background: white;
+                  color: #000;
+                  line-height: 1.5;
+                }
+                @media print { 
+                  body { padding: 0; }
+                  @page { margin: 0.5cm; size: A4; }
+                }
+                .bg-white { background: white !important; }
+                .text-gray-900 { color: #111827 !important; }
+                .text-gray-700 { color: #374151 !important; }
+                .text-gray-600 { color: #4B5563 !important; }
+                .border-gray-200 { border-color: #E5E7EB !important; }
+                .border-gray-300 { border-color: #D1D5DB !important; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { padding: 8px; text-align: left; }
+                .no-print { display: none !important; }
+              </style>
+            </head>
+            <body>
+              ${invoiceHTML}
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+        
+        // Wait for content to load, then trigger print (which allows saving as PDF)
+        setTimeout(() => {
+          printWindow.print()
+        }, 500)
+      }
+    } else {
+      // Fallback: just trigger print on current page
+      window.print()
+    }
+  }
+
+  // Handle print invoice
+  const handlePrintInvoice = () => {
+    window.print()
+  }
+
   const rawInvoice = {
     invoiceNo: 'INV-2024-00047',
     date: 'September 20, 2024',
@@ -88,6 +153,13 @@ export default function OrderInvoicePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          body { background: white; }
+          .bg-gray-50 { background: white !important; }
+        }
+      `}</style>
       <div className="hidden lg:flex h-screen overflow-hidden">
         {!sidebarCollapsed && (
           <div className="w-64 flex-shrink-0 bg-primary-500 h-screen overflow-y-auto">
@@ -118,7 +190,7 @@ export default function OrderInvoicePage() {
               </div>
 
               {/* Invoice Card */}
-              <div className="bg-white rounded-lg p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200">
+              <div className="bg-white rounded-lg p-4 sm:p-6 md:p-8 shadow-sm border border-gray-200" id="invoice-content">
                 {/* Company Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-gray-200">
                   <div className="flex items-center gap-2 sm:gap-3">
@@ -296,12 +368,20 @@ export default function OrderInvoicePage() {
               </div>
 
               {/* Footer Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-end gap-2 sm:gap-3">
-                <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-sm sm:text-base">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-end gap-2 sm:gap-3 no-print">
+                <button 
+                  onClick={handleDownloadPDF}
+                  className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-sm sm:text-base"
+                  type="button"
+                >
                   <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
                   {t('downloadPdf')}
                 </button>
-                <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-sm sm:text-base">
+                <button 
+                  onClick={handlePrintInvoice}
+                  className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-sm sm:text-base"
+                  type="button"
+                >
                   <Printer size={16} className="sm:w-[18px] sm:h-[18px]" />
                   {t('printInvoice')}
                 </button>
@@ -339,7 +419,7 @@ export default function OrderInvoicePage() {
               </div>
 
               {/* Invoice Card */}
-              <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200">
+              <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200" id="invoice-content-mobile">
                 {/* Company Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-gray-200">
                   <div className="flex items-center gap-2 sm:gap-3">
@@ -517,12 +597,20 @@ export default function OrderInvoicePage() {
               </div>
 
               {/* Footer Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-end gap-2 sm:gap-3 pb-6">
-                <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-sm sm:text-base">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center sm:justify-end gap-2 sm:gap-3 pb-6 no-print">
+                <button 
+                  onClick={handleDownloadPDF}
+                  className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-sm sm:text-base"
+                  type="button"
+                >
                   <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
                   {t('downloadPdf')}
                 </button>
-                <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-sm sm:text-base">
+                <button 
+                  onClick={handlePrintInvoice}
+                  className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-sm sm:text-base"
+                  type="button"
+                >
                   <Printer size={16} className="sm:w-[18px] sm:h-[18px]" />
                   {t('printInvoice')}
                 </button>

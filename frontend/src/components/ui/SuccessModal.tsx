@@ -33,53 +33,57 @@ export default function SuccessModal({ isOpen, onClose, title, message }: Succes
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fadeIn">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-fadeIn"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-100 border border-gray-200/50">
+      <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-100 border border-gray-200/50 animate-slideUp overflow-hidden">
+        {/* Decorative gradient top bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-green-500"></div>
+        
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all duration-200 text-gray-400 hover:text-gray-600 z-10 group"
+          className="absolute top-4 right-4 p-2 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-all duration-200 text-gray-400 hover:text-gray-600 z-10 group"
           aria-label="Close modal"
         >
-          <X size={18} className="group-hover:rotate-90 transition-transform duration-200" />
+          <X size={20} className="group-hover:rotate-90 transition-transform duration-200" />
         </button>
 
-        <div className="p-6 sm:p-8">
+        <div className="p-6 sm:p-8 pt-8">
           <div className="flex flex-col items-center text-center">
-            {/* Success Icon with Animation */}
+            {/* Success Icon with Enhanced Animation */}
             <div className="relative mb-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-green-50 to-emerald-50 rounded-full flex items-center justify-center shadow-lg shadow-green-100/50">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center animate-pulse-slow">
-                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-inner">
-                    <Check className="text-white" size={40} strokeWidth={3} />
+              <div className="w-28 h-28 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-full flex items-center justify-center shadow-xl shadow-green-100/50">
+                <div className="w-24 h-24 bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 rounded-full flex items-center justify-center animate-pulse-slow">
+                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
+                    <Check className="text-white" size={44} strokeWidth={2.5} />
                   </div>
                 </div>
               </div>
               {/* Animated rings */}
-              <div className="absolute inset-0 rounded-full border-4 border-green-200/30 animate-ping" style={{ animationDuration: '2s' }}></div>
+              <div className="absolute inset-0 rounded-full border-4 border-green-200/40 animate-ping" style={{ animationDuration: '3s' }}></div>
+              <div className="absolute inset-0 rounded-full border-2 border-emerald-200/30 animate-pulse" style={{ animationDuration: '2s' }}></div>
             </div>
             
             {/* Title */}
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 tracking-tight">
               {title || 'Success!'}
             </h3>
             
             {/* Message */}
-            <p className="text-gray-600 mb-8 text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
+            <p className="text-gray-600 mb-8 text-sm sm:text-base leading-relaxed max-w-sm mx-auto px-2">
               {message}
             </p>
             
             {/* OK Button */}
             <button
               onClick={onClose}
-              className="w-full px-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 active:scale-[0.98] transition-all duration-200 font-semibold text-base shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+              className="w-full px-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 active:scale-[0.97] transition-all duration-200 font-semibold text-base shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transform hover:scale-[1.02]"
             >
               OK
             </button>

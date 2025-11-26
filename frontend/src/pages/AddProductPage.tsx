@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import { Menu, Upload, X, ChevronDown, Info, FileText, Image as ImageIcon, CheckCircle2, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { ButtonLoader } from '@/components/ui/Loader'
+import ErrorModal from '@/components/ui/ErrorModal'
+import SuccessModal from '@/components/ui/SuccessModal'
 
 interface UploadedFile {
   file: File
@@ -21,6 +23,9 @@ export default function AddProductPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const [errors, setErrors] = useState<{[key: string]: string}>({})
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '', title: '' })
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '', title: '' })
   
   // File upload refs and states
   const mediaInputRef = useRef<HTMLInputElement>(null)
@@ -48,33 +53,119 @@ export default function AddProductPage() {
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     })
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' })
+    }
+  }
+
+  // Validation function
+  const validateForm = (): boolean => {
+    const newErrors: {[key: string]: string} = {}
+
+    // Required fields
+    if (!formData.title.trim()) {
+      newErrors.title = t('titleRequired') || 'Product title is required'
+    }
+    if (!formData.category) {
+      newErrors.category = t('categoryRequired') || 'Category is required'
+    }
+    if (!formData.condition) {
+      newErrors.condition = t('conditionRequired') || 'Condition is required'
+    }
+    if (!formData.description.trim()) {
+      newErrors.description = t('descriptionRequired') || 'Description is required'
+    }
+    if (!formData.price.trim()) {
+      newErrors.price = t('priceRequired') || 'Price is required'
+    } else if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
+      newErrors.price = t('priceInvalid') || 'Price must be a valid positive number'
+    }
+    if (!formData.stockQuantity.trim()) {
+      newErrors.stockQuantity = t('stockRequired') || 'Stock quantity is required'
+    } else if (isNaN(parseInt(formData.stockQuantity)) || parseInt(formData.stockQuantity) < 0) {
+      newErrors.stockQuantity = t('stockInvalid') || 'Stock quantity must be a valid non-negative number'
+    }
+    if (formData.discountPrice && (isNaN(parseFloat(formData.discountPrice)) || parseFloat(formData.discountPrice) <= 0)) {
+      newErrors.discountPrice = t('discountPriceInvalid') || 'Discount price must be a valid positive number'
+    }
+    if (formData.discountPrice && formData.price && parseFloat(formData.discountPrice) >= parseFloat(formData.price)) {
+      newErrors.discountPrice = t('discountPriceMustBeLess') || 'Discount price must be less than regular price'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handlePublish = async () => {
+    // Validate form
+    if (!validateForm()) {
+      setErrorModal({
+        isOpen: true,
+        title: t('validationError') || 'Validation Error',
+        message: t('pleaseFixErrors') || 'Please fix all errors before publishing'
+      })
+      // Scroll to first error
+      setTimeout(() => {
+        const firstErrorField = Object.keys(errors)[0]
+        if (firstErrorField) {
+          const element = document.querySelector(`[name="${firstErrorField}"]`)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            if (element instanceof HTMLElement) {
+              element.focus()
+            }
+          }
+        }
+      }, 100)
+      return
+    }
+
     setIsPublishing(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800))
-    setIsPublishing(false)
-    alert(t('productPublished'))
-    navigate('/products')
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 800))
+      setSuccessModal({
+        isOpen: true,
+        title: t('productPublished') || 'Product Published',
+        message: t('productPublishedSuccess') || 'Product has been published successfully!'
+      })
+    } catch (error) {
+      setErrorModal({
+        isOpen: true,
+        title: t('publishFailed') || 'Publish Failed',
+        message: t('productPublishFailed') || 'Failed to publish product. Please try again.'
+      })
+    } finally {
+      setIsPublishing(false)
+    }
   }
 
   const handleCancel = () => {
     navigate('/products')
   }
 
-  // File upload handlers
-  const handleMediaClick = () => {
+  // File upload handlers - Opens file browser
+  const handleMediaClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     if (mediaInputRef.current) {
       mediaInputRef.current.click()
     }
   }
 
-  const handleDocumentClick = () => {
+  const handleDocumentClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     if (documentInputRef.current) {
       documentInputRef.current.click()
     }
@@ -407,8 +498,13 @@ export default function AddProductPage() {
                       placeholder={t('enterProductTitle')}
                       value={formData.title}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                      className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm ${
+                        errors.title ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      }`}
                     />
+                    {errors.title && (
+                      <p className="mt-1 text-xs text-red-600">{errors.title}</p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -419,7 +515,9 @@ export default function AddProductPage() {
                           name="category"
                           value={formData.category}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                          className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm ${
+                            errors.category ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                          }`}
                           aria-label="Select category"
                         >
                           <option value="">{t('selectCategory')}</option>
@@ -430,6 +528,9 @@ export default function AddProductPage() {
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                       </div>
+                      {errors.category && (
+                        <p className="mt-1 text-xs text-red-600">{errors.category}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('condition')}</label>
@@ -438,7 +539,9 @@ export default function AddProductPage() {
                           name="condition"
                           value={formData.condition}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                          className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-700 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm ${
+                            errors.condition ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                          }`}
                           aria-label="Select condition"
                         >
                           <option value="">{t('selectCondition')}</option>
@@ -449,6 +552,9 @@ export default function AddProductPage() {
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                       </div>
+                      {errors.condition && (
+                        <p className="mt-1 text-xs text-red-600">{errors.condition}</p>
+                      )}
                     </div>
                   </div>
 
@@ -460,8 +566,13 @@ export default function AddProductPage() {
                       onChange={handleInputChange}
                       rows={4}
                       placeholder={t('enterDescription')}
-                      className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                      className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm ${
+                        errors.description ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      }`}
                     />
+                    {errors.description && (
+                      <p className="mt-1 text-xs text-red-600">{errors.description}</p>
+                    )}
                   </div>
                 </div>
 
@@ -754,9 +865,14 @@ export default function AddProductPage() {
                         type="text"
                         value={formData.price}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm ${
+                          errors.price ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        }`}
                         aria-label="Product price"
                       />
+                      {errors.price && (
+                        <p className="mt-1 text-xs text-red-600">{errors.price}</p>
+                      )}
                     </div>
                     <div>
                       <label className="flex items-center gap-1 text-xs sm:text-sm font-medium text-gray-700 mb-1">
@@ -768,9 +884,14 @@ export default function AddProductPage() {
                         type="text"
                         value={formData.discountPrice}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm ${
+                          errors.discountPrice ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        }`}
                         aria-label="Discount price"
                       />
+                      {errors.discountPrice && (
+                        <p className="mt-1 text-xs text-red-600">{errors.discountPrice}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">{t('stockQuantity')}</label>
@@ -779,9 +900,14 @@ export default function AddProductPage() {
                         type="text"
                         value={formData.stockQuantity}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm"
+                        className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white text-sm ${
+                          errors.stockQuantity ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                        }`}
                         aria-label="Stock quantity"
                       />
+                      {errors.stockQuantity && (
+                        <p className="mt-1 text-xs text-red-600">{errors.stockQuantity}</p>
+                      )}
                     </div>
                   </div>
                   <div>
@@ -859,6 +985,25 @@ export default function AddProductPage() {
           </main>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => {
+          setSuccessModal({ isOpen: false, message: '', title: '' })
+          navigate('/products')
+        }}
+        title={successModal.title}
+        message={successModal.message}
+      />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, message: '', title: '' })}
+        title={errorModal.title}
+        message={errorModal.message}
+      />
     </div>
   )
 }

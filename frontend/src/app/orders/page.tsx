@@ -517,7 +517,10 @@ export default function OrdersPage() {
                     </div>
                     <div className="relative filter-dropdown-container flex-shrink-0">
                       <button 
-                        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowFilterDropdown(!showFilterDropdown)
+                        }}
                         className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
                         aria-label="Filter orders"
                         type="button"
@@ -533,12 +536,18 @@ export default function OrdersPage() {
                             className="fixed inset-0 z-40 lg:hidden"
                             onClick={() => setShowFilterDropdown(false)}
                           />
-                          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[60] lg:z-[60]">
+                          <div 
+                            className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[60] lg:z-[60]"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <div className="px-4 py-3 border-b border-gray-200">
                               <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-semibold text-gray-900">{t('filterOrders')}</h3>
                                 <button
-                                  onClick={() => setShowFilterDropdown(false)}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setShowFilterDropdown(false)
+                                  }}
                                   className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
                                   type="button"
                                   aria-label="Close filter"
@@ -553,8 +562,12 @@ export default function OrdersPage() {
                                 <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status')}</label>
                                 <select
                                   value={filterStatus}
-                                  onChange={(e) => setFilterStatus(e.target.value)}
+                                  onChange={(e) => {
+                                    e.stopPropagation()
+                                    setFilterStatus(e.target.value)
+                                  }}
                                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   <option value="all">{t('all')}</option>
                                   <option value="pending">{t('pending')}</option>
@@ -568,8 +581,12 @@ export default function OrdersPage() {
                                 <label className="text-xs font-medium text-gray-700 mb-2 block">{t('paymentMethod')}</label>
                                 <select
                                   value={filterPaymentMethod}
-                                  onChange={(e) => setFilterPaymentMethod(e.target.value)}
+                                  onChange={(e) => {
+                                    e.stopPropagation()
+                                    setFilterPaymentMethod(e.target.value)
+                                  }}
                                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   <option value="all">{t('all')}</option>
                                   <option value="Online">Online</option>
@@ -580,7 +597,8 @@ export default function OrdersPage() {
                             </div>
                             <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation()
                                   setFilterPaymentMethod('all')
                                   setFilterStatus('all')
                                   setShowFilterDropdown(false)
@@ -591,7 +609,10 @@ export default function OrdersPage() {
                                 {t('reset')}
                               </button>
                               <button
-                                onClick={() => setShowFilterDropdown(false)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setShowFilterDropdown(false)
+                                }}
                                 className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
                                 type="button"
                               >
@@ -1216,7 +1237,10 @@ export default function OrdersPage() {
                   </div>
                   <div className="relative filter-dropdown-container flex-shrink-0">
                     <button 
-                      onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowFilterDropdown(!showFilterDropdown)
+                      }}
                       className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
                       aria-label="Filter orders"
                       type="button"
@@ -1232,11 +1256,17 @@ export default function OrdersPage() {
                           className="fixed inset-0 z-40"
                           onClick={() => setShowFilterDropdown(false)}
                         />
-                        <div className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:w-72 bg-white rounded-t-xl lg:rounded-xl shadow-2xl border-t lg:border border-gray-200 py-2 z-[60]">
+                        <div 
+                          className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:w-72 bg-white rounded-t-xl lg:rounded-xl shadow-2xl border-t lg:border border-gray-200 py-2 z-[60]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
                             <h3 className="text-sm font-semibold text-gray-900">{t('filterOrders')}</h3>
                             <button
-                              onClick={() => setShowFilterDropdown(false)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setShowFilterDropdown(false)
+                              }}
                               className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
                               type="button"
                               aria-label="Close filter"
@@ -1250,8 +1280,12 @@ export default function OrdersPage() {
                               <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status')}</label>
                               <select
                                 value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
+                                onChange={(e) => {
+                                  e.stopPropagation()
+                                  setFilterStatus(e.target.value)
+                                }}
                                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <option value="all">{t('all')}</option>
                                 <option value="pending">{t('pending')}</option>
@@ -1265,8 +1299,12 @@ export default function OrdersPage() {
                               <label className="text-xs font-medium text-gray-700 mb-2 block">{t('paymentMethod')}</label>
                               <select
                                 value={filterPaymentMethod}
-                                onChange={(e) => setFilterPaymentMethod(e.target.value)}
+                                onChange={(e) => {
+                                  e.stopPropagation()
+                                  setFilterPaymentMethod(e.target.value)
+                                }}
                                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <option value="all">{t('all')}</option>
                                 <option value="Online">Online</option>
@@ -1277,7 +1315,8 @@ export default function OrdersPage() {
                           </div>
                           <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
                             <button
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation()
                                 setFilterPaymentMethod('all')
                                 setFilterStatus('all')
                                 setShowFilterDropdown(false)
@@ -1288,7 +1327,10 @@ export default function OrdersPage() {
                               {t('reset')}
                             </button>
                             <button
-                              onClick={() => setShowFilterDropdown(false)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setShowFilterDropdown(false)
+                              }}
                               className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
                               type="button"
                             >

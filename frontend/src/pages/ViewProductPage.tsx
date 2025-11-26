@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, Edit, Trash2, ArrowLeft, Plus, Youtube, Circle } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 export default function ViewProductPage() {
   const navigate = useNavigate()
@@ -12,6 +13,7 @@ export default function ViewProductPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const { t, language, translateProduct } = useLanguage()
 
   // Product images array - different images for carousel
@@ -233,8 +235,8 @@ export default function ViewProductPage() {
                         <span>{t('editProduct')}</span>
                       </button>
                       <button 
-                        onClick={() => { if (confirm(language === 'ar' ? 'حذف هذا المنتج؟' : 'Delete this product?')) navigate('/products') }}
-                        className="w-full px-4 py-2.5 border-2 border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 font-medium"
+                        onClick={() => setShowDeleteModal(true)}
+                        className="w-full px-4 py-2.5 border-2 border-red-300 bg-white text-red-600 rounded-lg hover:bg-red-50 hover:border-red-400 transition-colors flex items-center justify-center gap-2 font-medium"
                       >
                         <Trash2 size={18} />
                         <span>{t('deleteProduct')}</span>
@@ -329,6 +331,23 @@ export default function ViewProductPage() {
           </main>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          // Handle delete logic here
+          navigate('/products')
+        }}
+        title={language === 'ar' ? 'حذف المنتج' : 'Delete Product'}
+        message={language === 'ar' 
+          ? 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.' 
+          : 'Are you sure you want to delete this product? This action cannot be undone.'}
+        confirmText={language === 'ar' ? 'حذف' : 'Delete'}
+        cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+        confirmButtonColor="red"
+      />
     </div>
   )
 }

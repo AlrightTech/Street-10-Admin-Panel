@@ -1,6 +1,6 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Menu, ArrowLeft, TrendingUp, DollarSign, Tag, RefreshCw, BarChart3, Star, Calendar, Search, Download } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -22,6 +22,16 @@ export default function ProductPerformancePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [chartRange, setChartRange] = useState('daily')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  
+  // Refs for date pickers
+  const startDateInputRef = useRef<HTMLInputElement>(null)
+  const endDateInputRef = useRef<HTMLInputElement>(null)
+  const startDateInputMobileRef = useRef<HTMLInputElement>(null)
+  const endDateInputMobileRef = useRef<HTMLInputElement>(null)
 
   // Mock product data
   const product = {
@@ -68,7 +78,7 @@ export default function ProductPerformancePage() {
     return chartPadding.left + (index / (salesData.length - 1)) * graphWidth
   }
 
-  const orders = [
+  const allOrders: ProductOrder[] = [
     { id: 'ORD-2024-001', customer: 'John Smith', date: 'Jan 15, 2024', qty: 2, revenue: 299.79, status: 'Delivered' },
     { id: 'ORD-2024-002', customer: 'Sarah Johnson', date: 'Jan 14, 2024', qty: 1, revenue: 149.85, status: 'Delivered' },
     { id: 'ORD-2024-003', customer: 'Michael Green', date: 'Jan 13, 2024', qty: 1, revenue: 149.85, status: 'Returned' },
@@ -76,12 +86,185 @@ export default function ProductPerformancePage() {
     { id: 'ORD-2024-005', customer: 'David Wilson', date: 'Jan 11, 2024', qty: 1, revenue: 149.85, status: 'Delivered' }
   ]
 
+  // Handle date picker clicks
+  const handleStartDatePickerClick = () => {
+    if (startDateInputRef.current) {
+      startDateInputRef.current.style.pointerEvents = 'auto'
+      try {
+        const input = startDateInputRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          startDateInputRef.current.click()
+        }
+      } catch {
+        startDateInputRef.current.click()
+      }
+      setTimeout(() => {
+        if (startDateInputRef.current) {
+          startDateInputRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  const handleEndDatePickerClick = () => {
+    if (endDateInputRef.current) {
+      endDateInputRef.current.style.pointerEvents = 'auto'
+      try {
+        const input = endDateInputRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          endDateInputRef.current.click()
+        }
+      } catch {
+        endDateInputRef.current.click()
+      }
+      setTimeout(() => {
+        if (endDateInputRef.current) {
+          endDateInputRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  const handleStartDatePickerClickMobile = () => {
+    if (startDateInputMobileRef.current) {
+      startDateInputMobileRef.current.style.pointerEvents = 'auto'
+      try {
+        const input = startDateInputMobileRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          startDateInputMobileRef.current.click()
+        }
+      } catch {
+        startDateInputMobileRef.current.click()
+      }
+      setTimeout(() => {
+        if (startDateInputMobileRef.current) {
+          startDateInputMobileRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  const handleEndDatePickerClickMobile = () => {
+    if (endDateInputMobileRef.current) {
+      endDateInputMobileRef.current.style.pointerEvents = 'auto'
+      try {
+        const input = endDateInputMobileRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          endDateInputMobileRef.current.click()
+        }
+      } catch {
+        endDateInputMobileRef.current.click()
+      }
+      setTimeout(() => {
+        if (endDateInputMobileRef.current) {
+          endDateInputMobileRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  // Handle date changes
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(e.target.value)
+  }
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(e.target.value)
+  }
+
+  // Format date for display (YYYY-MM-DD to MM/DD/YYYY)
+  const formatDateForDisplay = (dateString: string) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${month}/${day}/${year}`
+  }
+
+  // Filter orders based on active filters
+  const filteredOrders = useMemo(() => {
+    return allOrders.filter((order) => {
+      // Status filter
+      if (statusFilter && statusFilter !== 'Status' && order.status !== statusFilter) {
+        return false
+      }
+
+      // Date range filter
+      if (startDate || endDate) {
+        const orderDate = new Date(order.date)
+        
+        if (startDate) {
+          const start = new Date(startDate)
+          start.setHours(0, 0, 0, 0)
+          if (orderDate < start) {
+            return false
+          }
+        }
+        
+        if (endDate) {
+          const end = new Date(endDate)
+          end.setHours(23, 59, 59, 999)
+          if (orderDate > end) {
+            return false
+          }
+        }
+      }
+
+      // Search query filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        return (
+          order.id.toLowerCase().includes(query) ||
+          order.customer.toLowerCase().includes(query) ||
+          order.date.toLowerCase().includes(query)
+        )
+      }
+
+      return true
+    })
+  }, [statusFilter, startDate, endDate, searchQuery])
+
   const topLocations = [
     { country: 'United States', percentage: 42, flag: '🇺🇸' },
     { country: 'United Kingdom', percentage: 28, flag: '🇬🇧' },
     { country: 'Canada', percentage: 18, flag: '🇨🇦' },
     { country: 'Australia', percentage: 12, flag: '🇦🇺' }
   ]
+
+  // Export to CSV function
+  const handleExportCSV = () => {
+    const headers = ['Order ID', 'Customer Name', 'Date Purchased', 'Quantity', 'Revenue', 'Status']
+    const csvContent = [
+      headers.join(','),
+      ...filteredOrders.map(order => [
+        order.id,
+        `"${order.customer}"`,
+        order.date,
+        order.qty,
+        order.revenue.toFixed(2),
+        order.status
+      ].join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `product-report-${product.productId}-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -364,24 +547,76 @@ export default function ProductPerformancePage() {
                   <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Order Breakdown</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                     <div className="relative flex-1 sm:flex-initial">
-                      <Calendar className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                       <input
                         type="text"
-                        placeholder="Date Range"
-                        className="w-full pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm"
+                        placeholder="Start Date"
+                        value={formatDateForDisplay(startDate)}
+                        readOnly
+                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm cursor-pointer"
+                        onClick={handleStartDatePickerClick}
                       />
+                      <input
+                        ref={startDateInputRef}
+                        type="date"
+                        value={startDate}
+                        onChange={handleStartDateChange}
+                        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                        aria-hidden="true"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleStartDatePickerClick}
+                        className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
+                        aria-label="Open calendar"
+                      >
+                        <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" />
+                      </button>
                     </div>
-                    <select className="px-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm" aria-label="Status">
-                      <option>Status</option>
-                      <option>Delivered</option>
-                      <option>Pending</option>
-                      <option>Returned</option>
+                    <div className="relative flex-1 sm:flex-initial">
+                      <input
+                        type="text"
+                        placeholder="End Date"
+                        value={formatDateForDisplay(endDate)}
+                        readOnly
+                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm cursor-pointer"
+                        onClick={handleEndDatePickerClick}
+                      />
+                      <input
+                        ref={endDateInputRef}
+                        type="date"
+                        value={endDate}
+                        onChange={handleEndDateChange}
+                        min={startDate || undefined}
+                        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                        aria-hidden="true"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleEndDatePickerClick}
+                        className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
+                        aria-label="Open calendar"
+                      >
+                        <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" />
+                      </button>
+                    </div>
+                    <select 
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm" 
+                      aria-label="Status"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      <option value="">Status</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Returned">Returned</option>
                     </select>
                     <div className="relative flex-1 sm:flex-initial sm:w-64">
                       <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                       <input
                         type="text"
                         placeholder="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm"
                       />
                     </div>
@@ -400,24 +635,32 @@ export default function ProductPerformancePage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {orders.map((order: ProductOrder) => (
-                        <tr key={order.id} className="hover:bg-gray-50">
-                          <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-blue-600 whitespace-nowrap">{order.id}</td>
-                          <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 whitespace-nowrap">{order.customer}</td>
-                          <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-500 whitespace-nowrap">{order.date}</td>
-                          <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 whitespace-nowrap">{order.qty}</td>
-                          <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">${order.revenue.toFixed(2)}</td>
-                          <td className="px-3 sm:px-6 py-4">
-                            <span className={`px-2 sm:px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                              order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
-                              order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
-                              {order.status}
-                            </span>
+                      {filteredOrders.length > 0 ? (
+                        filteredOrders.map((order: ProductOrder) => (
+                          <tr key={order.id} className="hover:bg-gray-50">
+                            <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-blue-600 whitespace-nowrap">{order.id}</td>
+                            <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 whitespace-nowrap">{order.customer}</td>
+                            <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-500 whitespace-nowrap">{order.date}</td>
+                            <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 whitespace-nowrap">{order.qty}</td>
+                            <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">${order.revenue.toFixed(2)}</td>
+                            <td className="px-3 sm:px-6 py-4">
+                              <span className={`px-2 sm:px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                                order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
+                                order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-red-100 text-red-700'
+                              }`}>
+                                {order.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} className="px-3 sm:px-6 py-8 text-center text-xs sm:text-sm text-gray-500">
+                            No orders found matching your filters.
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -425,7 +668,10 @@ export default function ProductPerformancePage() {
 
               {/* Export Button */}
               <div className="flex justify-end">
-                <button className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base font-medium">
+                <button 
+                  onClick={handleExportCSV}
+                  className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base font-medium"
+                >
                   <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
                   <span className="whitespace-nowrap">Export Product Report</span>
                 </button>
@@ -689,24 +935,76 @@ export default function ProductPerformancePage() {
               <h2 className="text-lg font-semibold text-gray-900">Order Breakdown</h2>
               <div className="flex flex-col gap-2">
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                   <input
                     type="text"
-                    placeholder="Date Range"
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    placeholder="Start Date"
+                    value={formatDateForDisplay(startDate)}
+                    readOnly
+                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm cursor-pointer"
+                    onClick={handleStartDatePickerClickMobile}
                   />
+                  <input
+                    ref={startDateInputMobileRef}
+                    type="date"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleStartDatePickerClickMobile}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
+                    aria-label="Open calendar"
+                  >
+                    <Calendar size={16} />
+                  </button>
                 </div>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" aria-label="Status">
-                  <option>Status</option>
-                  <option>Delivered</option>
-                  <option>Pending</option>
-                  <option>Returned</option>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="End Date"
+                    value={formatDateForDisplay(endDate)}
+                    readOnly
+                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm cursor-pointer"
+                    onClick={handleEndDatePickerClickMobile}
+                  />
+                  <input
+                    ref={endDateInputMobileRef}
+                    type="date"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    min={startDate || undefined}
+                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleEndDatePickerClickMobile}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
+                    aria-label="Open calendar"
+                  >
+                    <Calendar size={16} />
+                  </button>
+                </div>
+                <select 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" 
+                  aria-label="Status"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="">Status</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Returned">Returned</option>
                 </select>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                   <input
                     type="text"
                     placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                 </div>
@@ -725,24 +1023,32 @@ export default function ProductPerformancePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {orders.map((order: ProductOrder) => (
-                    <tr key={order.id} className="hover:bg-gray-50">
-                      <td className="px-3 py-4 text-xs font-medium text-blue-600 whitespace-nowrap">{order.id}</td>
-                      <td className="px-3 py-4 text-xs text-gray-900 whitespace-nowrap">{order.customer}</td>
-                      <td className="px-3 py-4 text-xs text-gray-500 whitespace-nowrap">{order.date}</td>
-                      <td className="px-3 py-4 text-xs text-gray-900 whitespace-nowrap">{order.qty}</td>
-                      <td className="px-3 py-4 text-xs font-medium text-gray-900 whitespace-nowrap">${order.revenue.toFixed(2)}</td>
-                      <td className="px-3 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                          order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
-                          order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {order.status}
-                        </span>
+                  {filteredOrders.length > 0 ? (
+                    filteredOrders.map((order: ProductOrder) => (
+                      <tr key={order.id} className="hover:bg-gray-50">
+                        <td className="px-3 py-4 text-xs font-medium text-blue-600 whitespace-nowrap">{order.id}</td>
+                        <td className="px-3 py-4 text-xs text-gray-900 whitespace-nowrap">{order.customer}</td>
+                        <td className="px-3 py-4 text-xs text-gray-500 whitespace-nowrap">{order.date}</td>
+                        <td className="px-3 py-4 text-xs text-gray-900 whitespace-nowrap">{order.qty}</td>
+                        <td className="px-3 py-4 text-xs font-medium text-gray-900 whitespace-nowrap">${order.revenue.toFixed(2)}</td>
+                        <td className="px-3 py-4">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                            order.status === 'Delivered' ? 'bg-green-100 text-green-700' :
+                            order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="px-3 py-8 text-center text-xs text-gray-500">
+                        No orders found matching your filters.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -750,7 +1056,10 @@ export default function ProductPerformancePage() {
 
           {/* Export Button - Mobile */}
           <div className="flex justify-center">
-            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium w-full sm:w-auto">
+            <button 
+              onClick={handleExportCSV}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium w-full sm:w-auto"
+            >
               <Download size={16} />
               Export Product Report
             </button>

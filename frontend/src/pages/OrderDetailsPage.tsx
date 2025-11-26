@@ -1,9 +1,12 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Menu, ArrowLeft, Download, Printer, RefreshCw, DollarSign, MapPin, Package, Truck, Home, Check, User, Phone, Mail, Settings, ChevronDown, PackageSearch } from 'lucide-react'
+import { Menu, ArrowLeft, Download, Printer, RefreshCw, DollarSign, MapPin, Package, Truck, Home, Check, User, Phone, Mail, Settings, ChevronDown, PackageSearch, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import SuccessModal from '@/components/ui/SuccessModal'
+import ErrorModal from '@/components/ui/ErrorModal'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 // TypeScript interfaces
 interface OrderItem {
@@ -28,6 +31,12 @@ export default function OrderDetailsPage() {
   const { t, translateOrder } = useLanguage()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false)
+  const [currentStatus, setCurrentStatus] = useState('Processing')
+  const [isLoading, setIsLoading] = useState({ status: false, refund: false, download: false, print: false, tracking: false })
+  const [successModal, setSuccessModal] = useState({ isOpen: false, message: '', title: '' })
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: '', title: '' })
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', title: '', onConfirm: () => {}, type: 'refund' as 'refund' | 'status' })
 
   const rawOrder = {
     id: id || '',
@@ -74,6 +83,119 @@ export default function OrderDetailsPage() {
 
   // Automatically translate order data based on current language
   const order = useMemo(() => translateOrder(rawOrder), [rawOrder, translateOrder])
+
+  // Status options
+  const statusOptions = ['Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled']
+
+  // Handle status update
+  const handleUpdateStatus = async (newStatus: string) => {
+    setShowStatusDropdown(false)
+    setConfirmModal({
+      isOpen: true,
+      title: t('updateOrderStatus') || 'Update Order Status',
+      message: t('confirmUpdateStatus') || `Are you sure you want to update the order status to ${newStatus}?`,
+      type: 'status',
+      onConfirm: async () => {
+        setIsLoading(prev => ({ ...prev, status: true }))
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 800))
+          setCurrentStatus(newStatus)
+          
+          setSuccessModal({ 
+            isOpen: true, 
+            title: t('statusUpdated') || 'Status Updated',
+            message: t('statusUpdatedSuccess') || `Order status has been updated to ${newStatus} successfully` 
+          })
+        } catch (error) {
+          setErrorModal({ 
+            isOpen: true, 
+            title: t('updateFailed') || 'Update Failed',
+            message: t('statusUpdateFailed') || 'Failed to update order status. Please try again.' 
+          })
+        } finally {
+          setIsLoading(prev => ({ ...prev, status: false }))
+        }
+      }
+    })
+  }
+
+  // Handle issue refund
+  const handleIssueRefund = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: t('issueRefund') || 'Issue Refund',
+      message: t('confirmRefundOrder') || `Are you sure you want to issue a refund of ${order.totalAmount} for this order? This action cannot be undone.`,
+      type: 'refund',
+      onConfirm: async () => {
+        setIsLoading(prev => ({ ...prev, refund: true }))
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          setSuccessModal({ 
+            isOpen: true, 
+            title: t('refundProcessed') || 'Refund Processed',
+            message: t('refundProcessedSuccess') || `Refund of ${order.totalAmount} has been processed successfully. The customer will be notified.` 
+          })
+        } catch (error) {
+          setErrorModal({ 
+            isOpen: true, 
+            title: t('refundFailed') || 'Refund Failed',
+            message: t('refundProcessedFailed') || 'Failed to process refund. Please check your payment gateway connection and try again.' 
+          })
+        } finally {
+          setIsLoading(prev => ({ ...prev, refund: false }))
+        }
+      }
+    })
+  }
+
+  // Handle download invoice
+  const handleDownloadInvoice = async () => {
+    setIsLoading(prev => ({ ...prev, download: true }))
+    try {
+      // Navigate to invoice page
+      navigate(`/orders/${id}/invoice`)
+    } catch (error) {
+      setErrorModal({ 
+        isOpen: true, 
+        title: t('downloadFailed') || 'Download Failed',
+        message: t('invoiceDownloadFailed') || 'Failed to prepare invoice for download. Please try again.' 
+      })
+    } finally {
+      setIsLoading(prev => ({ ...prev, download: false }))
+    }
+  }
+
+  // Handle print order
+  const handlePrintOrder = async () => {
+    setIsLoading(prev => ({ ...prev, print: true }))
+    try {
+      // Simulate print preparation
+      await new Promise(resolve => setTimeout(resolve, 300))
+      window.print()
+    } catch (error) {
+      setErrorModal({ 
+        isOpen: true, 
+        title: t('printFailed') || 'Print Failed',
+        message: t('printFailedMessage') || 'Failed to prepare order for printing. Please try again.' 
+      })
+    } finally {
+      setIsLoading(prev => ({ ...prev, print: false }))
+    }
+  }
+
+  // Close status dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (showStatusDropdown && !target.closest('.status-dropdown-container')) {
+        setShowStatusDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showStatusDropdown])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -352,32 +474,106 @@ export default function OrderDetailsPage() {
               <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 sm:gap-3">
                 <button 
                   onClick={() => navigate(`/orders/${id}/tracking`)}
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors text-xs sm:text-sm font-medium"
+                  disabled={isLoading.tracking}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <PackageSearch size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
                   <span className="truncate">{t('addTracking')}</span>
                 </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-xs sm:text-sm font-medium">
-                  <span className="truncate">{t('updateStatus')}</span>
-                  <ChevronDown size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors text-xs sm:text-sm font-medium">
-                  <RefreshCw size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                <div className="relative status-dropdown-container z-50">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowStatusDropdown(!showStatusDropdown)
+                    }}
+                    disabled={isLoading.status}
+                    className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                  >
+                    <span className="truncate">{t('updateStatus')}</span>
+                    <ChevronDown size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 transition-transform ${showStatusDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showStatusDropdown && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-[45]"
+                        onClick={() => setShowStatusDropdown(false)}
+                      />
+                      <div className="absolute right-0 sm:right-0 bottom-full mb-2 z-[60] bg-white rounded-lg shadow-xl border border-gray-200 w-48 py-2 max-h-64 overflow-y-auto">
+                        {['Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'].map((status) => (
+                          <button
+                            key={status}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleUpdateStatus(status)
+                            }}
+                            className={`w-full px-4 py-2.5 text-left text-sm rounded-lg hover:bg-gray-50 active:scale-[0.98] transition-all duration-200 ${
+                              currentStatus === status 
+                                ? 'bg-primary-50 text-primary-700 font-medium' 
+                                : 'text-gray-700'
+                            }`}
+                            type="button"
+                          >
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <button 
+                  onClick={handleIssueRefund}
+                  disabled={isLoading.refund}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 ${isLoading.refund ? 'animate-spin' : ''}`} />
                   <span className="truncate">{t('issueRefund')}</span>
                 </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium">
-                  <Download size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                <button 
+                  onClick={handleDownloadInvoice}
+                  disabled={isLoading.download}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 ${isLoading.download ? 'animate-pulse' : ''}`} />
                   <span className="hidden md:inline truncate">{t('downloadInvoice')}</span>
                   <span className="hidden sm:inline md:hidden truncate">{t('downloadInvoice')}</span>
                   <span className="sm:hidden truncate">{t('downloadInvoice')}</span>
                 </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium">
-                  <Printer size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                <button 
+                  onClick={handlePrintOrder}
+                  disabled={isLoading.print}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Printer size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 ${isLoading.print ? 'animate-pulse' : ''}`} />
                   <span className="hidden md:inline truncate">{t('printOrder')}</span>
                   <span className="hidden sm:inline md:hidden truncate">{t('printOrder')}</span>
                   <span className="sm:hidden truncate">{t('printOrder')}</span>
                 </button>
               </div>
+
+              {/* Modals */}
+              <SuccessModal
+                isOpen={successModal.isOpen}
+                onClose={() => setSuccessModal({ isOpen: false, message: '', title: '' })}
+                title={successModal.title}
+                message={successModal.message}
+              />
+              <ErrorModal
+                isOpen={errorModal.isOpen}
+                onClose={() => setErrorModal({ isOpen: false, message: '', title: '' })}
+                title={errorModal.title}
+                message={errorModal.message}
+              />
+              <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, message: '', title: '', onConfirm: () => {}, type: 'refund' })}
+                onConfirm={() => {
+                  confirmModal.onConfirm()
+                  setConfirmModal({ isOpen: false, message: '', title: '', onConfirm: () => {}, type: 'refund' })
+                }}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmButtonColor={confirmModal.type === 'refund' ? 'red' : 'orange'}
+              />
             </div>
           </main>
         </div>
@@ -654,32 +850,106 @@ export default function OrderDetailsPage() {
               <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 sm:gap-3 pb-6">
                 <button 
                   onClick={() => navigate(`/orders/${id}/tracking`)}
-                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors text-xs sm:text-sm font-medium"
+                  disabled={isLoading.tracking}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <PackageSearch size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate">Add Tracking</span>
+                  <span className="truncate">{t('addTracking')}</span>
                 </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-xs sm:text-sm font-medium">
-                  <span className="truncate">Update Status</span>
-                  <ChevronDown size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                <div className="relative status-dropdown-container z-50">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowStatusDropdown(!showStatusDropdown)
+                    }}
+                    disabled={isLoading.status}
+                    className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                  >
+                    <span className="truncate">{t('updateStatus')}</span>
+                    <ChevronDown size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 transition-transform ${showStatusDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showStatusDropdown && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-[45]"
+                        onClick={() => setShowStatusDropdown(false)}
+                      />
+                      <div className="absolute right-0 sm:right-0 bottom-full mb-2 z-[60] bg-white rounded-lg shadow-xl border border-gray-200 w-48 py-2 max-h-64 overflow-y-auto">
+                        {['Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'].map((status) => (
+                          <button
+                            key={status}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleUpdateStatus(status)
+                            }}
+                            className={`w-full px-4 py-2.5 text-left text-sm rounded-lg hover:bg-gray-50 active:scale-[0.98] transition-all duration-200 ${
+                              currentStatus === status 
+                                ? 'bg-primary-50 text-primary-700 font-medium' 
+                                : 'text-gray-700'
+                            }`}
+                            type="button"
+                          >
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <button 
+                  onClick={handleIssueRefund}
+                  disabled={isLoading.refund}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 ${isLoading.refund ? 'animate-spin' : ''}`} />
+                  <span className="truncate">{t('issueRefund')}</span>
                 </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors text-xs sm:text-sm font-medium">
-                  <RefreshCw size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate">Issue Refund</span>
+                <button 
+                  onClick={handleDownloadInvoice}
+                  disabled={isLoading.download}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 ${isLoading.download ? 'animate-pulse' : ''}`} />
+                  <span className="hidden md:inline truncate">{t('downloadInvoice')}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('downloadInvoice')}</span>
+                  <span className="sm:hidden truncate">{t('downloadInvoice')}</span>
                 </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium">
-                  <Download size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden md:inline truncate">Download Invoice</span>
-                  <span className="hidden sm:inline md:hidden truncate">Invoice</span>
-                  <span className="sm:hidden truncate">Invoice</span>
-                </button>
-                <button className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium">
-                  <Printer size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="hidden md:inline truncate">Print Order</span>
-                  <span className="hidden sm:inline md:hidden truncate">Print</span>
-                  <span className="sm:hidden truncate">Print</span>
+                <button 
+                  onClick={handlePrintOrder}
+                  disabled={isLoading.print}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Printer size={14} className={`sm:w-4 sm:h-4 flex-shrink-0 ${isLoading.print ? 'animate-pulse' : ''}`} />
+                  <span className="hidden md:inline truncate">{t('printOrder')}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('printOrder')}</span>
+                  <span className="sm:hidden truncate">{t('printOrder')}</span>
                 </button>
               </div>
+
+              {/* Modals */}
+              <SuccessModal
+                isOpen={successModal.isOpen}
+                onClose={() => setSuccessModal({ isOpen: false, message: '', title: '' })}
+                title={successModal.title}
+                message={successModal.message}
+              />
+              <ErrorModal
+                isOpen={errorModal.isOpen}
+                onClose={() => setErrorModal({ isOpen: false, message: '', title: '' })}
+                title={errorModal.title}
+                message={errorModal.message}
+              />
+              <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false, message: '', title: '', onConfirm: () => {}, type: 'refund' })}
+                onConfirm={() => {
+                  confirmModal.onConfirm()
+                  setConfirmModal({ isOpen: false, message: '', title: '', onConfirm: () => {}, type: 'refund' })
+                }}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmButtonColor={confirmModal.type === 'refund' ? 'red' : 'orange'}
+              />
             </div>
           </main>
         </div>

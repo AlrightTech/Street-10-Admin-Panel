@@ -1,6 +1,6 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Search, Filter, Calendar, TrendingUp, Clock, FileText, ChevronLeft, ChevronRight, Eye, ChevronDown, X } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -24,7 +24,15 @@ export default function TransactionsHistoryPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const dateInputRef = useRef<HTMLInputElement>(null)
+  const dateInputMobileRef = useRef<HTMLInputElement>(null)
   const [filters, setFilters] = useState({
+    transactionType: '',
+    date: '',
+    status: '',
+    search: ''
+  })
+  const [activeFilters, setActiveFilters] = useState({
     transactionType: '',
     date: '',
     status: '',
@@ -114,17 +122,144 @@ export default function TransactionsHistoryPage() {
 
   const handleClearFilters = () => {
     setFilters({ transactionType: '', date: '', status: '', search: '' })
+    setActiveFilters({ transactionType: '', date: '', status: '', search: '' })
+    setCurrentPage(1) // Reset to first page when clearing filters
   }
 
-  const hasActiveFilters = filters.transactionType || filters.date || filters.status || filters.search
+  const hasActiveFilters = activeFilters.transactionType || activeFilters.date || activeFilters.status || activeFilters.search
+
+  // Filter transactions based on active filters (applied filters)
+  const filteredTransactions = transactions.filter((transaction) => {
+    // Filter by transaction type
+    if (activeFilters.transactionType) {
+      const typeMatch = transaction.type.toLowerCase() === activeFilters.transactionType.toLowerCase()
+      if (!typeMatch) return false
+    }
+
+    // Filter by status
+    if (activeFilters.status) {
+      const statusMatch = transaction.status.toLowerCase() === activeFilters.status.toLowerCase()
+      if (!statusMatch) return false
+    }
+
+    // Filter by date
+    if (activeFilters.date) {
+      // Convert filter date (MM/DD/YYYY) to compare with transaction date
+      const filterDateParts = activeFilters.date.split('/')
+      if (filterDateParts.length === 3) {
+        const filterDate = new Date(
+          parseInt(filterDateParts[2]), // Year
+          parseInt(filterDateParts[0]) - 1, // Month (0-indexed)
+          parseInt(filterDateParts[1]) // Day
+        )
+        // Parse transaction date (format: "Dec 15, 2024")
+        const transactionDate = new Date(transaction.date)
+        // Compare dates (ignore time)
+        const filterDateStr = filterDate.toDateString()
+        const transactionDateStr = transactionDate.toDateString()
+        if (filterDateStr !== transactionDateStr) return false
+      }
+    }
+
+    // Filter by search (Transaction ID or Order ID)
+    if (activeFilters.search) {
+      const searchLower = activeFilters.search.toLowerCase()
+      const matchesId = transaction.id.toLowerCase().includes(searchLower)
+      const matchesOrderId = transaction.orderId?.toLowerCase().includes(searchLower) || false
+      const matchesCustomer = transaction.customer?.toLowerCase().includes(searchLower) || false
+      if (!matchesId && !matchesOrderId && !matchesCustomer) return false
+    }
+
+    return true
+  })
 
   const handleApplyFilters = () => {
-    // Apply filters logic here
-    console.log('Applying filters:', filters)
+    // Apply the current filter values to active filters
+    setActiveFilters({ ...filters })
+    setCurrentPage(1) // Reset to first page when applying filters
   }
 
-  const totalPages = 8
+  // Handle date picker for desktop
+  const handleDatePickerClick = () => {
+    if (dateInputRef.current) {
+      // Temporarily enable pointer events to allow date picker to open
+      dateInputRef.current.style.pointerEvents = 'auto'
+      try {
+        // Try to use showPicker() if available (modern browsers)
+        const input = dateInputRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          dateInputRef.current.click()
+        }
+      } catch {
+        // Fallback to click if showPicker fails
+        dateInputRef.current.click()
+      }
+      // Re-disable pointer events after a short delay
+      setTimeout(() => {
+        if (dateInputRef.current) {
+          dateInputRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  // Handle date change from date input
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const dateParts = e.target.value.split('-')
+      // Format: MM/DD/YYYY
+      const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`
+      setFilters({ ...filters, date: formattedDate })
+    }
+  }
+
+  // Handle date picker for mobile
+  const handleDatePickerClickMobile = () => {
+    if (dateInputMobileRef.current) {
+      // Temporarily enable pointer events to allow date picker to open
+      dateInputMobileRef.current.style.pointerEvents = 'auto'
+      try {
+        // Try to use showPicker() if available (modern browsers)
+        const input = dateInputMobileRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          dateInputMobileRef.current.click()
+        }
+      } catch {
+        // Fallback to click if showPicker fails
+        dateInputMobileRef.current.click()
+      }
+      // Re-disable pointer events after a short delay
+      setTimeout(() => {
+        if (dateInputMobileRef.current) {
+          dateInputMobileRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  // Handle date change from mobile date input
+  const handleDateChangeMobile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const dateParts = e.target.value.split('-')
+      // Format: MM/DD/YYYY
+      const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`
+      setFilters({ ...filters, date: formattedDate })
+    }
+  }
+
   const itemsPerPage = 5
+  
+  // Calculate pagination based on filtered transactions
+  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / itemsPerPage))
+  
+  // Get paginated transactions
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex)
 
   // Get visible pages for pagination
   const getVisiblePages = () => {
@@ -132,7 +267,7 @@ export default function TransactionsHistoryPage() {
       return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
     if (currentPage <= 3) {
-      return [1, 2, 3, null, 7, 8]
+      return [1, 2, 3, null, totalPages - 1, totalPages]
     } else if (currentPage >= totalPages - 2) {
       return [1, 2, null, totalPages - 2, totalPages - 1, totalPages]
     } else {
@@ -141,6 +276,13 @@ export default function TransactionsHistoryPage() {
   }
 
   const visiblePages = getVisiblePages()
+  
+  // Update current page if it exceeds total pages after filtering
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1)
+    }
+  }, [totalPages, currentPage])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -219,32 +361,18 @@ export default function TransactionsHistoryPage() {
                         setFilters({ ...filters, date: formatted })
                       }}
                     />
+                    {/* Hidden date input for date picker - positioned absolutely to match visible input */}
+                    <input
+                      ref={dateInputRef}
+                      type="date"
+                      className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                      onChange={handleDateChange}
+                      aria-hidden="true"
+                    />
                     <button
                       type="button"
-                      onClick={() => {
-                        const dateInput = document.getElementById('transaction-date') as HTMLInputElement
-                        if (dateInput) {
-                          dateInput.type = 'date'
-                      try {
-                        const input = dateInput as any
-                        if (input.showPicker && typeof input.showPicker === 'function') {
-                          input.showPicker()
-                        } else {
-                          dateInput.click()
-                        }
-                      } catch {
-                        dateInput.click()
-                      }
-                          setTimeout(() => {
-                            if (dateInput.value) {
-                              const dateParts = dateInput.value.split('-')
-                              setFilters({ ...filters, date: `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}` })
-                            }
-                            dateInput.type = 'text'
-                          }, 100)
-                        }
-                      }}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+                      onClick={handleDatePickerClick}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
                       aria-label="Open calendar"
                     >
                       <Calendar size={18} />
@@ -296,7 +424,8 @@ export default function TransactionsHistoryPage() {
                   </button>
                   <button 
                     onClick={handleApplyFilters}
-                    className="px-6 py-2 bg-[#5842B9] text-white rounded-lg hover:bg-[#4a38a0] transition-colors text-sm font-medium"
+                    className="px-6 py-2 bg-[#5842B9] text-white rounded-lg hover:bg-[#4a38a0] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!filters.transactionType && !filters.date && !filters.status && !filters.search}
                   >
                     Apply Filters
                 </button>
@@ -310,7 +439,12 @@ export default function TransactionsHistoryPage() {
                     <span className="text-sm opacity-90">{t('totalEarnings')}</span>
                     <TrendingUp size={20} className="opacity-80" />
                   </div>
-                  <p className="text-3xl font-bold">$24,580</p>
+                  <p className="text-3xl font-bold">
+                    ${filteredTransactions
+                      .filter(t => t.isPositive && t.type === 'Earning')
+                      .reduce((sum, t) => sum + t.amount, 0)
+                      .toFixed(2)}
+                  </p>
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-sm">
@@ -318,7 +452,12 @@ export default function TransactionsHistoryPage() {
                     <span className="text-sm opacity-90">{t('pending')}</span>
                     <Clock size={20} className="opacity-80" />
                   </div>
-                  <p className="text-3xl font-bold">$1,240</p>
+                  <p className="text-3xl font-bold">
+                    ${filteredTransactions
+                      .filter(t => t.status === 'Pending')
+                      .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+                      .toFixed(2)}
+                  </p>
                 </div>
 
                 <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-sm">
@@ -326,7 +465,7 @@ export default function TransactionsHistoryPage() {
                     <span className="text-sm opacity-90">{t('totalTransactions')}</span>
                     <FileText size={20} className="opacity-80" />
                   </div>
-                  <p className="text-3xl font-bold">342</p>
+                  <p className="text-3xl font-bold">{filteredTransactions.length}</p>
                 </div>
 
                 <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-6 text-white shadow-sm">
@@ -334,7 +473,17 @@ export default function TransactionsHistoryPage() {
                     <span className="text-sm opacity-90">{t('thisMonth')}</span>
                     <Calendar size={20} className="opacity-80" />
                   </div>
-                  <p className="text-3xl font-bold">$5,680</p>
+                  <p className="text-3xl font-bold">
+                    ${filteredTransactions
+                      .filter(t => {
+                        const transactionDate = new Date(t.date)
+                        const now = new Date()
+                        return transactionDate.getMonth() === now.getMonth() && 
+                               transactionDate.getFullYear() === now.getFullYear()
+                      })
+                      .reduce((sum, t) => sum + (t.isPositive ? t.amount : -t.amount), 0)
+                      .toFixed(2)}
+                  </p>
                 </div>
               </div>
 
@@ -356,7 +505,8 @@ export default function TransactionsHistoryPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {transactions.map((transaction: Transaction) => {
+                      {paginatedTransactions.length > 0 ? (
+                        paginatedTransactions.map((transaction: Transaction) => {
                         const typeBadge = getTypeBadge(transaction.type)
                         const statusBadge = getStatusBadge(transaction.status)
                         return (
@@ -404,7 +554,14 @@ export default function TransactionsHistoryPage() {
                             </td>
                           </tr>
                         )
-                      })}
+                      })
+                      ) : (
+                        <tr>
+                          <td colSpan={9} className="px-6 py-8 text-center text-sm text-gray-500">
+                            No transactions found matching your filters.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -508,42 +665,22 @@ export default function TransactionsHistoryPage() {
                     setFilters({ ...filters, date: formatted })
                   }}
                 />
+                {/* Hidden date input for mobile date picker - positioned absolutely to match visible input */}
+                <input
+                  ref={dateInputMobileRef}
+                  type="date"
+                  className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                  onChange={handleDateChangeMobile}
+                  aria-hidden="true"
+                />
                 <button
                   type="button"
-                  onClick={() => {
-                    const dateInput = document.getElementById('transaction-date-mobile') as HTMLInputElement
-                    if (dateInput) {
-                      dateInput.type = 'date'
-                      try {
-                        const input = dateInput as any
-                        if (input.showPicker && typeof input.showPicker === 'function') {
-                          input.showPicker()
-                        } else {
-                          dateInput.click()
-                        }
-                      } catch {
-                        dateInput.click()
-                      }
-                      setTimeout(() => {
-                        if (dateInput.value) {
-                          const dateParts = dateInput.value.split('-')
-                          setFilters({ ...filters, date: `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}` })
-                        }
-                        dateInput.type = 'text'
-                      }, 100)
-                    }
-                  }}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+                  onClick={handleDatePickerClickMobile}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
                   aria-label="Open calendar"
                 >
                   <Calendar size={16} />
                 </button>
-                <input
-                  id="transaction-date-mobile"
-                  type="text"
-                  className="hidden"
-                  aria-hidden="true"
-                />
               </div>
             </div>
 
@@ -589,7 +726,8 @@ export default function TransactionsHistoryPage() {
               </button>
               <button 
                 onClick={handleApplyFilters}
-                className="px-4 py-2 bg-[#5842B9] text-white rounded-lg text-sm font-medium"
+                className="px-4 py-2 bg-[#5842B9] text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!filters.transactionType && !filters.date && !filters.status && !filters.search}
               >
                 Apply Filters
               </button>
@@ -610,7 +748,8 @@ export default function TransactionsHistoryPage() {
 
           {/* Transactions List as Cards */}
           <div className="space-y-3">
-            {transactions.map((transaction) => {
+            {paginatedTransactions.length > 0 ? (
+              paginatedTransactions.map((transaction) => {
               const typeBadge = getTypeBadge(transaction.type)
               const statusBadge = getStatusBadge(transaction.status)
               return (
@@ -665,7 +804,12 @@ export default function TransactionsHistoryPage() {
                   </div>
                 </div>
               )
-            })}
+            })
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <p className="text-sm text-gray-500">No transactions found matching your filters.</p>
+              </div>
+            )}
           </div>
 
           {/* Pagination */}

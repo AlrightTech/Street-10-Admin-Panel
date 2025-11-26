@@ -545,16 +545,18 @@ export default function OrdersPage() {
                                         <span className="text-sm font-medium">{t('viewDetails')}</span>
                                       </button>
                                       
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleEditOrder(order.id)
-                                        }}
-                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
-                                      >
-                                        <Edit size={18} className="text-gray-500" />
-                                        <span className="text-sm font-medium">{t('editOrder')}</span>
-                                      </button>
+                                      {order.status !== 'Completed' && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleEditOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                        >
+                                          <Edit size={18} className="text-gray-500" />
+                                          <span className="text-sm font-medium">{t('editOrder')}</span>
+                                        </button>
+                                      )}
                                       
                                       <button
                                         onClick={(e) => {
@@ -787,16 +789,18 @@ export default function OrdersPage() {
                                         <span className="text-sm font-medium">{t('viewDetails')}</span>
                                       </button>
                                       
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleEditOrder(order.id)
-                                        }}
-                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
-                                      >
-                                        <Edit size={18} className="text-gray-500" />
-                                        <span className="text-sm font-medium">{t('editOrder')}</span>
-                                      </button>
+                                      {order.status !== 'Completed' && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleEditOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                        >
+                                          <Edit size={18} className="text-gray-500" />
+                                          <span className="text-sm font-medium">{t('editOrder')}</span>
+                                        </button>
+                                      )}
                                       
                                       <button
                                         onClick={(e) => {
@@ -1149,16 +1153,18 @@ export default function OrdersPage() {
                                         <span className="text-sm font-medium">{t('viewDetails')}</span>
                                       </button>
                                       
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleEditOrder(order.id)
-                                        }}
-                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
-                                      >
-                                        <Edit size={18} className="text-gray-500" />
-                                        <span className="text-sm font-medium">{t('editOrder')}</span>
-                                      </button>
+                                      {order.status !== 'Completed' && (
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleEditOrder(order.id)
+                                          }}
+                                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700 text-left"
+                                        >
+                                          <Edit size={18} className="text-gray-500" />
+                                          <span className="text-sm font-medium">{t('editOrder')}</span>
+                                        </button>
+                                      )}
                                       
                                       <button
                                         onClick={(e) => {

@@ -199,14 +199,31 @@ export default function OrderDetailsPage() {
   const handleDownloadInvoice = async () => {
     setIsLoading(prev => ({ ...prev, download: true }))
     try {
-      // Simulate download preparation
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Navigate to invoice page
       navigate(`/orders/${id}/invoice`)
     } catch (error) {
       setErrorModal({ 
         isOpen: true, 
         title: t('downloadFailed') || 'Download Failed',
         message: t('invoiceDownloadFailed') || 'Failed to prepare invoice for download. Please try again.' 
+      })
+    } finally {
+      setIsLoading(prev => ({ ...prev, download: false }))
+    }
+  }
+
+  // Handle download PDF
+  const handleDownloadPDF = async () => {
+    setIsLoading(prev => ({ ...prev, download: true }))
+    try {
+      // Navigate to invoice page first, then trigger PDF download
+      navigate(`/orders/${id}/invoice`)
+      // The invoice page will handle the PDF download
+    } catch (error) {
+      setErrorModal({ 
+        isOpen: true, 
+        title: t('downloadFailed') || 'Download Failed',
+        message: t('pdfDownloadFailed') || 'Failed to download PDF. Please try again.' 
       })
     } finally {
       setIsLoading(prev => ({ ...prev, download: false }))
@@ -225,6 +242,27 @@ export default function OrderDetailsPage() {
         isOpen: true, 
         title: t('printFailed') || 'Print Failed',
         message: t('printFailedMessage') || 'Failed to prepare order for printing. Please try again.' 
+      })
+    } finally {
+      setIsLoading(prev => ({ ...prev, print: false }))
+    }
+  }
+
+  // Handle print invoice
+  const handlePrintInvoice = async () => {
+    setIsLoading(prev => ({ ...prev, print: true }))
+    try {
+      // Navigate to invoice page and trigger print
+      navigate(`/orders/${id}/invoice`)
+      // Small delay to ensure page loads, then print
+      setTimeout(() => {
+        window.print()
+      }, 500)
+    } catch (error) {
+      setErrorModal({ 
+        isOpen: true, 
+        title: t('printFailed') || 'Print Failed',
+        message: t('printInvoiceFailed') || 'Failed to print invoice. Please try again.' 
       })
     } finally {
       setIsLoading(prev => ({ ...prev, print: false }))
@@ -543,6 +581,7 @@ export default function OrderDetailsPage() {
                   onClick={handleAddTracking}
                   disabled={isLoading.tracking}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
+                  type="button"
                 >
                   {isLoading.tracking ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -553,7 +592,10 @@ export default function OrderDetailsPage() {
                 </button>
                 <div className="relative status-dropdown-container">
                   <button 
-                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowStatusDropdown(!showStatusDropdown)
+                    }}
                     disabled={isLoading.status}
                     className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                     type="button"
@@ -575,12 +617,18 @@ export default function OrderDetailsPage() {
                         className="fixed inset-0 z-40 lg:hidden"
                         onClick={() => setShowStatusDropdown(false)}
                       />
-                      <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[55]">
+                      <div 
+                        className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[55]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="px-2">
                           {statusOptions.map((status) => (
                             <button
                               key={status}
-                              onClick={() => handleUpdateStatus(status)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleUpdateStatus(status)
+                              }}
                               className={`w-full px-4 py-2.5 text-left text-sm rounded-lg hover:bg-gray-50 active:scale-[0.98] transition-all duration-200 ${
                                 currentStatus === status 
                                   ? 'bg-primary-50 text-primary-700 font-medium' 
@@ -597,7 +645,10 @@ export default function OrderDetailsPage() {
                   )}
                 </div>
                 <button 
-                  onClick={handleIssueRefund}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleIssueRefund()
+                  }}
                   disabled={isLoading.refund}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                   type="button"
@@ -610,7 +661,10 @@ export default function OrderDetailsPage() {
                   <span className="truncate">{t('issueRefund')}</span>
                 </button>
                 <button 
-                  onClick={handleDownloadInvoice}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDownloadInvoice()
+                  }}
                   disabled={isLoading.download}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                   type="button"
@@ -625,7 +679,28 @@ export default function OrderDetailsPage() {
                   <span className="sm:hidden truncate">{t('downloadInvoice')}</span>
                 </button>
                 <button 
-                  onClick={handlePrintOrder}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDownloadPDF()
+                  }}
+                  disabled={isLoading.download}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
+                  type="button"
+                >
+                  {isLoading.download ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Download size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                  )}
+                  <span className="hidden md:inline truncate">{t('downloadPdf') || 'Download PDF'}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('downloadPdf') || 'PDF'}</span>
+                  <span className="sm:hidden truncate">{t('downloadPdf') || 'PDF'}</span>
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handlePrintOrder()
+                  }}
                   disabled={isLoading.print}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                   type="button"
@@ -638,6 +713,24 @@ export default function OrderDetailsPage() {
                   <span className="hidden md:inline truncate">{t('printOrder')}</span>
                   <span className="hidden sm:inline md:hidden truncate">{t('printOrder')}</span>
                   <span className="sm:hidden truncate">{t('printOrder')}</span>
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handlePrintInvoice()
+                  }}
+                  disabled={isLoading.print}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
+                  type="button"
+                >
+                  {isLoading.print ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Printer size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                  )}
+                  <span className="hidden md:inline truncate">{t('printInvoice') || 'Print Invoice'}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('printInvoice') || 'Invoice'}</span>
+                  <span className="sm:hidden truncate">{t('printInvoice') || 'Invoice'}</span>
                 </button>
               </div>
             </div>
@@ -915,9 +1008,13 @@ export default function OrderDetailsPage() {
               {/* Action Buttons */}
               <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 sm:gap-3 pb-6">
                 <button 
-                  onClick={handleAddTracking}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleAddTracking()
+                  }}
                   disabled={isLoading.tracking}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
+                  type="button"
                 >
                   {isLoading.tracking ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -928,7 +1025,10 @@ export default function OrderDetailsPage() {
                 </button>
                 <div className="relative status-dropdown-container">
                   <button 
-                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowStatusDropdown(!showStatusDropdown)
+                    }}
                     disabled={isLoading.status}
                     className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                     type="button"
@@ -950,11 +1050,17 @@ export default function OrderDetailsPage() {
                         className="fixed inset-0 z-40"
                         onClick={() => setShowStatusDropdown(false)}
                       />
-                      <div className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:w-56 bg-white rounded-t-xl lg:rounded-xl shadow-2xl border-t lg:border border-gray-200 py-2 z-[55]">
+                      <div 
+                        className="fixed bottom-0 left-0 right-0 lg:absolute lg:bottom-auto lg:right-0 lg:top-full lg:mt-2 lg:w-56 bg-white rounded-t-xl lg:rounded-xl shadow-2xl border-t lg:border border-gray-200 py-2 z-[55]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200">
                           <h3 className="text-sm font-semibold text-gray-900">{t('updateStatus')}</h3>
                           <button
-                            onClick={() => setShowStatusDropdown(false)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowStatusDropdown(false)
+                            }}
                             className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
                             type="button"
                             aria-label="Close status dropdown"
@@ -966,7 +1072,10 @@ export default function OrderDetailsPage() {
                           {statusOptions.map((status) => (
                             <button
                               key={status}
-                              onClick={() => handleUpdateStatus(status)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleUpdateStatus(status)
+                              }}
                               className={`w-full px-4 py-2.5 text-left text-sm rounded-lg hover:bg-gray-50 active:scale-[0.98] transition-all duration-200 ${
                                 currentStatus === status 
                                   ? 'bg-primary-50 text-primary-700 font-medium' 
@@ -983,7 +1092,10 @@ export default function OrderDetailsPage() {
                   )}
                 </div>
                 <button 
-                  onClick={handleIssueRefund}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleIssueRefund()
+                  }}
                   disabled={isLoading.refund}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 active:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                   type="button"
@@ -996,7 +1108,10 @@ export default function OrderDetailsPage() {
                   <span className="truncate">{t('issueRefund')}</span>
                 </button>
                 <button 
-                  onClick={handleDownloadInvoice}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDownloadInvoice()
+                  }}
                   disabled={isLoading.download}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                   type="button"
@@ -1011,7 +1126,28 @@ export default function OrderDetailsPage() {
                   <span className="sm:hidden truncate">{t('downloadInvoice')}</span>
                 </button>
                 <button 
-                  onClick={handlePrintOrder}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDownloadPDF()
+                  }}
+                  disabled={isLoading.download}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
+                  type="button"
+                >
+                  {isLoading.download ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Download size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                  )}
+                  <span className="hidden md:inline truncate">{t('downloadPdf') || 'Download PDF'}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('downloadPdf') || 'PDF'}</span>
+                  <span className="sm:hidden truncate">{t('downloadPdf') || 'PDF'}</span>
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handlePrintOrder()
+                  }}
                   disabled={isLoading.print}
                   className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
                   type="button"
@@ -1024,6 +1160,24 @@ export default function OrderDetailsPage() {
                   <span className="hidden md:inline truncate">{t('printOrder')}</span>
                   <span className="hidden sm:inline md:hidden truncate">{t('printOrder')}</span>
                   <span className="sm:hidden truncate">{t('printOrder')}</span>
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handlePrintInvoice()
+                  }}
+                  disabled={isLoading.print}
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 active:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow-md"
+                  type="button"
+                >
+                  {isLoading.print ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Printer size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                  )}
+                  <span className="hidden md:inline truncate">{t('printInvoice') || 'Print Invoice'}</span>
+                  <span className="hidden sm:inline md:hidden truncate">{t('printInvoice') || 'Invoice'}</span>
+                  <span className="sm:hidden truncate">{t('printInvoice') || 'Invoice'}</span>
                 </button>
               </div>
             </div>
