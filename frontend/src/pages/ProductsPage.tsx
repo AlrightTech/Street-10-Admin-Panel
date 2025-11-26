@@ -17,8 +17,13 @@ export default function ProductsPage() {
   const [productToDelete, setProductToDelete] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [togglingProductId, setTogglingProductId] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterCategory, setFilterCategory] = useState('All Categories')
+  const [filterStatus, setFilterStatus] = useState('All Status')
+  const [filterStock, setFilterStock] = useState('All Stock')
+  const [sortBy, setSortBy] = useState('Sort by: Date Added')
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false)
   const itemsPerPage = 5
-  const totalPages = 8
 
   // Mock product data - matching the image EXACTLY
   const [rawProducts, setRawProducts] = useState([
@@ -37,12 +42,76 @@ export default function ProductsPage() {
   const activeCount = products.filter(p => p.status).length
   const inactiveCount = products.filter(p => !p.status).length
   
-  // Filter products based on active tab
-  const filteredProducts = activeTab === 'all' 
-    ? products 
-    : activeTab === 'active' 
-      ? products.filter(p => p.status)
-      : products.filter(p => !p.status)
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let result = products
+
+    // Filter by active tab
+    if (activeTab === 'active') {
+      result = result.filter(p => p.status)
+    } else if (activeTab === 'inactive') {
+      result = result.filter(p => !p.status)
+    }
+
+    // Filter by search query
+    if (searchQuery && searchQuery.trim().length > 0) {
+      const query = searchQuery.toLowerCase().trim()
+      result = result.filter(p => {
+        const productName = (p.name || '').toLowerCase()
+        const productSku = (p.sku || '').toLowerCase()
+        const productCategory = (p.category || '').toLowerCase()
+        
+        return productName.includes(query) || productSku.includes(query) || productCategory.includes(query)
+      })
+    }
+
+    // Filter by category
+    if (filterCategory !== 'All Categories') {
+      result = result.filter(p => p.category === filterCategory)
+    }
+
+    // Filter by status
+    if (filterStatus === 'Active') {
+      result = result.filter(p => p.status)
+    } else if (filterStatus === 'Inactive') {
+      result = result.filter(p => !p.status)
+    }
+
+    // Filter by stock
+    if (filterStock === 'In Stock') {
+      result = result.filter(p => p.stock > 0)
+    } else if (filterStock === 'Low Stock') {
+      result = result.filter(p => p.stock > 0 && p.stock < 200)
+    } else if (filterStock === 'Out of Stock') {
+      result = result.filter(p => p.stock === 0)
+    }
+
+    // Sort products
+    if (sortBy === 'Sort by: Name') {
+      result = [...result].sort((a, b) => a.name.localeCompare(b.name))
+    } else if (sortBy === 'Sort by: Price') {
+      result = [...result].sort((a, b) => a.price - b.price)
+    } else if (sortBy === 'Sort by: Orders') {
+      result = [...result].sort((a, b) => b.orders - a.orders)
+    }
+
+    return result
+  }, [products, activeTab, searchQuery, filterCategory, filterStatus, filterStock, sortBy])
+
+  // Calculate total pages based on filtered products
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, filterCategory, filterStatus, filterStock, sortBy, activeTab])
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
 
   // Pagination
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -114,15 +183,27 @@ export default function ProductsPage() {
       return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
     if (currentPage <= 3) {
-      return [1, 2, 3, 7, 8]
+      return [1, 2, 3, null, totalPages - 1, totalPages]
     } else if (currentPage >= totalPages - 2) {
-      return [1, 2, totalPages - 2, totalPages - 1, totalPages]
+      return [1, 2, null, totalPages - 2, totalPages - 1, totalPages]
     } else {
-      return [1, 2, currentPage - 1, currentPage, currentPage + 1, totalPages - 1, totalPages]
+      return [1, 2, null, currentPage - 1, currentPage, currentPage + 1, null, totalPages - 1, totalPages]
     }
   }
 
   const visiblePages = getVisiblePages()
+
+  // Close filter dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (showFilterDropdown && !target.closest('.filter-dropdown-container')) {
+        setShowFilterDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showFilterDropdown])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -182,7 +263,13 @@ export default function ProductsPage() {
               {/* Filter Dropdowns - Hidden on mobile */}
               <div className="hidden md:block bg-white rounded-lg p-4 shadow-sm mb-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by category">
+                  <select 
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by category"
+                    title="Filter by category"
+                  >
                     <option>All Categories</option>
                     <option>Electronics</option>
                     <option>Clothing</option>
@@ -190,20 +277,38 @@ export default function ProductsPage() {
                     <option>Home & Garden</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by status">
+                  <select 
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by status"
+                    title="Filter by status"
+                  >
                     <option>All Status</option>
                     <option>Active</option>
                     <option>Inactive</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by stock">
+                  <select 
+                    value={filterStock}
+                    onChange={(e) => setFilterStock(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by stock"
+                    title="Filter by stock"
+                  >
                     <option>All Stock</option>
                     <option>In Stock</option>
                     <option>Low Stock</option>
                     <option>Out of Stock</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Sort products">
+                  <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Sort products"
+                    title="Sort products"
+                  >
                     <option>Sort by: Date Added</option>
                     <option>Sort by: Name</option>
                     <option>Sort by: Price</option>
@@ -258,17 +363,145 @@ export default function ProductsPage() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                       <input
                         type="text"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
                         placeholder={t('searchTransactionProducts')}
-                        className="w-full sm:w-48 md:w-64 pl-9 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                        className={`w-full sm:w-48 md:w-64 pl-9 sm:pl-10 ${searchQuery ? 'pr-8' : 'pr-3'} py-2 border ${searchQuery ? 'border-primary-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm transition-colors`}
+                        autoComplete="off"
                       />
+                      {searchQuery && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('')
+                            setCurrentPage(1)
+                          }}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          type="button"
+                          aria-label="Clear search"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
                     </div>
-                    <button 
-                      className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm" 
-                      aria-label="Filter"
-                    >
-                      <Filter size={18} />
-                      <span className="hidden md:inline">Filter</span>
-                    </button>
+                    {searchQuery && (
+                      <div className="hidden sm:block text-xs text-gray-500 whitespace-nowrap">
+                        {filteredProducts.length} {filteredProducts.length === 1 ? 'result' : 'results'}
+                      </div>
+                    )}
+                    <div className="relative filter-dropdown-container">
+                      <button 
+                        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                        className={`hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
+                        aria-label="Filter"
+                        type="button"
+                      >
+                        <Filter size={18} />
+                        <span className="hidden md:inline">Filter</span>
+                      </button>
+                      
+                      {/* Filter Dropdown */}
+                      {showFilterDropdown && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40 lg:hidden"
+                            onClick={() => setShowFilterDropdown(false)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[60]">
+                            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                              <h3 className="text-sm font-semibold text-gray-900">{t('filterProducts') || 'Filter Products'}</h3>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                                type="button"
+                                aria-label="Close filter"
+                              >
+                                <X size={18} />
+                              </button>
+                            </div>
+                            <div className="px-4 py-3 space-y-4 max-h-[60vh] overflow-y-auto">
+                              {/* Category Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('category') || 'Category'}</label>
+                                <select
+                                  value={filterCategory}
+                                  onChange={(e) => setFilterCategory(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Categories</option>
+                                  <option>Electronics</option>
+                                  <option>Clothing</option>
+                                  <option>Sports</option>
+                                  <option>Home & Garden</option>
+                                </select>
+                              </div>
+                              {/* Status Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status') || 'Status'}</label>
+                                <select
+                                  value={filterStatus}
+                                  onChange={(e) => setFilterStatus(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Status</option>
+                                  <option>Active</option>
+                                  <option>Inactive</option>
+                                </select>
+                              </div>
+                              {/* Stock Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('stock') || 'Stock'}</label>
+                                <select
+                                  value={filterStock}
+                                  onChange={(e) => setFilterStock(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Stock</option>
+                                  <option>In Stock</option>
+                                  <option>Low Stock</option>
+                                  <option>Out of Stock</option>
+                                </select>
+                              </div>
+                              {/* Sort */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('sortBy') || 'Sort By'}</label>
+                                <select
+                                  value={sortBy}
+                                  onChange={(e) => setSortBy(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>Sort by: Date Added</option>
+                                  <option>Sort by: Name</option>
+                                  <option>Sort by: Price</option>
+                                  <option>Sort by: Orders</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
+                              <button
+                                onClick={() => {
+                                  setFilterCategory('All Categories')
+                                  setFilterStatus('All Status')
+                                  setFilterStock('All Stock')
+                                  setSortBy('Sort by: Date Added')
+                                  setShowFilterDropdown(false)
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:scale-[0.98] transition-all duration-200"
+                                type="button"
+                              >
+                                {t('reset') || 'Reset'}
+                              </button>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
+                                type="button"
+                              >
+                                {t('apply') || 'Apply'}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -384,7 +617,8 @@ export default function ProductsPage() {
                   <div className="flex items-center gap-1 sm:gap-2">
                     {visiblePages.map((page: number | null, index: number) => {
                       if (page === null) return null
-                      const showEllipsis = index > 0 && page - visiblePages[index - 1] > 1
+                      const prevPage = visiblePages[index - 1]
+                      const showEllipsis = index > 0 && prevPage !== null && page - prevPage > 1
                       
                       return (
                         <div key={page} className="flex items-center gap-1 sm:gap-2">
@@ -565,7 +799,13 @@ export default function ProductsPage() {
               {/* Filter Dropdowns - Hidden on mobile */}
               <div className="hidden md:block bg-white rounded-lg p-4 shadow-sm mb-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by category">
+                  <select 
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by category"
+                    title="Filter by category"
+                  >
                     <option>All Categories</option>
                     <option>Electronics</option>
                     <option>Clothing</option>
@@ -573,20 +813,38 @@ export default function ProductsPage() {
                     <option>Home & Garden</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by status">
+                  <select 
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by status"
+                    title="Filter by status"
+                  >
                     <option>All Status</option>
                     <option>Active</option>
                     <option>Inactive</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Filter by stock">
+                  <select 
+                    value={filterStock}
+                    onChange={(e) => setFilterStock(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Filter by stock"
+                    title="Filter by stock"
+                  >
                     <option>All Stock</option>
                     <option>In Stock</option>
                     <option>Low Stock</option>
                     <option>Out of Stock</option>
                   </select>
                   
-                  <select className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-gray-50" aria-label="Sort products">
+                  <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm text-gray-700 bg-white cursor-pointer" 
+                    aria-label="Sort products"
+                    title="Sort products"
+                  >
                     <option>Sort by: Date Added</option>
                     <option>Sort by: Name</option>
                     <option>Sort by: Price</option>
@@ -641,17 +899,145 @@ export default function ProductsPage() {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                       <input
                         type="text"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
                         placeholder={t('searchTransactionProducts')}
-                        className="w-full sm:w-48 md:w-64 pl-9 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                        className={`w-full sm:w-48 md:w-64 pl-9 sm:pl-10 ${searchQuery ? 'pr-8' : 'pr-3'} py-2 border ${searchQuery ? 'border-primary-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm transition-colors`}
+                        autoComplete="off"
                       />
+                      {searchQuery && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('')
+                            setCurrentPage(1)
+                          }}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                          type="button"
+                          aria-label="Clear search"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
                     </div>
-                    <button 
-                      className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm" 
-                      aria-label="Filter"
-                    >
-                      <Filter size={18} />
-                      {t('search')}
-                    </button>
+                    {searchQuery && (
+                      <div className="hidden sm:block text-xs text-gray-500 whitespace-nowrap">
+                        {filteredProducts.length} {filteredProducts.length === 1 ? 'result' : 'results'}
+                      </div>
+                    )}
+                    <div className="relative filter-dropdown-container">
+                      <button 
+                        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                        className={`hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm ${showFilterDropdown ? 'bg-gray-100' : ''}`}
+                        aria-label="Filter"
+                        type="button"
+                      >
+                        <Filter size={18} />
+                        <span className="hidden md:inline">Filter</span>
+                      </button>
+                      
+                      {/* Filter Dropdown */}
+                      {showFilterDropdown && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-40 lg:hidden"
+                            onClick={() => setShowFilterDropdown(false)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[60]">
+                            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                              <h3 className="text-sm font-semibold text-gray-900">{t('filterProducts') || 'Filter Products'}</h3>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="p-1 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                                type="button"
+                                aria-label="Close filter"
+                              >
+                                <X size={18} />
+                              </button>
+                            </div>
+                            <div className="px-4 py-3 space-y-4 max-h-[60vh] overflow-y-auto">
+                              {/* Category Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('category') || 'Category'}</label>
+                                <select
+                                  value={filterCategory}
+                                  onChange={(e) => setFilterCategory(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Categories</option>
+                                  <option>Electronics</option>
+                                  <option>Clothing</option>
+                                  <option>Sports</option>
+                                  <option>Home & Garden</option>
+                                </select>
+                              </div>
+                              {/* Status Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('status') || 'Status'}</label>
+                                <select
+                                  value={filterStatus}
+                                  onChange={(e) => setFilterStatus(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Status</option>
+                                  <option>Active</option>
+                                  <option>Inactive</option>
+                                </select>
+                              </div>
+                              {/* Stock Filter */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('stock') || 'Stock'}</label>
+                                <select
+                                  value={filterStock}
+                                  onChange={(e) => setFilterStock(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>All Stock</option>
+                                  <option>In Stock</option>
+                                  <option>Low Stock</option>
+                                  <option>Out of Stock</option>
+                                </select>
+                              </div>
+                              {/* Sort */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-700 mb-2 block">{t('sortBy') || 'Sort By'}</label>
+                                <select
+                                  value={sortBy}
+                                  onChange={(e) => setSortBy(e.target.value)}
+                                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white cursor-pointer"
+                                >
+                                  <option>Sort by: Date Added</option>
+                                  <option>Sort by: Name</option>
+                                  <option>Sort by: Price</option>
+                                  <option>Sort by: Orders</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div className="px-4 py-3 border-t border-gray-200 flex gap-2 bg-gray-50">
+                              <button
+                                onClick={() => {
+                                  setFilterCategory('All Categories')
+                                  setFilterStatus('All Status')
+                                  setFilterStock('All Stock')
+                                  setSortBy('Sort by: Date Added')
+                                  setShowFilterDropdown(false)
+                                }}
+                                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:scale-[0.98] transition-all duration-200"
+                                type="button"
+                              >
+                                {t('reset') || 'Reset'}
+                              </button>
+                              <button
+                                onClick={() => setShowFilterDropdown(false)}
+                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-lg hover:bg-primary-600 active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md"
+                                type="button"
+                              >
+                                {t('apply') || 'Apply'}
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
 

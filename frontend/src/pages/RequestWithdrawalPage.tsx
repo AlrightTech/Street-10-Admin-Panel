@@ -1,6 +1,6 @@
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, Wallet, Clock, ArrowUp, Send, Download, Calendar, Search, Eye, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -29,6 +29,13 @@ export default function RequestWithdrawalPage() {
     notes: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [withdrawalFilters, setWithdrawalFilters] = useState({
+    dateRange: '',
+    status: '',
+    search: ''
+  })
+  const dateInputRef = useRef<HTMLInputElement>(null)
+  const dateInputMobileRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,15 +47,68 @@ export default function RequestWithdrawalPage() {
     navigate('/transactions/earnings/withdrawals')
   }
 
-  const withdrawals = [
+  const allWithdrawals = [
     { id: 'MWD-2024-001', date: 'Dec 15, 2024', amount: 1200.00, method: 'Bank Transfer', status: 'Pending', processed: null },
     { id: 'MWD-2024-002', date: 'Dec 10, 2024', amount: 800.00, method: 'PayPal', status: 'Completed', processed: 'Dec 12, 2024' },
     { id: 'MWD-2024-003', date: 'Dec 8, 2024', amount: 2800.00, method: 'Bank Transfer', status: 'Completed', processed: 'Dec 7, 2024' },
-    { id: 'MWD-2024-004', date: 'Nov 28, 2024', amount: 450.00, method: 'JazzCash', status: 'Rejected', processed: 'Nov 29, 2024' }
+    { id: 'MWD-2024-004', date: 'Nov 28, 2024', amount: 450.00, method: 'JazzCash', status: 'Rejected', processed: 'Nov 29, 2024' },
+    { id: 'MWD-2024-005', date: 'Nov 20, 2024', amount: 1500.00, method: 'Bank Transfer', status: 'Completed', processed: 'Nov 22, 2024' },
+    { id: 'MWD-2024-006', date: 'Nov 15, 2024', amount: 950.00, method: 'PayPal', status: 'Pending', processed: null },
+    { id: 'MWD-2024-007', date: 'Nov 10, 2024', amount: 3200.00, method: 'EasyPaisa', status: 'Completed', processed: 'Nov 11, 2024' },
+    { id: 'MWD-2024-008', date: 'Nov 5, 2024', amount: 600.00, method: 'JazzCash', status: 'Rejected', processed: 'Nov 6, 2024' }
   ]
 
+  // Filter withdrawals based on active filters
+  const filteredWithdrawals = allWithdrawals.filter((withdrawal) => {
+    // Filter by status
+    if (withdrawalFilters.status && withdrawal.status !== withdrawalFilters.status) {
+      return false
+    }
+
+    // Filter by date range
+    if (withdrawalFilters.dateRange) {
+      const filterDateParts = withdrawalFilters.dateRange.split('/')
+      if (filterDateParts.length === 3) {
+        const filterDate = new Date(
+          parseInt(filterDateParts[2]), // Year
+          parseInt(filterDateParts[0]) - 1, // Month (0-indexed)
+          parseInt(filterDateParts[1]) // Day
+        )
+        // Parse withdrawal date (format: "Dec 15, 2024")
+        const withdrawalDate = new Date(withdrawal.date)
+        // Compare dates (ignore time)
+        const filterDateStr = filterDate.toDateString()
+        const withdrawalDateStr = withdrawalDate.toDateString()
+        if (filterDateStr !== withdrawalDateStr) return false
+      }
+    }
+
+    // Filter by search (Request ID, Method)
+    if (withdrawalFilters.search) {
+      const searchLower = withdrawalFilters.search.toLowerCase()
+      const matchesId = withdrawal.id.toLowerCase().includes(searchLower)
+      const matchesMethod = withdrawal.method.toLowerCase().includes(searchLower)
+      if (!matchesId && !matchesMethod) return false
+    }
+
+    return true
+  })
+
   const availableBalance = 12450.75
-  const totalPages = 8
+  const itemsPerPage = 5
+  const totalPages = Math.max(1, Math.ceil(filteredWithdrawals.length / itemsPerPage))
+  
+  // Get paginated withdrawals
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedWithdrawals = filteredWithdrawals.slice(startIndex, endIndex)
+
+  // Update current page if it exceeds total pages after filtering
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1)
+    }
+  }, [totalPages, currentPage])
 
   // Get visible pages for pagination
   const getVisiblePages = () => {
@@ -65,6 +125,122 @@ export default function RequestWithdrawalPage() {
   }
 
   const visiblePages = getVisiblePages()
+
+  // Handle date picker for desktop
+  const handleDatePickerClick = () => {
+    if (dateInputRef.current) {
+      dateInputRef.current.style.pointerEvents = 'auto'
+      try {
+        const input = dateInputRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          dateInputRef.current.click()
+        }
+      } catch {
+        dateInputRef.current.click()
+      }
+      setTimeout(() => {
+        if (dateInputRef.current) {
+          dateInputRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  // Handle date change from date input
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const dateParts = e.target.value.split('-')
+      // Format: MM/DD/YYYY
+      const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`
+      setWithdrawalFilters({ ...withdrawalFilters, dateRange: formattedDate })
+      setCurrentPage(1)
+    } else {
+      setWithdrawalFilters({ ...withdrawalFilters, dateRange: '' })
+      setCurrentPage(1)
+    }
+  }
+
+  // Handle date picker for mobile
+  const handleDatePickerClickMobile = () => {
+    if (dateInputMobileRef.current) {
+      dateInputMobileRef.current.style.pointerEvents = 'auto'
+      try {
+        const input = dateInputMobileRef.current as HTMLInputElement & { showPicker?: () => void }
+        if (input.showPicker && typeof input.showPicker === 'function') {
+          input.showPicker()
+        } else {
+          dateInputMobileRef.current.click()
+        }
+      } catch {
+        dateInputMobileRef.current.click()
+      }
+      setTimeout(() => {
+        if (dateInputMobileRef.current) {
+          dateInputMobileRef.current.style.pointerEvents = 'none'
+        }
+      }, 100)
+    }
+  }
+
+  // Handle date change from mobile date input
+  const handleDateChangeMobile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const dateParts = e.target.value.split('-')
+      // Format: MM/DD/YYYY
+      const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`
+      setWithdrawalFilters({ ...withdrawalFilters, dateRange: formattedDate })
+      setCurrentPage(1)
+    } else {
+      setWithdrawalFilters({ ...withdrawalFilters, dateRange: '' })
+      setCurrentPage(1)
+    }
+  }
+
+  // Handle download statement
+  const handleDownloadStatement = () => {
+    // Create statement data
+    const statementData = {
+      title: 'Withdrawal Statement',
+      generatedAt: new Date().toLocaleString(),
+      availableBalance: availableBalance,
+      summary: {
+        totalWithdrawn: 48920.50,
+        pendingPayouts: 2180.00,
+        pendingCount: 3
+      },
+      withdrawals: filteredWithdrawals
+    }
+
+    // Create CSV content
+    let csvContent = `Withdrawal Statement\n`
+    csvContent += `Generated: ${statementData.generatedAt}\n\n`
+    
+    csvContent += `Summary\n`
+    csvContent += `Available Balance,$${statementData.availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}\n`
+    csvContent += `Total Withdrawn,$${statementData.summary.totalWithdrawn.toLocaleString('en-US', { minimumFractionDigits: 2 })}\n`
+    csvContent += `Pending Payouts,$${statementData.summary.pendingPayouts.toLocaleString('en-US', { minimumFractionDigits: 2 })}\n`
+    csvContent += `Pending Requests,${statementData.summary.pendingCount}\n\n`
+    
+    csvContent += `Withdrawal History\n`
+    csvContent += `Request ID,Date,Amount ($),Method,Status,Processed Date\n`
+    statementData.withdrawals.forEach((withdrawal) => {
+      csvContent += `${withdrawal.id},${withdrawal.date},$${withdrawal.amount.toFixed(2)},${withdrawal.method},${withdrawal.status},${withdrawal.processed || 'N/A'}\n`
+    })
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `withdrawal-statement-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,7 +285,10 @@ export default function RequestWithdrawalPage() {
                   <h1 className="text-3xl font-bold text-gray-900">Transactions & Finance</h1>
                   <p className="text-sm text-gray-500 mt-1">Dashboard - Earnings Overview</p>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium">
+                <button 
+                  onClick={handleDownloadStatement}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                >
                   <Download size={18} />
                   Download Statement
                 </button>
@@ -238,19 +417,49 @@ export default function RequestWithdrawalPage() {
                   <h2 className="text-xl font-semibold text-gray-900">Withdrawal History</h2>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                     <div className="relative flex-1 sm:flex-initial">
-                      <Calendar className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                       <input
                         type="text"
-                        placeholder="Date Range"
-                        className="w-full pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm"
+                        placeholder="mm/dd/yyyy"
+                        maxLength={10}
+                        value={withdrawalFilters.dateRange}
+                        onChange={(e) => {
+                          const formatted = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2}\/\d{2})(\d)/, '$1/$2').slice(0, 10)
+                          setWithdrawalFilters({ ...withdrawalFilters, dateRange: formatted })
+                          setCurrentPage(1)
+                        }}
+                        className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
+                      {/* Hidden date input for date picker */}
+                      <input
+                        ref={dateInputRef}
+                        type="date"
+                        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                        onChange={handleDateChange}
+                        aria-hidden="true"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleDatePickerClick}
+                        className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
+                        aria-label="Open calendar"
+                      >
+                        <Calendar className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+                      </button>
                     </div>
                     <div className="relative flex-1 sm:flex-initial">
-                      <select className="w-full sm:w-auto px-3 py-2 pr-8 border border-gray-300 rounded-lg text-xs sm:text-sm appearance-none bg-white" aria-label="All Status">
-                        <option>All Status</option>
-                        <option>Pending</option>
-                        <option>Completed</option>
-                        <option>Rejected</option>
+                      <select 
+                        className="w-full sm:w-auto px-3 py-2 pr-8 border border-gray-300 rounded-lg text-xs sm:text-sm appearance-none bg-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
+                        aria-label="All Status"
+                        value={withdrawalFilters.status}
+                        onChange={(e) => {
+                          setWithdrawalFilters({ ...withdrawalFilters, status: e.target.value })
+                          setCurrentPage(1)
+                        }}
+                      >
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Rejected">Rejected</option>
                       </select>
                       <ChevronDown className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-3 h-3 sm:w-4 sm:h-4" />
                     </div>
@@ -259,7 +468,12 @@ export default function RequestWithdrawalPage() {
                       <input
                         type="text"
                         placeholder="Search"
-                        className="w-full pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm"
+                        value={withdrawalFilters.search}
+                        onChange={(e) => {
+                          setWithdrawalFilters({ ...withdrawalFilters, search: e.target.value })
+                          setCurrentPage(1)
+                        }}
+                        className="w-full pl-8 sm:pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -278,7 +492,8 @@ export default function RequestWithdrawalPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {withdrawals.map((withdrawal: WithdrawalRequest) => (
+                      {paginatedWithdrawals.length > 0 ? (
+                        paginatedWithdrawals.map((withdrawal: WithdrawalRequest) => (
                         <tr key={withdrawal.id} className="hover:bg-gray-50">
                           <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">{withdrawal.id}</td>
                           <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-500 whitespace-nowrap">{withdrawal.date}</td>
@@ -305,7 +520,14 @@ export default function RequestWithdrawalPage() {
                             </button>
                           </td>
                         </tr>
-                      ))}
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={7} className="px-6 py-8 text-center text-sm text-gray-500">
+                            No withdrawals found matching your filters.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -376,7 +598,10 @@ export default function RequestWithdrawalPage() {
               <h1 className="text-2xl font-bold text-gray-900">Transactions & Finance</h1>
               <p className="text-sm text-gray-500 mt-1">Dashboard - Earnings Overview</p>
             </div>
-            <button className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium">
+            <button 
+              onClick={handleDownloadStatement}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium"
+            >
               <Download size={16} />
               Download Statement
             </button>
@@ -501,19 +726,49 @@ export default function RequestWithdrawalPage() {
               <h2 className="text-lg font-semibold text-gray-900">Withdrawal History</h2>
               <div className="flex flex-col gap-2">
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
                     type="text"
-                    placeholder="Date Range"
-                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    placeholder="mm/dd/yyyy"
+                    maxLength={10}
+                    value={withdrawalFilters.dateRange}
+                    onChange={(e) => {
+                      const formatted = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2}\/\d{2})(\d)/, '$1/$2').slice(0, 10)
+                      setWithdrawalFilters({ ...withdrawalFilters, dateRange: formatted })
+                      setCurrentPage(1)
+                    }}
+                    className="w-full pl-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
+                  {/* Hidden date input for mobile date picker */}
+                  <input
+                    ref={dateInputMobileRef}
+                    type="date"
+                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-20 pointer-events-none"
+                    onChange={handleDateChangeMobile}
+                    aria-hidden="true"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDatePickerClickMobile}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer z-30"
+                    aria-label="Open calendar"
+                  >
+                    <Calendar className="w-4 h-4" />
+                  </button>
                 </div>
                 <div className="relative">
-                  <select className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm appearance-none bg-white" aria-label="All Status">
-                    <option>All Status</option>
-                    <option>Pending</option>
-                    <option>Completed</option>
-                    <option>Rejected</option>
+                  <select 
+                    className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-lg text-sm appearance-none bg-white focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
+                    aria-label="All Status"
+                    value={withdrawalFilters.status}
+                    onChange={(e) => {
+                      setWithdrawalFilters({ ...withdrawalFilters, status: e.target.value })
+                      setCurrentPage(1)
+                    }}
+                  >
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Rejected">Rejected</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4" />
                 </div>
@@ -522,7 +777,12 @@ export default function RequestWithdrawalPage() {
                   <input
                     type="text"
                     placeholder="Search"
-                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    value={withdrawalFilters.search}
+                    onChange={(e) => {
+                      setWithdrawalFilters({ ...withdrawalFilters, search: e.target.value })
+                      setCurrentPage(1)
+                    }}
+                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -539,7 +799,8 @@ export default function RequestWithdrawalPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {withdrawals.map((withdrawal) => (
+                  {paginatedWithdrawals.length > 0 ? (
+                    paginatedWithdrawals.map((withdrawal) => (
                     <tr key={withdrawal.id} className="hover:bg-gray-50">
                       <td className="px-3 py-3 text-xs font-medium text-gray-900 whitespace-nowrap">{withdrawal.id}</td>
                       <td className="px-3 py-3 text-xs text-gray-500 whitespace-nowrap">{withdrawal.date}</td>
@@ -562,7 +823,14 @@ export default function RequestWithdrawalPage() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-8 text-center text-sm text-gray-500">
+                        No withdrawals found matching your filters.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

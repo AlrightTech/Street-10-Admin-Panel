@@ -644,31 +644,7 @@ export default function EarningsReportPage() {
             ))}
           </div>
 
-          {/* Earnings Trend */}
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
-              <h2 className="text-sm font-semibold text-gray-900">Earnings Trend</h2>
-              <div className="flex items-center gap-1 w-full sm:w-auto">
-                {['Daily', 'Weekly', 'Monthly'].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTrendTab(tab)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex-1 sm:flex-none ${
-                        activeTrendTab === tab
-                          ? 'text-white'
-                          : 'bg-white text-gray-600 hover:text-gray-900'
-                      }`}
-                      style={activeTrendTab === tab ? { backgroundColor: '#6366F1' } : {}}
-                    >
-                      {tab}
-                    </button>
-                ))}
-              </div>
-            </div>
-            <div className="p-4 sm:p-6">
-              {renderEarningsChart(currentEarningsData, activeTrendTab)}
-            </div>
-          </div>
+          
 
           {/* Best Products */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">

@@ -21,8 +21,13 @@ export default function EarningsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [dateRange, setDateRange] = useState('daily')
+  const [productFilters, setProductFilters] = useState({
+    transactionType: '',
+    category: '',
+    search: ''
+  })
 
-  // Mock data for earnings trend (matching the image)
+  // Mock data for earnings trend for different time ranges
   const earningsData = {
     daily: [
       { day: 'Mon', amount: 320 },
@@ -32,21 +37,79 @@ export default function EarningsPage() {
       { day: 'Fri', amount: 480 },
       { day: 'Sat', amount: 600 },
       { day: 'Sun', amount: 420 }
+    ],
+    weekly: [
+      { day: 'Week 1', amount: 2100 },
+      { day: 'Week 2', amount: 2450 },
+      { day: 'Week 3', amount: 2280 },
+      { day: 'Week 4', amount: 2650 }
+    ],
+    monthly: [
+      { day: 'Jan', amount: 8500 },
+      { day: 'Feb', amount: 9200 },
+      { day: 'Mar', amount: 8800 },
+      { day: 'Apr', amount: 10200 },
+      { day: 'May', amount: 9600 },
+      { day: 'Jun', amount: 11000 }
+    ],
+    custom: [
+      { day: 'Day 1', amount: 450 },
+      { day: 'Day 2', amount: 520 },
+      { day: 'Day 3', amount: 480 },
+      { day: 'Day 4', amount: 600 },
+      { day: 'Day 5', amount: 550 }
     ]
   }
 
-  const maxAmount = 700
-  const minAmount = 300
+  // Get current data based on selected date range
+  const currentData = earningsData[dateRange as keyof typeof earningsData] || earningsData.daily
 
-  const bestProducts = [
+  // Calculate dynamic Y-axis range based on current data
+  const amounts = currentData.map(d => d.amount)
+  const dataMax = Math.max(...amounts)
+  const dataMin = Math.min(...amounts)
+  const padding = (dataMax - dataMin) * 0.1 || 100
+  const maxAmount = Math.ceil(dataMax + padding)
+  const minAmount = Math.max(0, Math.floor(dataMin - padding))
+
+  const allProducts = [
     { id: 1, name: 'Premium Headphones', productId: 'APP001', category: 'Electronics', totalSold: 234, revenue: 4680 },
     { id: 2, name: 'Wireless Speaker', productId: 'APP002', category: 'Electronics', totalSold: 188, revenue: 3760 },
-    { id: 3, name: 'Smart Watch', productId: 'APP003', category: 'Wearables', totalSold: 156, revenue: 3120 }
+    { id: 3, name: 'Smart Watch', productId: 'APP003', category: 'Wearables', totalSold: 156, revenue: 3120 },
+    { id: 4, name: 'Gaming Mouse', productId: 'APP004', category: 'Electronics', totalSold: 145, revenue: 2900 },
+    { id: 5, name: 'Fitness Tracker', productId: 'APP005', category: 'Wearables', totalSold: 198, revenue: 3960 },
+    { id: 6, name: 'Bluetooth Earbuds', productId: 'APP006', category: 'Electronics', totalSold: 267, revenue: 5340 }
   ]
+
+  // Get unique categories from products
+  const categories = Array.from(new Set(allProducts.map(p => p.category)))
+
+  // Filter products based on selected filters
+  const filteredProducts = allProducts.filter((product) => {
+    // Filter by category
+    if (productFilters.category && product.category !== productFilters.category) {
+      return false
+    }
+
+    // Filter by search (product name or product ID)
+    if (productFilters.search) {
+      const searchLower = productFilters.search.toLowerCase()
+      const matchesName = product.name.toLowerCase().includes(searchLower)
+      const matchesId = product.productId.toLowerCase().includes(searchLower)
+      if (!matchesName && !matchesId) return false
+    }
+
+    // Note: transactionType filter can be added when transaction data is available
+    // For now, we'll keep it for future implementation
+
+    return true
+  })
+
+  const bestProducts = filteredProducts
 
   // Calculate chart dimensions for line chart
   const chartHeight = 240
-  const chartPadding = { top: 20, right: 40, bottom: 40, left: 50 }
+  const chartPadding = { top: 20, right: 40, bottom: 40, left: 60 }
   const chartWidth = 700
   const graphWidth = chartWidth - chartPadding.left - chartPadding.right
   const graphHeight = chartHeight - chartPadding.top - chartPadding.bottom
@@ -57,8 +120,89 @@ export default function EarningsPage() {
   }
 
   const getXPosition = (index: number) => {
-    return chartPadding.left + (index / (earningsData.daily.length - 1)) * graphWidth
+    const total = currentData.length
+    if (total <= 1) return chartPadding.left + graphWidth / 2
+    return chartPadding.left + (index / (total - 1)) * graphWidth
   }
+
+  // Get legend text based on date range
+  const getLegendText = () => {
+    switch(dateRange) {
+      case 'daily': return 'Daily Earnings'
+      case 'weekly': return 'Weekly Earnings'
+      case 'monthly': return 'Monthly Earnings'
+      case 'custom': return 'Custom Earnings'
+      default: return 'Daily Earnings'
+    }
+  }
+
+  // Handle download report
+  const handleDownloadReport = () => {
+    // Create report data
+    const reportData = {
+      title: 'Earnings Report',
+      dateRange: dateRange.charAt(0).toUpperCase() + dateRange.slice(1),
+      generatedAt: new Date().toLocaleString(),
+      summary: {
+        totalEarnings: 24580,
+        thisMonth: 3240,
+        pendingBalance: 1580,
+        withdrawn: 19760
+      },
+      chartData: currentData,
+      products: bestProducts
+    }
+
+    // Create CSV content
+    let csvContent = `Earnings Report - ${reportData.dateRange}\n`
+    csvContent += `Generated: ${reportData.generatedAt}\n\n`
+    
+    csvContent += `Summary\n`
+    csvContent += `Total Earnings,$${reportData.summary.totalEarnings.toLocaleString()}\n`
+    csvContent += `This Month,$${reportData.summary.thisMonth.toLocaleString()}\n`
+    csvContent += `Pending Balance,$${reportData.summary.pendingBalance.toLocaleString()}\n`
+    csvContent += `Withdrawn,$${reportData.summary.withdrawn.toLocaleString()}\n\n`
+    
+    csvContent += `Earnings Trend (${reportData.dateRange})\n`
+    csvContent += `Period,Amount ($)\n`
+    reportData.chartData.forEach((data) => {
+      csvContent += `${data.day},$${data.amount.toLocaleString()}\n`
+    })
+    
+    csvContent += `\nBest Performing Products\n`
+    csvContent += `Product Name,Product ID,Category,Total Sold,Revenue ($)\n`
+    reportData.products.forEach((product) => {
+      csvContent += `${product.name},${product.productId},${product.category},${product.totalSold},$${product.revenue.toLocaleString()}\n`
+    })
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `earnings-report-${dateRange}-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
+  // Generate Y-axis grid lines dynamically
+  const generateGridLines = () => {
+    const range = maxAmount - minAmount
+    const step = Math.ceil(range / 5)
+    const lines: number[] = []
+    for (let i = minAmount; i <= maxAmount; i += step) {
+      lines.push(i)
+    }
+    if (lines[lines.length - 1] < maxAmount) {
+      lines.push(maxAmount)
+    }
+    return lines
+  }
+
+  const gridLines = generateGridLines()
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -172,20 +316,35 @@ export default function EarningsPage() {
               </div>
 
               {/* Earnings Trend Chart - Line Chart */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Earnings Trend</h2>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 px-3 py-1">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                      <span className="text-sm text-gray-700">Daily Earnings</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg">
+                      <div className="w-3 h-3 bg-blue-600 rounded-full shadow-sm"></div>
+                      <span className="text-sm font-medium text-gray-700">{getLegendText()}</span>
                     </div>
                   </div>
                 </div>
                 <div className="relative">
-                  <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+                  <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet" key={`chart-${dateRange}`}>
+                    {/* Gradient definitions for area fill */}
+                    <defs>
+                      <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
+                      </linearGradient>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                          <feMergeNode in="coloredBlur"/>
+                          <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                      </filter>
+                    </defs>
+
                     {/* Y-axis grid lines */}
-                    {[300, 400, 500, 600, 700].map((value) => {
+                    {gridLines.map((value) => {
                       const y = getYPosition(value)
                       return (
                         <g key={value}>
@@ -194,17 +353,20 @@ export default function EarningsPage() {
                             y1={y}
                             x2={chartWidth - chartPadding.right}
                             y2={y}
-                            stroke="#e5e7eb"
+                            stroke="#f3f4f6"
                             strokeWidth="1"
+                            strokeDasharray="none"
                           />
                           <text
-                            x={chartPadding.left - 10}
-                            y={y + 4}
+                            x={chartPadding.left - 20}
+                            y={y + 5}
                             textAnchor="end"
-                            fontSize="12"
-                            fill="#6b7280"
+                            fontSize="11"
+                            fill="#9ca3af"
+                            fontWeight="500"
+                            fontFamily="system-ui, -apple-system, sans-serif"
                           >
-                            {value}
+                            {value.toLocaleString()}
                           </text>
                         </g>
                       )
@@ -212,59 +374,93 @@ export default function EarningsPage() {
                     
                     {/* Y-axis label */}
                     <text
-                      x={25}
+                      x={8}
                       y={chartHeight / 2}
                       textAnchor="middle"
-                      transform={`rotate(-90, 25, ${chartHeight / 2})`}
-                      fontSize="14"
+                      transform={`rotate(-90, 8, ${chartHeight / 2})`}
+                      fontSize="11"
                       fill="#6b7280"
-                      fontWeight="500"
+                      fontWeight="600"
+                      fontFamily="system-ui, -apple-system, sans-serif"
+                      letterSpacing="0.3px"
                     >
                       Earnings ($)
                     </text>
 
-                    {/* Line chart path */}
+                    {/* Area under the line for depth */}
                     <path
-                      d={`M ${earningsData.daily.map((data, index) => {
+                      d={`M ${chartPadding.left} ${chartPadding.top + graphHeight} ${currentData.map((data, index) => {
+                        const x = getXPosition(index)
+                        const y = getYPosition(data.amount)
+                        return `L ${x} ${y}`
+                      }).join(' ')} L ${chartPadding.left + graphWidth} ${chartPadding.top + graphHeight} Z`}
+                      fill="url(#areaGradient)"
+                    />
+
+                    {/* Line chart path with smooth curve */}
+                    <path
+                      d={`M ${currentData.map((data, index) => {
                         const x = getXPosition(index)
                         const y = getYPosition(data.amount)
                         return `${x},${y}`
                       }).join(' L ')}`}
                       fill="none"
                       stroke="#3b82f6"
-                      strokeWidth="3"
+                      strokeWidth="2.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      filter="url(#glow)"
                     />
 
-                    {/* Data points (circles) */}
-                    {earningsData.daily.map((data, index) => {
+                    {/* Data points (circles) with better styling */}
+                    {currentData.map((data, index) => {
                       const x = getXPosition(index)
                       const y = getYPosition(data.amount)
                       return (
-                        <circle
-                          key={index}
-                          cx={x}
-                          cy={y}
-                          r="5"
-                          fill="#3b82f6"
-                          stroke="#fff"
-                          strokeWidth="2"
-                        />
+                        <g key={index}>
+                          {/* Outer glow circle */}
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r="7"
+                            fill="#3b82f6"
+                            opacity="0.2"
+                          />
+                          {/* Main circle */}
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r="5"
+                            fill="#3b82f6"
+                            stroke="#ffffff"
+                            strokeWidth="2.5"
+                            className="cursor-pointer"
+                          />
+                          {/* Inner highlight */}
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r="2"
+                            fill="#ffffff"
+                            opacity="0.8"
+                          />
+                        </g>
                       )
                     })}
 
-                    {/* X-axis labels */}
-                    {earningsData.daily.map((data, index) => {
+                    {/* X-axis labels with better styling */}
+                    {currentData.map((data, index) => {
                       const x = getXPosition(index)
                       return (
                         <text
                           key={index}
                           x={x}
-                          y={chartHeight - chartPadding.bottom + 20}
+                          y={chartHeight - chartPadding.bottom + 22}
                           textAnchor="middle"
-                          fontSize="12"
+                          fontSize="11"
                           fill="#6b7280"
+                          fontWeight="500"
+                          fontFamily="system-ui, -apple-system, sans-serif"
                         >
                           {data.day}
                         </text>
@@ -316,19 +512,44 @@ export default function EarningsPage() {
               {/* Best Performing Products */}
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">{t('bestPerformingProducts')}</h2>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">{t('bestPerformingProducts')}</h2>
+                    {bestProducts.length > 0 && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Showing {bestProducts.length} {bestProducts.length === 1 ? 'product' : 'products'}
+                      </p>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3">
-                    <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm" aria-label={t('transactionType')}>
-                      <option>{t('transactionType')}</option>
+                    <select 
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      aria-label={t('transactionType')}
+                      value={productFilters.transactionType}
+                      onChange={(e) => setProductFilters({ ...productFilters, transactionType: e.target.value })}
+                    >
+                      <option value="">{t('transactionType')}</option>
+                      <option value="all">All Transactions</option>
+                      <option value="sales">Sales</option>
+                      <option value="refunds">Refunds</option>
                     </select>
-                    <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm" aria-label={t('category')}>
-                      <option>{t('category')}</option>
+                    <select 
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      aria-label={t('category')}
+                      value={productFilters.category}
+                      onChange={(e) => setProductFilters({ ...productFilters, category: e.target.value })}
+                    >
+                      <option value="">{t('category')}</option>
+                      {categories.map((category) => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
                     </select>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                       <input
                         type="text"
                         placeholder={t('product')}
+                        value={productFilters.search}
+                        onChange={(e) => setProductFilters({ ...productFilters, search: e.target.value })}
                         className="pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       />
                     </div>
@@ -345,7 +566,8 @@ export default function EarningsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {bestProducts.map((product: BestProduct) => (
+                    {bestProducts.length > 0 ? (
+                      bestProducts.map((product: BestProduct) => (
                       <tr key={product.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -375,7 +597,14 @@ export default function EarningsPage() {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
+                          No products found matching your filters.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -389,7 +618,10 @@ export default function EarningsPage() {
                   <DollarSign size={18} />
                   {t('requestWithdrawal')}
                 </button>
-                <button className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium">
+                <button 
+                  onClick={handleDownloadReport}
+                  className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+                >
                   <Download size={18} />
                   {t('downloadReport')}
                 </button>
@@ -487,18 +719,35 @@ export default function EarningsPage() {
           </div>
 
           {/* Earnings Trend Chart - Mobile Line Chart */}
-          <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Earnings Trend</h2>
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
-                <span className="text-xs text-gray-700">Daily Earnings</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 rounded-lg">
+                  <div className="w-2.5 h-2.5 bg-blue-600 rounded-full shadow-sm"></div>
+                  <span className="text-xs font-medium text-gray-700">{getLegendText()}</span>
+                </div>
               </div>
             </div>
             <div className="overflow-x-auto">
-              <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full min-w-[500px] h-auto" preserveAspectRatio="xMidYMid meet">
+              <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full min-w-[500px] h-auto" preserveAspectRatio="xMidYMid meet" key={`chart-mobile-${dateRange}`}>
+                {/* Gradient definitions */}
+                <defs>
+                  <linearGradient id="areaGradientMobile" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
+                  </linearGradient>
+                  <filter id="glowMobile">
+                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+
                 {/* Y-axis grid lines */}
-                {[300, 400, 500, 600, 700].map((value) => {
+                {gridLines.map((value) => {
                   const y = getYPosition(value)
                   return (
                     <g key={value}>
@@ -507,17 +756,19 @@ export default function EarningsPage() {
                         y1={y}
                         x2={chartWidth - chartPadding.right}
                         y2={y}
-                        stroke="#e5e7eb"
+                        stroke="#f3f4f6"
                         strokeWidth="1"
                       />
                       <text
-                        x={chartPadding.left - 10}
+                        x={chartPadding.left - 18}
                         y={y + 4}
                         textAnchor="end"
                         fontSize="10"
-                        fill="#6b7280"
+                        fill="#9ca3af"
+                        fontWeight="500"
+                        fontFamily="system-ui, -apple-system, sans-serif"
                       >
-                        {value}
+                        {value.toLocaleString()}
                       </text>
                     </g>
                   )
@@ -525,20 +776,32 @@ export default function EarningsPage() {
                 
                 {/* Y-axis label */}
                 <text
-                  x={20}
+                  x={6}
                   y={chartHeight / 2}
                   textAnchor="middle"
-                  transform={`rotate(-90, 20, ${chartHeight / 2})`}
-                  fontSize="12"
+                  transform={`rotate(-90, 6, ${chartHeight / 2})`}
+                  fontSize="10"
                   fill="#6b7280"
-                  fontWeight="500"
+                  fontWeight="600"
+                  fontFamily="system-ui, -apple-system, sans-serif"
+                  letterSpacing="0.3px"
                 >
                   Earnings ($)
                 </text>
 
+                {/* Area under the line */}
+                <path
+                  d={`M ${chartPadding.left} ${chartPadding.top + graphHeight} ${currentData.map((data, index) => {
+                    const x = getXPosition(index)
+                    const y = getYPosition(data.amount)
+                    return `L ${x} ${y}`
+                  }).join(' ')} L ${chartPadding.left + graphWidth} ${chartPadding.top + graphHeight} Z`}
+                  fill="url(#areaGradientMobile)"
+                />
+
                 {/* Line chart path */}
                 <path
-                  d={`M ${earningsData.daily.map((data, index) => {
+                  d={`M ${currentData.map((data, index) => {
                     const x = getXPosition(index)
                     const y = getYPosition(data.amount)
                     return `${x},${y}`
@@ -548,36 +811,54 @@ export default function EarningsPage() {
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  filter="url(#glowMobile)"
                 />
 
                 {/* Data points */}
-                {earningsData.daily.map((data, index) => {
+                {currentData.map((data, index) => {
                   const x = getXPosition(index)
                   const y = getYPosition(data.amount)
                   return (
-                    <circle
-                      key={index}
-                      cx={x}
-                      cy={y}
-                      r="4"
-                      fill="#3b82f6"
-                      stroke="#fff"
-                      strokeWidth="2"
-                    />
+                    <g key={index}>
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="6"
+                        fill="#3b82f6"
+                        opacity="0.2"
+                      />
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="4"
+                        fill="#3b82f6"
+                        stroke="#ffffff"
+                        strokeWidth="2"
+                      />
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="1.5"
+                        fill="#ffffff"
+                        opacity="0.8"
+                      />
+                    </g>
                   )
                 })}
 
                 {/* X-axis labels */}
-                {earningsData.daily.map((data, index) => {
+                {currentData.map((data, index) => {
                   const x = getXPosition(index)
                   return (
                     <text
                       key={index}
                       x={x}
-                      y={chartHeight - chartPadding.bottom + 18}
+                      y={chartHeight - chartPadding.bottom + 20}
                       textAnchor="middle"
                       fontSize="10"
                       fill="#6b7280"
+                      fontWeight="500"
+                      fontFamily="system-ui, -apple-system, sans-serif"
                     >
                       {data.day}
                     </text>
@@ -590,26 +871,59 @@ export default function EarningsPage() {
           {/* Best Products */}
           <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('bestPerformingProducts')}</h2>
+            
+            {/* Mobile Filters */}
+            <div className="flex flex-col gap-2 mb-4">
+              <select 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                value={productFilters.category}
+                onChange={(e) => setProductFilters({ ...productFilters, category: e.target.value })}
+                aria-label={t('category')}
+                title={t('category')}
+              >
+                <option value="">All Categories</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  placeholder={t('product')}
+                  value={productFilters.search}
+                  onChange={(e) => setProductFilters({ ...productFilters, search: e.target.value })}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
             <div className="space-y-3">
-              {bestProducts.map((p: BestProduct) => (
-                <div key={p.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                      <span className="text-gray-600 text-xs font-medium">PH</span>
+              {bestProducts.length > 0 ? (
+                bestProducts.map((p: BestProduct) => (
+                  <div key={p.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        <span className="text-gray-600 text-xs font-medium">PH</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{p.name}</p>
+                        <p className="text-xs text-gray-500">{p.productId}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{p.name}</p>
-                      <p className="text-xs text-gray-500">{p.productId}</p>
-                    </div>
+                    <button
+                      onClick={() => navigate(`/transactions/earnings/products/${p.id}`)}
+                      className="text-blue-600 text-sm"
+                    >
+                      {t('viewDetails')}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => navigate(`/transactions/earnings/products/${p.id}`)}
-                    className="text-blue-600 text-sm"
-                  >
-                    {t('viewDetails')}
-                  </button>
+                ))
+              ) : (
+                <div className="text-center py-8 text-sm text-gray-500">
+                  No products found matching your filters.
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -621,7 +935,10 @@ export default function EarningsPage() {
             >
               {t('requestWithdrawal')}
             </button>
-            <button className="flex-1 px-4 py-3 bg-orange-500 text-white rounded-lg">
+            <button 
+              onClick={handleDownloadReport}
+              className="flex-1 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
               {t('downloadReport')}
             </button>
           </div>
