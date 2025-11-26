@@ -14,14 +14,16 @@ export default function AddSubAdminUserPage() {
   
   // Step 1: Basic Info
   const [basicInfo, setBasicInfo] = useState({
-    fullName: 'Touseef Ahmed',
-    email: 'alice.johnson@example.com',
-    password: '********',
-    confirmPassword: '********',
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
     status: 'active'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [errors, setErrors] = useState<{[key: string]: string}>({})
   
   // Step 2: Role Assignment
   const [selectedRole, setSelectedRole] = useState<string | null>('marketing-admin')
@@ -68,6 +70,98 @@ export default function AddSubAdminUserPage() {
       ...basicInfo,
       [name]: value
     })
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      })
+    }
+  }
+
+  // Validation functions
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const validatePhone = (phone: string): boolean => {
+    // Remove all non-digit characters
+    const digitsOnly = phone.replace(/\D/g, '')
+    // Check if it's a valid phone number (10-15 digits, can include country code)
+    return digitsOnly.length >= 10 && digitsOnly.length <= 15
+  }
+
+  const validatePassword = (password: string): { isValid: boolean; message: string } => {
+    if (password.length < 8) {
+      return { isValid: false, message: 'Password must be at least 8 characters long' }
+    }
+    if (!/[A-Z]/.test(password)) {
+      return { isValid: false, message: 'Password must contain at least one uppercase letter' }
+    }
+    if (!/[a-z]/.test(password)) {
+      return { isValid: false, message: 'Password must contain at least one lowercase letter' }
+    }
+    if (!/[0-9]/.test(password)) {
+      return { isValid: false, message: 'Password must contain at least one number' }
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return { isValid: false, message: 'Password must contain at least one special character' }
+    }
+    return { isValid: true, message: '' }
+  }
+
+  const validateStep1 = (): boolean => {
+    const newErrors: {[key: string]: string} = {}
+
+    // Validate Full Name
+    if (!basicInfo.fullName.trim()) {
+      newErrors.fullName = 'Full name is required'
+    } else if (basicInfo.fullName.trim().length < 2) {
+      newErrors.fullName = 'Full name must be at least 2 characters'
+    }
+
+    // Validate Email
+    if (!basicInfo.email.trim()) {
+      newErrors.email = 'Email address is required'
+    } else if (!validateEmail(basicInfo.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    // Validate Phone
+    if (!basicInfo.phone.trim()) {
+      newErrors.phone = 'Phone number is required'
+    } else if (!validatePhone(basicInfo.phone)) {
+      newErrors.phone = 'Please enter a valid phone number (10-15 digits)'
+    }
+
+    // Validate Password
+    if (!basicInfo.password) {
+      newErrors.password = 'Password is required'
+    } else {
+      const passwordValidation = validatePassword(basicInfo.password)
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.message
+      }
+    }
+
+    // Validate Confirm Password
+    if (!basicInfo.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password'
+    } else if (basicInfo.password !== basicInfo.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const validateStep2 = (): boolean => {
+    if (!selectedRole) {
+      setErrors({ ...errors, role: 'Please select a role' })
+      return false
+    }
+    return true
   }
 
   const togglePermission = (permissionKey: string) => {
@@ -104,6 +198,16 @@ export default function AddSubAdminUserPage() {
   }
 
   const nextStep = () => {
+    if (currentStep === 1) {
+      if (!validateStep1()) {
+        return
+      }
+    } else if (currentStep === 2) {
+      if (!validateStep2()) {
+        return
+      }
+    }
+    
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1)
     }
@@ -116,7 +220,18 @@ export default function AddSubAdminUserPage() {
   }
 
   const handleSubmit = () => {
-    // Handle form submission
+    // Validate all steps before submission
+    if (!validateStep1() || !validateStep2()) {
+      // If validation fails, go back to the step with errors
+      if (!validateStep1()) {
+        setCurrentStep(1)
+      } else if (!validateStep2()) {
+        setCurrentStep(2)
+      }
+      return
+    }
+
+    // All validations passed, proceed with submission
     setShowSuccessModal(true)
   }
 
@@ -319,7 +434,7 @@ export default function AddSubAdminUserPage() {
                     {/* Full Name */}
                     <div>
                       <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                        Full Name
+                        Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -327,15 +442,20 @@ export default function AddSubAdminUserPage() {
                         name="fullName"
                         value={basicInfo.fullName}
                         onChange={handleBasicInfoChange}
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                        className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                          errors.fullName ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter full name"
                       />
+                      {errors.fullName && (
+                        <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
+                      )}
                     </div>
 
                     {/* Email Address */}
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email Address
+                        Email Address <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
@@ -343,15 +463,41 @@ export default function AddSubAdminUserPage() {
                         name="email"
                         value={basicInfo.email}
                         onChange={handleBasicInfoChange}
-                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                        className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                          errors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="Enter email address"
                       />
+                      {errors.email && (
+                        <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                      )}
+                    </div>
+
+                    {/* Phone Number */}
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={basicInfo.phone}
+                        onChange={handleBasicInfoChange}
+                        className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                          errors.phone ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter phone number (e.g., +1234567890)"
+                      />
+                      {errors.phone && (
+                        <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                      )}
                     </div>
 
                     {/* Password */}
                     <div>
                       <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
+                        Password <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -360,7 +506,9 @@ export default function AddSubAdminUserPage() {
                           name="password"
                           value={basicInfo.password}
                           onChange={handleBasicInfoChange}
-                          className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                          className={`mt-1 block w-full px-4 py-2 pr-10 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                            errors.password ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="Enter password"
                         />
                         <button
@@ -372,12 +520,20 @@ export default function AddSubAdminUserPage() {
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
+                      {errors.password && (
+                        <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                      )}
+                      {!errors.password && basicInfo.password && (
+                        <p className="mt-1 text-xs text-gray-500">
+                          Password must be at least 8 characters with uppercase, lowercase, number, and special character
+                        </p>
+                      )}
                     </div>
 
                     {/* Confirm Password */}
                     <div>
                       <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password
+                        Confirm Password <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
@@ -386,7 +542,9 @@ export default function AddSubAdminUserPage() {
                           name="confirmPassword"
                           value={basicInfo.confirmPassword}
                           onChange={handleBasicInfoChange}
-                          className="mt-1 block w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                          className={`mt-1 block w-full px-4 py-2 pr-10 border rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500 sm:text-sm ${
+                            errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                          }`}
                           placeholder="Confirm password"
                         />
                         <button
@@ -398,6 +556,9 @@ export default function AddSubAdminUserPage() {
                           {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
+                      {errors.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                      )}
                     </div>
 
                     {/* Status */}
@@ -451,6 +612,11 @@ export default function AddSubAdminUserPage() {
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Role Assignment</h2>
                   <p className="text-gray-600 mb-6">Select an admin role. Default permissions will be applied automatically.</p>
 
+                  {errors.role && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600">{errors.role}</p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {roleOptions.map((role) => {
                       const Icon = role.icon
@@ -458,10 +624,17 @@ export default function AddSubAdminUserPage() {
                       return (
                         <div
                           key={role.id}
-                          onClick={() => setSelectedRole(role.id)}
+                          onClick={() => {
+                            setSelectedRole(role.id)
+                            if (errors.role) {
+                              setErrors({ ...errors, role: '' })
+                            }
+                          }}
                           className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
                             isSelected 
                               ? 'border-orange-500 bg-orange-50' 
+                              : errors.role
+                              ? 'border-red-300 hover:border-red-400'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
@@ -549,6 +722,7 @@ export default function AddSubAdminUserPage() {
                                     e.stopPropagation()
                                     toggleSelectAll(group.key, permissionKeys)
                                   }}
+                                  aria-label={`Select all ${group.title} permissions`}
                                   className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                                 />
                               </div>
@@ -675,34 +849,76 @@ export default function AddSubAdminUserPage() {
                   <p className="text-gray-600 mb-4 text-sm">Enter the admin user's personal details and login credentials</p>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         name="fullName"
+                        id="mobile-fullName"
                         value={basicInfo.fullName}
                         onChange={handleBasicInfoChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder="Enter full name"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          errors.fullName ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       />
+                      {errors.fullName && (
+                        <p className="mt-1 text-xs text-red-600">{errors.fullName}</p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="email"
                         name="email"
+                        id="mobile-email"
                         value={basicInfo.email}
                         onChange={handleBasicInfoChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder="Enter email address"
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          errors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       />
+                      {errors.email && (
+                        <p className="mt-1 text-xs text-red-600">{errors.email}</p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={basicInfo.phone}
+                        onChange={handleBasicInfoChange}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm ${
+                          errors.phone ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter phone number"
+                      />
+                      {errors.phone && (
+                        <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Password <span className="text-red-500">*</span>
+                      </label>
                       <div className="relative">
                         <input
                           type={showPassword ? 'text' : 'password'}
                           name="password"
+                          id="mobile-password"
                           value={basicInfo.password}
                           onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm"
+                          placeholder="Enter password"
+                          className={`w-full px-3 py-2 pr-10 border rounded-lg text-sm ${
+                            errors.password ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         />
                         <button
                           type="button"
@@ -712,16 +928,25 @@ export default function AddSubAdminUserPage() {
                           {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
+                      {errors.password && (
+                        <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Confirm Password <span className="text-red-500">*</span>
+                      </label>
                       <div className="relative">
                         <input
                           type={showConfirmPassword ? 'text' : 'password'}
                           name="confirmPassword"
+                          id="mobile-confirmPassword"
                           value={basicInfo.confirmPassword}
                           onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm"
+                          placeholder="Confirm password"
+                          className={`w-full px-3 py-2 pr-10 border rounded-lg text-sm ${
+                            errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                          }`}
                         />
                         <button
                           type="button"
@@ -731,6 +956,9 @@ export default function AddSubAdminUserPage() {
                           {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
+                      {errors.confirmPassword && (
+                        <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
@@ -775,6 +1003,11 @@ export default function AddSubAdminUserPage() {
                 <div className="bg-white rounded-lg shadow-sm p-4">
                   <h2 className="text-lg font-semibold text-gray-900 mb-2">Role Assignment</h2>
                   <p className="text-gray-600 mb-4 text-sm">Select an admin role. Default permissions will be applied automatically.</p>
+                  {errors.role && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-xs text-red-600">{errors.role}</p>
+                    </div>
+                  )}
                   <div className="space-y-3 mb-6">
                     {roleOptions.map((role) => {
                       const Icon = role.icon
@@ -782,8 +1015,19 @@ export default function AddSubAdminUserPage() {
                       return (
                         <div
                           key={role.id}
-                          onClick={() => setSelectedRole(role.id)}
-                          className={`border-2 rounded-lg p-3 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-200'}`}
+                          onClick={() => {
+                            setSelectedRole(role.id)
+                            if (errors.role) {
+                              setErrors({ ...errors, role: '' })
+                            }
+                          }}
+                          className={`border-2 rounded-lg p-3 ${
+                            isSelected 
+                              ? 'border-orange-500 bg-orange-50' 
+                              : errors.role
+                              ? 'border-red-300'
+                              : 'border-gray-200'
+                          }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3 flex-1">
@@ -857,6 +1101,7 @@ export default function AddSubAdminUserPage() {
                                   e.stopPropagation()
                                   toggleSelectAll(group.key, permissionKeys)
                                 }}
+                                aria-label={`Select all ${group.title} permissions`}
                                 className="h-3 w-3"
                               />
                               {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
