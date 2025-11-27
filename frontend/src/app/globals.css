@@ -7,10 +7,22 @@
   body {
     @apply bg-gray-50 text-gray-600 font-sans;
     font-family: 'Urbanist', system-ui, sans-serif;
+    word-spacing: normal;
+    letter-spacing: normal;
   }
   
   * {
     font-family: 'Urbanist', system-ui, sans-serif;
+  }
+  
+  /* Ensure proper text rendering with spaces */
+  p, span, label, h1, h2, h3, h4, h5, h6, div, button, a, input, textarea, select {
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+    text-rendering: optimizeLegibility;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
   }
   html, body {
     height: 100%;

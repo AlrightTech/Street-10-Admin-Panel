@@ -259,7 +259,10 @@ export default function AddSubVendorPage() {
               {/* Header */}
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Add New Sub Vendors</h1>
-                <p className="text-sm text-gray-500 mt-1">Dashboard • Add New Sub Vendors</p>
+                <p className="text-sm mt-1">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Add New Sub Vendors</span>
+                </p>
                 <p className="text-base text-gray-600 mt-2">Create a new Sub Vendors user with custom permissions</p>
               </div>
 
@@ -726,7 +729,10 @@ export default function AddSubVendorPage() {
           {/* Page header */}
           <div className="mb-4">
             <h1 className="text-xl font-bold text-gray-900">Add New Sub Vendors</h1>
-            <p className="text-xs text-gray-500 mt-1">Dashboard • Add New Sub Vendors</p>
+            <p className="text-xs mt-1">
+              <span className="text-gray-500">Dashboard</span>
+              <span className="text-gray-900"> • Add New Sub Vendors</span>
+            </p>
             <p className="text-sm text-gray-600 mt-2">Create a new Sub Vendors user with custom permissions</p>
           </div>
 

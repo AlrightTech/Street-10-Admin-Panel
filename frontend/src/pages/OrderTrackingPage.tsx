@@ -443,7 +443,10 @@ export default function OrderTrackingPage() {
                   <span>Back to Order Details</span>
                 </button>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders</h1>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard &gt; Add Tracking Information</p>
+                <p className="text-xs sm:text-sm mt-1">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Add Tracking Information</span>
+                </p>
               </div>
 
               {/* Order Summary */}

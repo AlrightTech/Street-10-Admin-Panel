@@ -64,7 +64,10 @@ export default function CreateReportPage() {
               <div className="mb-6">
                 <div className="mb-2">
                   <h2 className="text-lg font-bold text-gray-900">Analytics & Reports</h2>
-                  <p className="text-sm text-gray-500 mt-0.5">Dashboard - Custom Reports</p>
+                  <p className="text-sm mt-0.5">
+                    <span className="text-gray-500">Dashboard</span>
+                    <span className="text-gray-900"> • Custom Reports</span>
+                  </p>
                 </div>
                 <div className="flex flex-wrap justify-between items-start gap-4 mt-4">
               <div>
@@ -315,7 +318,10 @@ export default function CreateReportPage() {
             <div className="mb-4 sm:mb-6">
               <div className="mb-2">
                 <h2 className="text-base sm:text-lg font-bold text-gray-900">Analytics & Reports</h2>
-                <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Dashboard - Custom Reports</p>
+                <p className="text-xs sm:text-sm mt-0.5">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Custom Reports</span>
+                </p>
               </div>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mt-3 sm:mt-4">
                 <div>

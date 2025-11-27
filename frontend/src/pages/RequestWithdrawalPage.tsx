@@ -283,7 +283,10 @@ export default function RequestWithdrawalPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">Transactions & Finance</h1>
-                  <p className="text-sm text-gray-500 mt-1">Dashboard - Earnings Overview</p>
+                  <p className="text-sm mt-1">
+                    <span className="text-gray-500">Dashboard</span>
+                    <span className="text-gray-900"> • Earnings Overview</span>
+                  </p>
                 </div>
                 <button 
                   onClick={handleDownloadStatement}
@@ -596,7 +599,10 @@ export default function RequestWithdrawalPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Transactions & Finance</h1>
-              <p className="text-sm text-gray-500 mt-1">Dashboard - Earnings Overview</p>
+              <p className="text-sm mt-1">
+                <span className="text-gray-500">Dashboard</span>
+                <span className="text-gray-900"> • Earnings Overview</span>
+              </p>
             </div>
             <button 
               onClick={handleDownloadStatement}
