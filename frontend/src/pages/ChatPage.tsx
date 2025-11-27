@@ -1279,7 +1279,7 @@ export default function ChatPage() {
                     />
                     {/* In a real app, this would be the actual video stream */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-white/50 text-sm">Video feed would appear here</div>
+                      <div className="text-white/50 text-sm">Video Feed Would Appear Here</div>
                     </div>
                   </div>
                 ) : (

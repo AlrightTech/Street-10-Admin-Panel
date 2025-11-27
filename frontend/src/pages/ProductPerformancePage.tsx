@@ -316,7 +316,10 @@ export default function ProductPerformancePage() {
                     </button>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">Transactions & Finance</h1>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">Dashboard - Product Performance - {product.name}</p>
+                  <p className="text-xs sm:text-sm truncate">
+                    <span className="text-gray-500">Dashboard</span>
+                    <span className="text-gray-900"> • Product Performance - {product.name}</span>
+                  </p>
                 </div>
               </div>
 
@@ -704,7 +707,10 @@ export default function ProductPerformancePage() {
               <ArrowLeft size={20} />
             </button>
             <h1 className="text-2xl font-bold text-gray-900">Transactions & Finance</h1>
-            <p className="text-sm text-gray-500 mt-1">Dashboard - Product Performance</p>
+            <p className="text-sm mt-1">
+              <span className="text-gray-500">Dashboard</span>
+              <span className="text-gray-900"> • Product Performance</span>
+            </p>
           </div>
 
           {/* Product Card */}

@@ -94,7 +94,10 @@ export default function ResetPasswordPage() {
                 <ArrowLeft size={14} className="sm:w-4 sm:h-4" />
                 <span>Back to Sub Vendor Detail</span>
               </button>
-              <p className="text-xs sm:text-sm text-gray-500">Dashboard - Reset Password</p>
+              <p className="text-xs sm:text-sm">
+                <span className="text-gray-500">Dashboard</span>
+                <span className="text-gray-900"> • Reset Password</span>
+              </p>
             </div>
 
             {/* Password Reset Card */}

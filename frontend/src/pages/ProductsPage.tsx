@@ -248,15 +248,18 @@ export default function ProductsPage() {
               {/* Title and Breadcrumbs */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
                 <div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('allProducts')}</h1>
-                  <div className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboardAllProducts')}</div>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">All Products</h1>
+                  <div className="text-xs sm:text-sm mt-1">
+                    <span className="text-gray-500">Dashboard</span>
+                    <span className="text-gray-900"> • All Products</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => navigate('/products/add')}
                   className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base"
                 >
                   <Plus size={18} className="sm:w-5 sm:h-5" />
-                  <span className="font-medium">{t('addProduct')}</span>
+                  <span className="font-medium">{t('Add Product')}</span>
                 </button>
               </div>
 
@@ -321,41 +324,41 @@ export default function ProductsPage() {
               <div className="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
                   {/* Status Tabs */}
-                <div className="flex flex-wrap gap-2">
-                  <div className="flex flex-col">
-                    <button 
-                      onClick={() => setActiveTab('all')}
-                        className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-sm"
-                    >
-                      {t('all')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                          activeTab === 'all' ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-700'
-                      }`}>{products.length}</span>
-                    </button>
-                      {activeTab === 'all' && <div className="w-full h-0.5 bg-primary-500 mt-1"></div>}
+                  <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col">
+                      <button 
+                        onClick={() => setActiveTab('all')}
+                          className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-sm"
+                      >
+                        All <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                            activeTab === 'all' ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-700'
+                        }`}>{products.length}</span>
+                      </button>
+                        {activeTab === 'all' && <div className="w-full h-0.5 bg-primary-500 mt-1"></div>}
+                    </div>
+                    <div className="flex flex-col">
+                      <button 
+                        onClick={() => setActiveTab('active')}
+                          className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-sm"
+                      >
+                        Active <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                            activeTab === 'active' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'
+                        }`}>{activeCount}</span>
+                      </button>
+                        {activeTab === 'active' && <div className="w-full h-0.5 bg-green-600 mt-1"></div>}
+                    </div>
+                    <div className="flex flex-col">
+                      <button 
+                        onClick={() => setActiveTab('inactive')}
+                          className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-sm"
+                      >
+                        Inactive <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                            activeTab === 'inactive' ? 'bg-red-600 text-white' : 'bg-red-100 text-red-700'
+                        }`}>{inactiveCount}</span>
+                      </button>
+                        {activeTab === 'inactive' && <div className="w-full h-0.5 bg-red-600 mt-1"></div>}
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <button 
-                      onClick={() => setActiveTab('active')}
-                        className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-sm"
-                    >
-                      {t('active')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                          activeTab === 'active' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'
-                      }`}>{activeCount}</span>
-                    </button>
-                      {activeTab === 'active' && <div className="w-full h-0.5 bg-green-600 mt-1"></div>}
-                  </div>
-                  <div className="flex flex-col">
-                    <button 
-                      onClick={() => setActiveTab('inactive')}
-                        className="px-3 sm:px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-50 text-sm"
-                    >
-                      {t('inactive')} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                          activeTab === 'inactive' ? 'bg-red-600 text-white' : 'bg-red-100 text-red-700'
-                      }`}>{inactiveCount}</span>
-                    </button>
-                      {activeTab === 'inactive' && <div className="w-full h-0.5 bg-red-600 mt-1"></div>}
-                  </div>
-                </div>
                 
                   {/* Search and Filter */}
                   <div className="flex items-center gap-2 sm:gap-3">
@@ -365,7 +368,7 @@ export default function ProductsPage() {
                         type="text"
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        placeholder={t('searchTransactionProducts')}
+                        placeholder={t('Search Transaction')}
                         className={`w-full sm:w-48 md:w-64 pl-9 sm:pl-10 ${searchQuery ? 'pr-8' : 'pr-3'} py-2 border ${searchQuery ? 'border-primary-300' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm transition-colors`}
                         autoComplete="off"
                       />
@@ -512,14 +515,14 @@ export default function ProductsPage() {
                   <table className="w-full">
                     <thead className="bg-white border-b border-gray-300">
                       <tr>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">{t('product')}</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">{t('category')}</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">{t('price')}</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">{t('orders')}</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">{t('stock')}</th>
-                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">{t('status')}</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">Product</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">Category</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">Price</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">Orders</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">Stock</th>
+                        <th className="text-left py-3 px-3 sm:px-4 text-xs sm:text-sm font-medium text-gray-700">Status</th>
                         </tr>
-                      </thead>
+                    </thead>
                     <tbody className="divide-y divide-gray-200">
                       {paginatedProducts.map((product: { id: number; name: string; sku: string; category: string; price: number; orders: number; stock: number; status: boolean; slug: string }) => (
                         <tr key={product.id} className="hover:bg-gray-50">
@@ -784,8 +787,11 @@ export default function ProductsPage() {
               {/* Title and Breadcrumbs */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
                 <div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{t('allProducts')}</h1>
-                  <div className="text-xs sm:text-sm text-gray-500 mt-1">{t('dashboardAllProducts')}</div>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">All Products</h1>
+                  <div className="text-xs sm:text-sm mt-1">
+                    <span className="text-gray-500">Dashboard</span>
+                    <span className="text-gray-900"> • All Products</span>
+                  </div>
                 </div>
                 <button
                   onClick={() => navigate('/products/add')}

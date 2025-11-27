@@ -78,7 +78,10 @@ export default function SubVendorDetailPage() {
                 <ArrowLeft size={14} className="sm:w-4 sm:h-4" />
                 <span>Back to Manage Sub Vendors</span>
               </button>
-              <p className="text-xs sm:text-sm text-gray-500">Dashboard - Manage Sub Vendors</p>
+              <p className="text-xs sm:text-sm">
+                <span className="text-gray-500">Dashboard</span>
+                <span className="text-gray-900"> • Manage Sub Vendors</span>
+              </p>
             </div>
 
             {/* User Profile Header Card */}

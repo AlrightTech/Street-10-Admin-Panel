@@ -152,7 +152,10 @@ export default function TransactionDetailsPage() {
               {/* Header */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Transactions & Finance</h1>
-                <p className="text-sm text-gray-500 mt-1">Dashboard • Transaction Details</p>
+                <p className="text-sm mt-1">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Transaction Details</span>
+                </p>
               </div>
 
               {/* Transaction Summary Card */}
@@ -458,7 +461,10 @@ export default function TransactionDetailsPage() {
           {/* Mobile Header */}
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Transactions & Finance</h1>
-            <p className="text-sm text-gray-500 mt-1">Dashboard • Transaction Details</p>
+            <p className="text-sm mt-1">
+              <span className="text-gray-500">Dashboard</span>
+              <span className="text-gray-900"> • Transaction Details</span>
+            </p>
           </div>
 
           {/* Mobile Transaction Summary */}

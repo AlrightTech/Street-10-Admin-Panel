@@ -62,11 +62,11 @@ export default function DashboardContent() {
           { name: isArabic ? 'ساعة ذكية' : 'Smart Watch', sales: 34, revenue: 480 }
         ],
         productInsights: { lowStock: 8, outOfStock: 3 },
-        customerInsights: { newCustomers: 12, returningRate: 68, topCustomer: { name: 'Rahul Choudhary', phone: '(+91) 9246 986 876' } },
+        customerInsights: { newCustomers: 12, returningRate: 68, topCustomer: { name: 'Sarah Johnson', amount: 890 } },
         notifications: [
-          { icon: 'payment', message: isArabic ? 'تم استلام الدفع' : 'Payment Received', detail: isArabic ? 'الطلب #ORD-004 - $89.50' : 'Order #ORD-004 - $89.50' },
+          { icon: 'payment', message: isArabic ? 'تم استلام الدفع' : 'Payment Received', detail: isArabic ? 'الطلب #ORD-001 - $89.50' : 'Order #ORD-001 - $89.50' },
           { icon: 'update', message: isArabic ? 'تحديث النظام' : 'System Update', detail: isArabic ? 'ميزات جديدة متاحة' : 'New features available' },
-          { icon: 'shipped', message: isArabic ? 'تم شحن الطلب' : 'Order Shipped', detail: isArabic ? 'الطلب #ORD-001 - تم الشحن' : 'Order #ORD-001 - Shipped' }
+          { icon: 'shipped', message: isArabic ? 'تم شحن الطلب' : 'Order Shipped', detail: isArabic ? 'الطلب #ORD-003 - تم الشحن' : 'Order #ORD-003 dispatched' }
         ],
         topSellingProducts: [
           { name: 'Mazad Hoodie', image: '/images/sidebar-topicon.png', size: 'L', sales: 120 },
@@ -220,23 +220,23 @@ export default function DashboardContent() {
         {/* Recent Orders */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">{t('recentOrders')}</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
             <button 
               onClick={() => navigate('/orders')}
               className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
               type="button"
             >
-              {t('viewAll')} &gt;
+              View All &gt;
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">{t('orderId')}</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">{t('customer')}</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">{t('amount')}</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">{t('status')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Order ID</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Customer</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Amount</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
                 </tr>
               </thead>
               <tbody className="text-gray-900">
@@ -258,7 +258,7 @@ export default function DashboardContent() {
                           order.status === 'Processing' ? 'bg-yellow-500' :
                           order.status === 'Shipped' ? 'bg-blue-500' : 'bg-red-500'
                         }`}>
-                          {t(order.status.toLowerCase())}
+                          {order.status}
                         </span>
                       </td>
                     </tr>
@@ -272,7 +272,7 @@ export default function DashboardContent() {
         {/* Sales Performance */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">{t('salesPerformance')}</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Sales Performance</h2>
           </div>
           <SalesChart salesData={dashboardData?.salesPerformance} />
         </div>
@@ -283,7 +283,7 @@ export default function DashboardContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Orders Status Breakdown */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('ordersStatusBreakdown')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Orders Status Breakdown</h2>
           <div className="flex flex-col items-center">
             {/* Donut Chart */}
             <svg width="200" height="200" viewBox="0 0 200 200" className="mb-6">
@@ -346,19 +346,19 @@ export default function DashboardContent() {
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-gray-600">{t('completed')}</span>
+                <span className="text-sm text-gray-600">Completed</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                <span className="text-sm text-gray-600">{t('processing')}</span>
+                <span className="text-sm text-gray-600">Processing</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span className="text-sm text-gray-600">{t('shipped')}</span>
+                <span className="text-sm text-gray-600">Shipped</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span className="text-sm text-gray-600">{t('cancelled')}</span>
+                <span className="text-sm text-gray-600">Cancelled</span>
               </div>
             </div>
           </div>
@@ -366,7 +366,7 @@ export default function DashboardContent() {
 
         {/* Best-Selling Products */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('bestSellingProducts')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Best Selling Products</h2>
           <div className="space-y-3">
             {(bestSellingProducts || []).map((product, index) => (
               <div 
@@ -386,7 +386,7 @@ export default function DashboardContent() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">{product.name}</p>
-                    <p className="text-xs text-gray-500">{product.sales} {t('sold')}</p>
+                    <p className="text-xs text-gray-500">{product.sales} sold</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -402,7 +402,7 @@ export default function DashboardContent() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Product Insights */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('productInsights')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Product Insights</h2>
           <div className="space-y-3">
             {/* Low Stock Item */}
             <button
@@ -412,9 +412,9 @@ export default function DashboardContent() {
             >
               <div className="flex items-center space-x-3">
                 <AlertCircle size={20} className="text-red-500" />
-                <span className="text-sm font-medium text-gray-900">{t('lowStock')}</span>
+                <span className="text-sm font-medium text-gray-900">Low Stock</span>
               </div>
-              <span className="text-sm font-medium text-red-600">8 {t('items')}</span>
+              <span className="text-sm font-medium text-red-600">8 items</span>
             </button>
             
             {/* Out of Stock Item */}
@@ -425,9 +425,9 @@ export default function DashboardContent() {
             >
               <div className="flex items-center space-x-3">
                 <Circle size={20} className="text-orange-500" />
-                <span className="text-sm font-medium text-gray-900">{t('outOfStock')}</span>
+                <span className="text-sm font-medium text-gray-900">Out of Stock</span>
               </div>
-              <span className="text-sm font-medium text-orange-600">3 {t('items')}</span>
+              <span className="text-sm font-medium text-orange-600">3 items</span>
             </button>
             
             {/* Quick Add Product Button */}
@@ -437,20 +437,20 @@ export default function DashboardContent() {
               type="button"
             >
               <span className="text-2xl text-blue-600">+</span>
-              <span className="text-blue-600 font-bold">{t('quickAddProduct')}</span>
+              <span className="text-blue-600 font-bold">Quick Add Product</span>
             </button>
           </div>
         </div>
 
         {/* Customer Insights */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('customerInsights')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Customer Insights</h2>
           <div className="space-y-3">
             {/* New Customers Box */}
             <div className="bg-green-100 rounded-lg p-3 flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-900">{t('newCustomers')}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{t('thisWeek')}</p>
+                <p className="text-sm font-semibold text-gray-900">New Customers</p>
+                <p className="text-xs text-gray-500 mt-0.5">This week</p>
               </div>
               <span className="text-2xl font-bold text-green-600">{customerInsights?.newCustomers || 0}</span>
             </div>
@@ -458,8 +458,8 @@ export default function DashboardContent() {
             {/* Returning Rate Box */}
             <div className="bg-blue-100 rounded-lg p-3 flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-gray-900">{t('returningRate')}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{t('customerRetention')}</p>
+                <p className="text-sm font-semibold text-gray-900">Returning Rate</p>
+                <p className="text-xs text-gray-500 mt-0.5">Customer retention</p>
               </div>
               <span className="text-2xl font-bold text-blue-600">{customerInsights?.returningRate || 0}%</span>
             </div>
@@ -472,8 +472,12 @@ export default function DashboardContent() {
                 className="w-12 h-12 rounded-full object-cover"
               />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">{t('topCustomer')}</p>
-                <p className="text-xs text-gray-500">{customerInsights?.topCustomer?.name || 'N/A'} {customerInsights?.topCustomer?.phone ? `- ${customerInsights.topCustomer.phone}` : (typeof customerInsights?.topCustomer?.orders === 'string' ? customerInsights.topCustomer.orders : `$${customerInsights?.topCustomer?.orders || 0}`)}</p>
+                <p className="text-sm font-semibold text-gray-900">Top Customer</p>
+                <p className="text-xs text-gray-500">
+                  {customerInsights?.topCustomer?.name || 'N/A'}
+                  {customerInsights?.topCustomer?.amount && ` - $${customerInsights.topCustomer.amount}`}
+                  {customerInsights?.topCustomer?.phone && !customerInsights?.topCustomer?.amount && ` - ${customerInsights.topCustomer.phone}`}
+                </p>
               </div>
             </div>
           </div>
@@ -481,7 +485,7 @@ export default function DashboardContent() {
 
         {/* Notifications */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('notifications')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Notifications</h2>
           <div className="space-y-3">
             {(notifications || []).map((notif, index) => (
               <div key={index} className={`flex items-center space-x-3 p-3 rounded-lg ${
@@ -512,7 +516,7 @@ export default function DashboardContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Selling Products */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('topSellingProductsTitle')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Top Selling Products</h2>
           <div className="space-y-4">
             {(topSellingProducts || []).map((product, index) => (
               <div 
@@ -532,7 +536,7 @@ export default function DashboardContent() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">{product.sales} {t('sales')}</p>
+                  <p className="text-sm text-gray-600">{product.sales} Sales</p>
                 </div>
               </div>
             ))}
@@ -541,7 +545,7 @@ export default function DashboardContent() {
 
         {/* New Customers */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('newCustomersTitlePage')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">New Customers</h2>
           <div className="space-y-4">
             {(newCustomers || []).map((customer, index) => (
               <div key={index} className={`flex items-center space-x-3 py-2 px-2 rounded ${index === 3 ? 'bg-gray-50' : ''}`}>
@@ -562,7 +566,7 @@ export default function DashboardContent() {
         {/* Recent Reviews */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">{t('recentReviewsTitle')}</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Recent Reviews</h2>
           </div>
           {recentReviews && recentReviews.length > 0 && recentReviews[currentReviewIndex] && (
             <>
@@ -602,7 +606,7 @@ export default function DashboardContent() {
                   className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
                   type="button"
                 >
-                  {t('viewAll')} &gt;
+                  View All &gt;
                 </button>
               </div>
             </>

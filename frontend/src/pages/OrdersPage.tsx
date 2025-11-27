@@ -962,7 +962,10 @@ export default function OrdersPage() {
             {/* Title */}
             <div className="mb-4">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders</h1>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">Dashboard - Orders</p>
+              <p className="text-xs sm:text-sm mt-1">
+                <span className="text-gray-500">Dashboard</span>
+                <span className="text-gray-900"> • Orders</span>
+              </p>
             </div>
 
             {/* Status Tabs */}

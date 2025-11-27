@@ -259,7 +259,10 @@ export default function EditSubVendorPage() {
                     <ArrowLeft size={14} className="sm:w-4 sm:h-4" />
                     <span>Back to Sub Vendor Detail</span>
                   </button>
-                  <p className="text-xs sm:text-sm text-gray-500">Dashboard • Edit Sub Vendor</p>
+                  <p className="text-xs sm:text-sm">
+                    <span className="text-gray-500">Dashboard</span>
+                    <span className="text-gray-900"> • Edit Sub Vendor</span>
+                  </p>
                 </div>
 
                 <div className="max-w-4xl mx-auto">

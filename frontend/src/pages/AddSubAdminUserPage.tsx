@@ -355,7 +355,10 @@ export default function AddSubAdminUserPage() {
             <div className="max-w-4xl mx-auto">
               {/* Breadcrumb */}
               <div className="mb-2">
-                <p className="text-sm text-gray-500">Dashboard - Users</p>
+                <p className="text-sm">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Users</span>
+                </p>
               </div>
 
               {/* Page Title */}
@@ -805,7 +808,10 @@ export default function AddSubAdminUserPage() {
           <main className="flex-1 overflow-x-hidden overflow-y-auto p-4">
             <div className="max-w-4xl mx-auto">
               <div className="mb-2">
-                <p className="text-xs text-gray-500">Dashboard - Users</p>
+                <p className="text-xs">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Users</span>
+                </p>
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Add New Sub Admin</h1>
               <p className="text-gray-600 mb-6 text-sm">Create a new admin user with custom permissions</p>

@@ -1030,6 +1030,35 @@ export function LanguageProvider({ children }) {
     } else {
       setTranslations({
         // Sidebar
+        dashboard: 'Dashboard',
+        productManagement: 'Product Management',
+        orders: 'Orders',
+        transactions: 'Transactions & Finance',
+        transactionHistory: 'Transaction History',
+        earningsOverview: 'Earnings Overview',
+        analytics: 'Analytics & Reports',
+        chat: 'Chat',
+        storeBuilder: 'Store Builder',
+        storeSettings: 'Store Settings',
+        policySettings: 'Policy Settings',
+        settings: 'Settings',
+        welcomeBack: 'Welcome Back',
+        vendor: 'Vendor',
+        subAdmin: 'Sub Admin',
+        superAdmin: 'Super Admin',
+        allProducts: 'All Products',
+        salesOverview: 'Sales Overview',
+        earningsReport: 'Earnings Report',
+        ordersReport: 'Orders Report',
+        customerInsights: 'Customer Insights',
+        customReports: 'Custom Reports',
+        logout: 'Logout',
+        hostsProviders: 'Hosts & Providers',
+        bookings: 'Bookings',
+        finance: 'Finance',
+        marketing: 'Marketing',
+        analyticsSubAdmin: 'Analytics',
+        settingsSubAdmin: 'Settings',
 
         // Header
         

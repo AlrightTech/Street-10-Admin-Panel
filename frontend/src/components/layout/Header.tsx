@@ -731,14 +731,14 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
               <>
                 {/* Backdrop */}
                 <div 
-                  className="fixed inset-0 z-40 bg-black/50 lg:bg-transparent"
+                  className="fixed inset-0 z-[60] bg-black/50 lg:bg-transparent"
                   onClick={() => setShowNotifications(false)}
                 />
                 
                 {/* Notifications Panel - Mobile: Full Screen, Desktop: Dropdown */}
-                <div className="fixed inset-0 lg:absolute lg:inset-auto lg:right-0 lg:top-full lg:mt-2 z-50 lg:z-50 bg-white lg:rounded-lg lg:shadow-xl lg:border lg:border-gray-200 lg:w-[420px] lg:max-h-[600px] flex flex-col">
+                <div className="fixed inset-0 lg:absolute lg:inset-auto lg:right-0 lg:top-full lg:mt-2 z-[70] bg-white lg:rounded-lg lg:shadow-xl lg:border lg:border-gray-200 lg:w-[420px] lg:max-h-[600px] flex flex-col overflow-hidden">
                   {/* Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white lg:bg-white sticky top-0 z-10">
+                  <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white lg:bg-white sticky top-0 z-10 backdrop-blur-0">
                     <h2 className="text-lg font-semibold text-gray-900">{t('notifications')}</h2>
                     <button
                       onClick={() => setShowNotifications(false)}
@@ -750,7 +750,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                   </div>
 
                   {/* Filters */}
-                  <div className="p-3 border-b border-gray-200 bg-gray-50 sticky top-[57px] z-10">
+                  <div className="p-3 border-b border-gray-200 bg-gray-50 sticky top-[57px] z-10 backdrop-blur-0">
                     <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
                       <button 
                         onClick={() => handleFilterChange('all')}
@@ -813,7 +813,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
                   </div>
 
                   {/* Notifications List */}
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto bg-white">
                     {displayedNotifications.length > 0 ? (
                       displayedNotifications.map((n, idx) => {
                         const isRead = readNotifications.has(n.id)

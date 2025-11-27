@@ -125,7 +125,10 @@ export default function SubAdminUserDetailPage() {
                   <ArrowLeft size={16} />
                   <span>Back to Users</span>
                 </button>
-                <p className="mt-1 text-xs text-gray-500 sm:text-sm">Dashboard &gt; Users</p>
+                <p className="mt-1 text-xs sm:text-sm">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Users</span>
+                </p>
               </div>
 
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">

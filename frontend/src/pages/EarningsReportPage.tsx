@@ -546,7 +546,10 @@ export default function EarningsReportPage() {
           {/* Header Section */}
           <div className="mb-4">
             <h2 className="text-base sm:text-lg font-bold text-gray-900">Analytics & Reports</h2>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Dashboard &gt; <span className="font-semibold">Earnings Report</span></p>
+            <p className="text-xs sm:text-sm mt-0.5">
+              <span className="text-gray-500">Dashboard</span>
+              <span className="text-gray-900"> • Earnings Report</span>
+            </p>
           </div>
 
           {/* Title and actions */}

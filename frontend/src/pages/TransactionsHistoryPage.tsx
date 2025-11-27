@@ -324,7 +324,10 @@ export default function TransactionsHistoryPage() {
               {/* Header */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Transactions & Finance</h1>
-                <p className="text-sm text-gray-500 mt-1">Dashboard • Transaction History</p>
+                <p className="text-sm mt-1">
+                  <span className="text-gray-500">Dashboard</span>
+                  <span className="text-gray-900"> • Transaction History</span>
+                </p>
               </div>
 
               {/* Filters */}
@@ -632,7 +635,10 @@ export default function TransactionsHistoryPage() {
           {/* Title */}
           <div className="mb-4">
             <h1 className="text-2xl font-bold text-gray-900">Transactions & Finance</h1>
-            <p className="text-sm text-gray-500">Dashboard • Transaction History</p>
+            <p className="text-sm">
+              <span className="text-gray-500">Dashboard</span>
+              <span className="text-gray-900"> • Transaction History</span>
+            </p>
           </div>
 
           {/* Filters (Compact) */}
