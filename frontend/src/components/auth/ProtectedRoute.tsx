@@ -32,7 +32,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/select-role" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // Check role requirements

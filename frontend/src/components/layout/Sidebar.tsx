@@ -39,8 +39,8 @@ export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarP
   const handleLogout = () => {
     // Clear role from localStorage
     setRole(null)
-    // Navigate to role-select page
-    navigate('/select-role')
+    // Navigate to login page
+    navigate('/login')
     // Close sidebar on mobile if open
     if (onClose) {
       onClose()
