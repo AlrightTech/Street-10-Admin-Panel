@@ -115,7 +115,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen = false }: Heade
     // Clear role from localStorage
     setRole(null)
     // Navigate to role-select page
-    navigate('/select-role')
+    navigate('/login')
     setShowProfileDropdown(false)
   }
 

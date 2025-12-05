@@ -7,17 +7,17 @@ import { useState, useEffect } from 'react'
 import { Menu } from 'lucide-react'
 
 export default function DashboardPage() {
-  const { role, isSubAdmin } = useRole()
+  const { role, isSubAdmin, setRole } = useRole()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  // Redirect to role selection if no role is selected
+  // Auto-set vendor role if no role is selected
   useEffect(() => {
     if (!role) {
-      navigate('/select-role')
+      setRole('vendor')
     }
-  }, [role, navigate])
+  }, [role, setRole])
 
   // Redirect Sub Admin directly to users page
   useEffect(() => {

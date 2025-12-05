@@ -586,6 +586,12 @@ export function LanguageProvider({ children }) {
         fullName: 'الاسم الكامل',
         password: 'كلمة المرور',
         confirmPassword: 'تأكيد كلمة المرور',
+        enterEmail: 'أدخل البريد الإلكتروني',
+        enterPassword: 'أدخل كلمة المرور',
+        login: 'تسجيل الدخول',
+        loggingIn: 'جاري تسجيل الدخول...',
+        forgetPassword: 'نسيت كلمة المرور؟',
+        manageProductsSales: 'إدارة المنتجات، المبيعات وطلبات العملاء.',
         step: 'الخطوة',
         of: 'من',
         submit: 'إرسال',
@@ -1059,6 +1065,14 @@ export function LanguageProvider({ children }) {
         marketing: 'Marketing',
         analyticsSubAdmin: 'Analytics',
         settingsSubAdmin: 'Settings',
+        email: 'Email',
+        password: 'Password',
+        enterEmail: 'Enter Email',
+        enterPassword: 'Enter Password',
+        login: 'Login',
+        loggingIn: 'Logging in...',
+        forgetPassword: 'Forget Password?',
+        manageProductsSales: 'Manage Products, Sales & Customer Requests.',
 
         // Header
         

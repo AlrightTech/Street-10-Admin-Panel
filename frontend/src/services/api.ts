@@ -141,8 +141,8 @@ class ApiClient {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     // Redirect to login page
-    if (window.location.pathname !== "/select-role") {
-      window.location.href = "/select-role";
+    if (window.location.pathname !== "/login") {
+      window.location.href = "/login";
     }
   }
 
