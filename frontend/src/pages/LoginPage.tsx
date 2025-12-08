@@ -80,16 +80,16 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     // Clear previous errors
     setErrors({});
-
+    
     // Basic validation
     if (!email.trim()) {
       setErrors({ email: "Email is required" });
       return;
     }
-
+    
     if (!password.trim()) {
       setErrors({ password: "Password is required" });
       return;
@@ -103,7 +103,7 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-
+    
     // Simulate API call
     setTimeout(() => {
       // Set vendor role and redirect directly to dashboard
@@ -120,15 +120,21 @@ export default function LoginPage() {
     >
       {/* Header */}
       <header
-        className="flex items-center justify-between px-6 py-4"
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 shadow-sm"
         style={{ backgroundColor: "#F3F5F6" }}
       >
-        <div className="flex items-center gap-2">
-          <img
-            src="/images/sidebar-topicon.png"
-            alt="Street10 mazad"
-            className="w-8 h-8 object-contain"
-          />
+        <div className="flex items-center gap-3">
+          {/* Circular Logo with White Background */}
+          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center p-2 shadow-sm">
+            <img
+              src="/images/sidebar-topicon.png"
+              alt="Street10 mazad"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <span className="text-lg font-normal text-gray-900" style={{ fontFamily: 'sans-serif' }}>
+            Street10 mazad
+          </span>
         </div>
         <div className="flex items-center gap-2 relative" ref={dropdownRef}>
           <button
@@ -201,21 +207,21 @@ export default function LoginPage() {
                   alt="Arabic"
                   className="w-5 h-4 object-cover rounded"
                 />
-                <span className="text-sm text-gray-700">Arabic</span>
+            <span className="text-sm text-gray-700">Arabic</span>
                 {language === "ar" && (
                   <span className="ml-auto text-orange-500">✓</span>
                 )}
               </button>
-            </div>
+          </div>
           )}
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex relative">
+      <div className="flex-1 flex relative pt-20">
         {/* Left Section - Image with Overlay */}
         <div className="hidden lg:flex lg:w-2/3 relative">
-          <div
+          <div 
             className="absolute inset-0"
             style={{
               backgroundImage: `url('/images/login-page-img.png')`,
@@ -243,7 +249,7 @@ export default function LoginPage() {
                   aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
-            </div>
+          </div>
           </div>
 
           {/* Curved Separator - S-shaped curve with orange outline attached to image edge */}
