@@ -5,7 +5,7 @@ import { RoleProvider } from '@/contexts/RoleContext'
 import Loader from '@/components/ui/Loader'
 
 // Lazy load all pages for code splitting
-const SelectRolePage = lazy(() => import('@/pages/SelectRolePage'))
+const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
 const ProductsPage = lazy(() => import('@/pages/ProductsPage'))
 const ViewProductPage = lazy(() => import('@/pages/ViewProductPage'))
@@ -62,8 +62,8 @@ function App() {
         <RoleProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/" element={<Navigate to="/select-role" replace />} />
-              <Route path="/select-role" element={<SelectRolePage />} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               
               {/* Products */}
@@ -122,8 +122,8 @@ function App() {
               <Route path="/sub-admin/marketing" element={<SubAdminMarketingPage />} />
               <Route path="/sub-admin/settings" element={<SubAdminSettingsPage />} />
               
-              {/* Catch all - redirect to select-role */}
-              <Route path="*" element={<Navigate to="/select-role" replace />} />
+              {/* Catch all - redirect to login */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </Suspense>
         </RoleProvider>

@@ -19,7 +19,7 @@ class WebSocketService {
     }
 
     const tokenFromStorage = localStorage.getItem("token");
-    const authToken = token || tokenFromStorage;
+    const authToken = token || tokenFromStorage || undefined;
 
     this.socket = io(env.wsUrl, {
       auth: {
