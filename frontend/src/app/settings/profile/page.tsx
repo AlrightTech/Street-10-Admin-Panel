@@ -9,6 +9,8 @@ import SuccessModal from '@/components/ui/SuccessModal'
 import ErrorModal from '@/components/ui/ErrorModal'
 import ConfirmModal from '@/components/ui/ConfirmModal'
 import InfoModal from '@/components/ui/InfoModal'
+import { vendorsService } from '@/services/vendors'
+import { usersService } from '@/services/users'
 
 type SubVendor = {
   id: number
@@ -50,6 +52,10 @@ export default function SettingsProfilePage() {
     file: null,
     fileType: 'pdf'
   })
+
+  // Profile loading state
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [vendorStatus, setVendorStatus] = useState<string | null>(null)
 
   // Password states
   const [passwordData, setPasswordData] = useState({
@@ -118,6 +124,72 @@ export default function SettingsProfilePage() {
   useEffect(() => {
     fetchSubVendors()
   }, [fetchSubVendors])
+
+  // Fetch vendor and user profile data
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      setProfileLoading(true)
+      try {
+        // Fetch user profile
+        const userProfile = await usersService.getCurrentUser()
+        
+        // Fetch vendor profile
+        try {
+          const vendorProfile = await vendorsService.getMyProfile()
+          
+          // Extract profile image from companyDocs
+          const companyDocs = vendorProfile.companyDocs as any || {}
+          const profileImageUrl = companyDocs.profileImageUrl || null
+          
+          // Extract business details
+          const businessDetails = companyDocs.businessDetails || {}
+          
+          // Update form data with real values
+          setFormData(prev => ({
+            ...prev,
+            fullName: userProfile.name || vendorProfile.name || prev.fullName,
+            email: userProfile.email || vendorProfile.email || prev.email,
+            phone: userProfile.phone || vendorProfile.phone || businessDetails.contactPersonPhone || prev.phone,
+            streetAddress: businessDetails.businessAddress || prev.streetAddress,
+            city: businessDetails.city || prev.city,
+            country: businessDetails.country || prev.country,
+          }))
+          
+          // Set profile image
+          if (profileImageUrl) {
+            setProfileImage(profileImageUrl)
+          } else if (userProfile.name) {
+            // Generate avatar from name if no image
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&size=120&background=random`
+            setProfileImage(avatarUrl)
+          }
+          
+          // Set vendor status
+          setVendorStatus(vendorProfile.status || 'pending')
+        } catch (vendorError) {
+          // If vendor profile fetch fails, still use user data
+          console.error('Failed to fetch vendor profile:', vendorError)
+          setFormData(prev => ({
+            ...prev,
+            fullName: userProfile.name || prev.fullName,
+            email: userProfile.email || prev.email,
+            phone: userProfile.phone || prev.phone,
+          }))
+          
+          if (userProfile.name) {
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&size=120&background=random`
+            setProfileImage(avatarUrl)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile data:', error)
+      } finally {
+        setProfileLoading(false)
+      }
+    }
+
+    fetchProfileData()
+  }, [])
 
   // Refs for textareas
   const termsTextareaRef = useRef<HTMLTextAreaElement>(null)
@@ -402,19 +474,47 @@ export default function SettingsProfilePage() {
 
   const renderPersonalInfo = () => (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">{t('personalInformation')}</h2>
-        <p className="text-sm text-gray-500">{t('updateProfileDetails') || 'Update your profile details and personal information.'}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-1">{t('personalInformation')}</h2>
+          <p className="text-sm text-gray-500">{t('updateProfileDetails') || 'Update your profile details and personal information.'}</p>
+        </div>
+        {vendorStatus && (
+          <div className="flex items-center gap-2">
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              vendorStatus === 'approved' ? 'bg-green-100 text-green-700' :
+              vendorStatus === 'rejected' ? 'bg-red-100 text-red-700' :
+              vendorStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {vendorStatus === 'approved' ? '✓ Approved' :
+               vendorStatus === 'rejected' ? '✗ Rejected' :
+               vendorStatus === 'pending' ? '⏳ Pending' :
+               vendorStatus}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Profile Picture */}
       <div className="flex items-start gap-6 flex-wrap">
         <div className="relative">
-          <img 
-            src={profileImage || "https://ui-avatars.com/api/?name=John+Doe&size=120&background=random"} 
-            alt="Profile" 
-            className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
-          />
+          {profileLoading ? (
+            <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse border-4 border-gray-100 flex items-center justify-center">
+              <Camera size={24} className="text-gray-400" />
+            </div>
+          ) : (
+            <img 
+              src={profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName || 'Vendor')}&size=120&background=random`} 
+              alt="Profile" 
+              className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+              onError={(e) => {
+                // Fallback to avatar if image fails to load
+                const target = e.target as HTMLImageElement
+                target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName || 'Vendor')}&size=120&background=random`
+              }}
+            />
+          )}
           <button 
             onClick={() => profileImageRef.current?.click()}
             className="absolute bottom-0 right-0 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center border-4 border-white hover:bg-primary-600 transition-colors"

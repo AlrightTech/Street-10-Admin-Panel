@@ -18,6 +18,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/contexts/LanguageContext'
 import SalesChart from './SalesChart'
+import { vendorsService } from '@/services/vendors'
 
 interface DashboardData {
   metrics?: any
@@ -39,8 +40,22 @@ export default function DashboardContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
+  const [vendorStatus, setVendorStatus] = useState<string | null>(null)
+  const [vendorName, setVendorName] = useState<string>('')
 
   const fetchData = useCallback(async () => {
+    // Fetch vendor profile to get real-time status
+    try {
+      const vendorProfile = await vendorsService.getMyProfile()
+      setVendorStatus(vendorProfile.status || 'pending')
+      setVendorName(vendorProfile.name || 'Vendor')
+    } catch (error) {
+      console.error('Failed to fetch vendor profile:', error)
+      // Don't set status if fetch fails - might not be a vendor
+      setVendorStatus(null)
+      setVendorName('')
+    }
+
     // Frontend-only: Always use demo data
     const isArabic = language === 'ar'
     const demoData: DashboardData = {
@@ -148,8 +163,27 @@ export default function DashboardContent() {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-gray-100 rounded-lg p-6">
-        <p className="text-2xl font-bold text-gray-700 mb-1">{t('welcomeBack')}</p>
-        <p className="text-lg text-gray-600">Abdullah</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-2xl font-bold text-gray-700 mb-1">{t('welcomeBack')}</p>
+            <p className="text-lg text-gray-600">{vendorName || 'Vendor'}</p>
+          </div>
+          {vendorStatus && (
+            <div className="flex items-center gap-2">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                vendorStatus === 'approved' ? 'bg-green-100 text-green-700' :
+                vendorStatus === 'rejected' ? 'bg-red-100 text-red-700' :
+                vendorStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-gray-100 text-gray-700'
+              }`}>
+                {vendorStatus === 'approved' ? '✓ Approved' :
+                 vendorStatus === 'rejected' ? '✗ Rejected' :
+                 vendorStatus === 'pending' ? '⏳ Pending' :
+                 vendorStatus}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Top Row - Metric Cards */}

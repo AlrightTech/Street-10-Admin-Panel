@@ -118,6 +118,17 @@ export const vendorsService = {
     }
     throw new Error(response.data.message || "Failed to suspend vendor");
   },
+
+  /**
+   * Get current vendor profile (for vendors)
+   */
+  async getMyProfile(): Promise<Vendor> {
+    const response = await api.get<ApiResponse<{ vendor: Vendor }>>('/vendors/me');
+    if (response.data.success && response.data.data) {
+      return response.data.data.vendor;
+    }
+    throw new Error(response.data.message || "Failed to fetch vendor profile");
+  },
 };
 
 export default vendorsService;
