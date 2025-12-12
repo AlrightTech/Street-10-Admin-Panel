@@ -31,7 +31,7 @@
     padding: 0;
   }
   
-  /* Hide scrollbars but keep functionality */
+  /* Hide scrollbars but keep  */
   * {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
