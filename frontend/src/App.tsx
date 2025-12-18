@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import LanguageProviderWrapper from '@/components/providers/LanguageProviderWrapper'
 import { RoleProvider } from '@/contexts/RoleContext'
+import { useAuth } from '@/contexts/AuthContext'
 import Loader from '@/components/ui/Loader'
 
 // Lazy load all pages for code splitting
@@ -55,6 +56,21 @@ const PageLoader = () => (
   </div>
 )
 
+// Root redirect component that checks authentication
+const RootRedirect = () => {
+  const { isAuthenticated, isLoading } = useAuth()
+  
+  if (isLoading) {
+    return <PageLoader />
+  }
+  
+  return isAuthenticated ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    <Navigate to="/login" replace />
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -62,7 +78,7 @@ function App() {
         <RoleProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<RootRedirect />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               

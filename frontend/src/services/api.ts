@@ -16,6 +16,11 @@ class ApiClient {
   private refreshTokenPromise: Promise<string> | null = null;
 
   constructor() {
+    // Log base URL to help debug network issues (only in development)
+    if (import.meta.env.DEV) {
+      console.log("[Admin API] Base URL:", env.apiUrl);
+    }
+
     this.instance = axios.create({
       baseURL: env.apiUrl,
       headers: {

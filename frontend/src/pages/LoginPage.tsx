@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRole } from "@/contexts/RoleContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { authService } from "@/services/auth";
 import {
   Eye,
   EyeOff,
@@ -26,6 +27,15 @@ export default function LoginPage() {
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Pre-fill email from URL query parameter (when redirected from signup)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get('email');
+    if (emailParam) {
+      setEmail(decodeURIComponent(emailParam));
+    }
+  }, []);
 
   // Carousel slides data
   const carouselSlides = [
@@ -103,14 +113,41 @@ export default function LoginPage() {
     }
 
     setLoading(true);
+    setErrors({});
     
-    // Simulate API call
-    setTimeout(() => {
-      // Set vendor role and redirect directly to dashboard
-      setRole("vendor");
-      setLoading(false);
+    try {
+      // Call actual login API
+      const result = await authService.login({ email, password });
+      
+      // Set role based on user role from response
+      if (result.user?.role) {
+        setRole(result.user.role as any);
+      } else {
+        setRole("vendor"); // Default to vendor for admin panel
+      }
+      
+      // Store refresh token if provided
+      if (result.refreshToken) {
+        localStorage.setItem('refreshToken', result.refreshToken);
+      }
+      
+      // Redirect to dashboard
       navigate("/dashboard");
-    }, 1000);
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const errorMessage = error?.message || "Login failed. Please check your credentials.";
+      setErrors({ 
+        email: errorMessage.includes("email") ? errorMessage : undefined,
+        password: errorMessage.includes("password") || errorMessage.includes("credentials") ? errorMessage : undefined
+      });
+      
+      // If no specific field error, show general error
+      if (!errorMessage.includes("email") && !errorMessage.includes("password")) {
+        setErrors({ password: errorMessage });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
