@@ -230,7 +230,7 @@ export default function SettingsProfilePage() {
           setVendorStatus(vendorProfile.status || 'pending')
           
           // Populate Vendor Information tab with business data
-          const businessDetails = companyDocs.businessDetails || {}
+          // Reuse businessDetails from above
           const storeInfo = companyDocs.storeInfo || {}
           const shippingPolicy = companyDocs.shippingPolicy || {}
           const refundPolicy = companyDocs.refundPolicy || {}
