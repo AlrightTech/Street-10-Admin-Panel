@@ -222,6 +222,8 @@ export interface Vendor {
   commissionRate?: number;
   createdAt: string;
   updatedAt: string;
+  profileImageUrl?: string;
+  companyDocs?: any;
 }
 
 export interface CreateVendorRequest {
