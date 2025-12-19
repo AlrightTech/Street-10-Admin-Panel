@@ -132,6 +132,30 @@ export default function SettingsProfilePage() {
       setProfileLoading(true)
       setProfileError(null)
       
+      // Try to load from localStorage first for immediate display
+      try {
+        const storedUser = localStorage.getItem('user')
+        if (storedUser) {
+          const user = JSON.parse(storedUser)
+          console.log('📦 Loaded user from localStorage:', user)
+          // Always set formData even if some fields are empty
+          setFormData({
+            fullName: user.name || user.fullName || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            streetAddress: user.streetAddress || user.address || '',
+            city: user.city || '',
+            country: user.country || '',
+          })
+          if (user.name || user.fullName) {
+            const nameToUse = user.name || user.fullName
+            setProfileImage(`https://ui-avatars.com/api/?name=${encodeURIComponent(nameToUse)}&size=120&background=6366f1&color=fff`)
+          }
+        }
+      } catch (e) {
+        console.error('Error loading from localStorage:', e)
+      }
+      
       try {
         console.log('🔍 Fetching profile data...')
         console.log('Token available:', !!localStorage.getItem('token'))
@@ -204,25 +228,84 @@ export default function SettingsProfilePage() {
           
           // Set vendor status
           setVendorStatus(vendorProfile.status || 'pending')
+          
+          // Populate Vendor Information tab with business data
+          const businessDetails = companyDocs.businessDetails || {}
+          const storeInfo = companyDocs.storeInfo || {}
+          const shippingPolicy = companyDocs.shippingPolicy || {}
+          const refundPolicy = companyDocs.refundPolicy || {}
+          const terms = companyDocs.terms || {}
+          
+          setPoliciesData({
+            storeName: vendorProfile.name || storeInfo.storeName || '',
+            businessEmail: vendorProfile.email || businessDetails.businessEmail || '',
+            storeDescription: storeInfo.description || storeInfo.storeDescription || '',
+            businessPhone: vendorProfile.phone || businessDetails.contactPersonPhone || businessDetails.businessPhone || '',
+            supportHours: businessDetails.supportHours || storeInfo.supportHours || '',
+            storeAddress: businessDetails.businessAddress || storeInfo.address || '',
+            estimatedDeliveryTime: shippingPolicy.estimatedDeliveryTime || shippingPolicy.deliveryTime || '',
+            shippingMethod: shippingPolicy.shippingMethod || 'Standard',
+            deliveryCoverage: shippingPolicy.deliveryCoverage || shippingPolicy.coverage || '',
+            shippingCharges: shippingPolicy.shippingCharges || shippingPolicy.charges || '',
+            freeShipping: shippingPolicy.freeShipping || false,
+            shippingNotes: shippingPolicy.notes || shippingPolicy.description || '',
+            refundEligibility: refundPolicy.refundEligibility || refundPolicy.eligibility || 'Within 7 days',
+            refundMethod: refundPolicy.refundMethod || refundPolicy.method || 'To Wallet',
+            refundConditions: refundPolicy.refundConditions || refundPolicy.conditions || '',
+            returnPolicy: refundPolicy.returnPolicy || refundPolicy.returns || '',
+            cancellationPolicy: refundPolicy.cancellationPolicy || refundPolicy.cancellation || '',
+            returnContactEmail: refundPolicy.returnContactEmail || refundPolicy.contactEmail || '',
+            termsAndConditions: terms.termsAndConditions || terms.terms || '',
+            privacyPolicy: terms.privacyPolicy || terms.privacy || '',
+            customNotes: terms.customNotes || terms.notes || ''
+          })
         } else if (userProfile) {
           // Fallback to user data if vendor profile not available
           console.log('📝 Using user profile data as fallback')
-          setFormData({
+          console.log('User profile data:', userProfile)
+          const newFormData = {
             fullName: userProfile.name || '',
             email: userProfile.email || '',
             phone: userProfile.phone || '',
             streetAddress: '',
             city: '',
             country: '',
-          })
+          }
+          console.log('📝 Setting form data from user profile:', newFormData)
+          setFormData(newFormData)
           
           if (userProfile.name) {
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&size=120&background=random`
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&size=120&background=6366f1&color=fff`
+            console.log('🖼️ Setting profile image from user name:', userProfile.name)
             setProfileImage(avatarUrl)
           }
         } else {
           console.warn('⚠️ No profile data available - both user and vendor profiles failed')
-          setProfileError('Unable to load profile data. Please refresh the page or contact support.')
+          // Try to use localStorage data as last resort
+          try {
+            const storedUser = localStorage.getItem('user')
+            if (storedUser) {
+              const user = JSON.parse(storedUser)
+              console.log('📦 Using localStorage data as last resort:', user)
+              setFormData({
+                fullName: user.name || user.fullName || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                streetAddress: user.streetAddress || user.address || '',
+                city: user.city || '',
+                country: user.country || '',
+              })
+              if (user.name || user.fullName) {
+                const nameToUse = user.name || user.fullName
+                setProfileImage(`https://ui-avatars.com/api/?name=${encodeURIComponent(nameToUse)}&size=120&background=6366f1&color=fff`)
+              }
+            } else {
+              setProfileError('Unable to load profile data. Please refresh the page or contact support.')
+            }
+          } catch (e) {
+            console.error('Error loading from localStorage as fallback:', e)
+            setProfileError('Unable to load profile data. Please refresh the page or contact support.')
+          }
         }
       } catch (error: any) {
         console.error('❌ Unexpected error fetching profile data:', error)
@@ -556,13 +639,14 @@ export default function SettingsProfilePage() {
             </div>
           ) : (
             <img 
-              src={profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName || 'Vendor')}&size=120&background=random`} 
+              src={profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName || 'Vendor')}&size=120&background=6366f1&color=fff`} 
               alt="Profile" 
               className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
               onError={(e) => {
                 // Fallback to avatar if image fails to load
                 const target = e.target as HTMLImageElement
-                target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName || 'Vendor')}&size=120&background=random`
+                const name = formData.fullName || 'Vendor'
+                target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=120&background=6366f1&color=fff`
               }}
             />
           )}

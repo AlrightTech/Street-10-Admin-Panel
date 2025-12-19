@@ -22,9 +22,11 @@ import {
 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRole } from '@/contexts/RoleContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import { vendorsService } from '@/services/vendors'
+import { usersService } from '@/services/users'
 
 interface SidebarProps {
   onClose?: () => void
@@ -35,6 +37,47 @@ export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarP
   const { t } = useLanguage()
   const { role, isSubAdmin, setRole } = useRole()
   const navigate = useNavigate()
+  const [vendorName, setVendorName] = useState<string>('')
+  const [userName, setUserName] = useState<string>('')
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+
+  // Fetch vendor/user profile data
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        if (role === 'vendor' || !isSubAdmin) {
+          // Fetch vendor profile
+          try {
+            const vendorProfile = await vendorsService.getMyProfile()
+            setVendorName(vendorProfile.name || '')
+            if (vendorProfile.profileImageUrl) {
+              setProfileImage(vendorProfile.profileImageUrl)
+            } else if (vendorProfile.name) {
+              // Generate avatar from name
+              setProfileImage(`https://ui-avatars.com/api/?name=${encodeURIComponent(vendorProfile.name)}&size=40&background=6366f1&color=fff`)
+            }
+          } catch (error) {
+            console.error('Failed to fetch vendor profile:', error)
+          }
+        }
+        
+        // Always try to fetch user profile as fallback
+        try {
+          const userProfile = await usersService.getCurrentUser()
+          setUserName(userProfile.name || '')
+          if (!profileImage && userProfile.name) {
+            setProfileImage(`https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&size=40&background=6366f1&color=fff`)
+          }
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error)
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error)
+      }
+    }
+
+    fetchProfileData()
+  }, [role, isSubAdmin])
 
   const handleLogout = () => {
     // Clear role from localStorage
@@ -269,11 +312,32 @@ export default function Sidebar({ onClose, currentPage = 'dashboard' }: SidebarP
       {/* User Profile - Fixed at bottom */}
       <div className="flex-shrink-0 p-3 border-t border-primary-400">
         <div className="flex items-center space-x-3 mb-3">
-          <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-semibold">A</span>
+          <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center overflow-hidden">
+            {profileImage ? (
+              <img 
+                src={profileImage} 
+                alt={vendorName || userName || 'User'} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to initial if image fails
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                  const parent = target.parentElement
+                  if (parent) {
+                    const initial = parent.querySelector('.initial-fallback')
+                    if (initial) {
+                      (initial as HTMLElement).style.display = 'flex'
+                    }
+                  }
+                }}
+              />
+            ) : null}
+            <span className={`text-white font-semibold initial-fallback ${profileImage ? 'hidden' : 'flex'}`}>
+              {(vendorName || userName || 'U').charAt(0).toUpperCase()}
+            </span>
           </div>
-          <div className="flex-1">
-            <p className="font-medium">Abdullah</p>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium truncate">{vendorName || userName || 'User'}</p>
             <p className="text-xs text-primary-200">
               {role === 'vendor' ? t('vendor') : 
                role === 'sub-admin' ? (t('subAdmin') || 'Sub Admin') :

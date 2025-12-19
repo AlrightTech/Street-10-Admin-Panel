@@ -9,6 +9,8 @@ import SuccessModal from '@/components/ui/SuccessModal'
 import ErrorModal from '@/components/ui/ErrorModal'
 import ConfirmModal from '@/components/ui/ConfirmModal'
 import InfoModal from '@/components/ui/InfoModal'
+import { vendorsService } from '@/services/vendors'
+import { usersService } from '@/services/users'
 
 type SubVendor = {
   id: number
@@ -25,14 +27,14 @@ export default function SettingsProfilePage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState('personal')
   
-  // Form states
+  // Form states - Initialize with empty values, will be populated from API
   const [formData, setFormData] = useState({
-    fullName: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    streetAddress: '123 Main Street, Apt 4B',
-    city: 'New York',
-    country: 'United States'
+    fullName: '',
+    email: '',
+    phone: '',
+    streetAddress: '',
+    city: '',
+    country: ''
   })
 
   // File upload states
@@ -44,12 +46,17 @@ export default function SettingsProfilePage() {
     file: File | null
     fileType: string | null
   }>({
-    fileName: 'passport_john_doe.pdf',
-    uploadedDate: 'Jan 15 2024',
-    verified: true,
+    fileName: null,
+    uploadedDate: null,
+    verified: false,
     file: null,
-    fileType: 'pdf'
+    fileType: null
   })
+
+  // Profile loading state
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [vendorStatus, setVendorStatus] = useState<string | null>(null)
+  const [profileError, setProfileError] = useState<string | null>(null)
 
   // Password states
   const [passwordData, setPasswordData] = useState({
@@ -118,6 +125,197 @@ export default function SettingsProfilePage() {
   useEffect(() => {
     fetchSubVendors()
   }, [fetchSubVendors])
+
+  // Fetch vendor and user profile data
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      setProfileLoading(true)
+      setProfileError(null)
+      
+      // Try to load from localStorage first for immediate display
+      try {
+        const storedUser = localStorage.getItem('user')
+        if (storedUser) {
+          const user = JSON.parse(storedUser)
+          console.log('📦 Loaded user from localStorage:', user)
+          // Always set formData even if some fields are empty
+          setFormData({
+            fullName: user.name || user.fullName || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            streetAddress: user.streetAddress || user.address || '',
+            city: user.city || '',
+            country: user.country || '',
+          })
+          if (user.name || user.fullName) {
+            const nameToUse = user.name || user.fullName
+            setProfileImage(`https://ui-avatars.com/api/?name=${encodeURIComponent(nameToUse)}&size=120&background=6366f1&color=fff`)
+          }
+        }
+      } catch (e) {
+        console.error('Error loading from localStorage:', e)
+      }
+      
+      try {
+        console.log('🔍 Fetching profile data...')
+        console.log('Token available:', !!localStorage.getItem('token'))
+        
+        // Fetch user profile
+        let userProfile = null
+        try {
+          userProfile = await usersService.getCurrentUser()
+          console.log('✅ User profile fetched:', userProfile)
+        } catch (userError: any) {
+          console.error('❌ Failed to fetch user profile:', userError)
+          const errorMsg = userError?.response?.data?.message || userError?.message || 'Failed to fetch user profile'
+          setProfileError(`User profile: ${errorMsg}`)
+        }
+        
+        // Fetch vendor profile
+        let vendorProfile = null
+        try {
+          vendorProfile = await vendorsService.getMyProfile()
+          console.log('✅ Vendor profile fetched:', vendorProfile)
+          console.log('Vendor data:', {
+            name: vendorProfile.name,
+            email: vendorProfile.email,
+            phone: vendorProfile.phone,
+            profileImageUrl: vendorProfile.profileImageUrl,
+            status: vendorProfile.status,
+            companyDocs: vendorProfile.companyDocs
+          })
+        } catch (vendorError: any) {
+          console.error('❌ Failed to fetch vendor profile:', vendorError)
+          const status = vendorError?.response?.status
+          const errorMsg = vendorError?.response?.data?.message || vendorError?.message || 'Failed to fetch vendor profile'
+          
+          if (status === 404) {
+            console.log('⚠️ Vendor profile not found - user might not be a vendor yet')
+            setProfileError('Vendor profile not found. Please contact support.')
+          } else {
+            setProfileError(`Vendor profile: ${errorMsg}`)
+          }
+        }
+        
+        // Update form data with real values - prioritize vendor data over user data
+        if (vendorProfile) {
+          const companyDocs = vendorProfile.companyDocs as any || {}
+          const profileImageUrl = vendorProfile.profileImageUrl || companyDocs.profileImageUrl || null
+          const businessDetails = companyDocs.businessDetails || {}
+          
+          const newFormData = {
+            fullName: vendorProfile.name || userProfile?.name || '',
+            email: vendorProfile.email || userProfile?.email || '',
+            phone: vendorProfile.phone || userProfile?.phone || businessDetails.contactPersonPhone || '',
+            streetAddress: businessDetails.businessAddress || '',
+            city: businessDetails.city || '',
+            country: businessDetails.country || '',
+          }
+          
+          console.log('📝 Setting form data:', newFormData)
+          setFormData(newFormData)
+          
+          // Set profile image
+          if (profileImageUrl) {
+            console.log('🖼️ Setting profile image:', profileImageUrl.substring(0, 50) + '...')
+            setProfileImage(profileImageUrl)
+          } else if (vendorProfile.name || userProfile?.name) {
+            const nameToUse = vendorProfile.name || userProfile?.name || 'Vendor'
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameToUse)}&size=120&background=6366f1&color=fff`
+            console.log('🖼️ Generating avatar from name:', nameToUse)
+            setProfileImage(avatarUrl)
+          }
+          
+          // Set vendor status
+          setVendorStatus(vendorProfile.status || 'pending')
+          
+          // Populate Vendor Information tab with business data
+          const storeInfo = companyDocs.storeInfo || {}
+          const shippingPolicy = companyDocs.shippingPolicy || {}
+          const refundPolicy = companyDocs.refundPolicy || {}
+          const terms = companyDocs.terms || {}
+          
+          setPoliciesData({
+            storeName: vendorProfile.name || storeInfo.storeName || '',
+            businessEmail: vendorProfile.email || businessDetails.businessEmail || '',
+            storeDescription: storeInfo.description || storeInfo.storeDescription || '',
+            businessPhone: vendorProfile.phone || businessDetails.contactPersonPhone || businessDetails.businessPhone || '',
+            supportHours: businessDetails.supportHours || storeInfo.supportHours || '',
+            storeAddress: businessDetails.businessAddress || storeInfo.address || '',
+            estimatedDeliveryTime: shippingPolicy.estimatedDeliveryTime || shippingPolicy.deliveryTime || '',
+            shippingMethod: shippingPolicy.shippingMethod || 'Standard',
+            deliveryCoverage: shippingPolicy.deliveryCoverage || shippingPolicy.coverage || '',
+            shippingCharges: shippingPolicy.shippingCharges || shippingPolicy.charges || '',
+            freeShipping: shippingPolicy.freeShipping || false,
+            shippingNotes: shippingPolicy.notes || shippingPolicy.description || '',
+            refundEligibility: refundPolicy.refundEligibility || refundPolicy.eligibility || 'Within 7 days',
+            refundMethod: refundPolicy.refundMethod || refundPolicy.method || 'To Wallet',
+            refundConditions: refundPolicy.refundConditions || refundPolicy.conditions || '',
+            returnPolicy: refundPolicy.returnPolicy || refundPolicy.returns || '',
+            cancellationPolicy: refundPolicy.cancellationPolicy || refundPolicy.cancellation || '',
+            returnContactEmail: refundPolicy.returnContactEmail || refundPolicy.contactEmail || '',
+            termsAndConditions: terms.termsAndConditions || terms.terms || '',
+            privacyPolicy: terms.privacyPolicy || terms.privacy || '',
+            customNotes: terms.customNotes || terms.notes || ''
+          })
+        } else if (userProfile) {
+          // Fallback to user data if vendor profile not available
+          console.log('📝 Using user profile data as fallback')
+          console.log('User profile data:', userProfile)
+          const newFormData = {
+            fullName: userProfile.name || '',
+            email: userProfile.email || '',
+            phone: userProfile.phone || '',
+            streetAddress: '',
+            city: '',
+            country: '',
+          }
+          console.log('📝 Setting form data from user profile:', newFormData)
+          setFormData(newFormData)
+          
+          if (userProfile.name) {
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.name)}&size=120&background=6366f1&color=fff`
+            console.log('🖼️ Setting profile image from user name:', userProfile.name)
+            setProfileImage(avatarUrl)
+          }
+        } else {
+          console.warn('⚠️ No profile data available - both user and vendor profiles failed')
+          // Try to use localStorage data as last resort
+          try {
+            const storedUser = localStorage.getItem('user')
+            if (storedUser) {
+              const user = JSON.parse(storedUser)
+              console.log('📦 Using localStorage data as last resort:', user)
+              setFormData({
+                fullName: user.name || user.fullName || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                streetAddress: user.streetAddress || user.address || '',
+                city: user.city || '',
+                country: user.country || '',
+              })
+              if (user.name || user.fullName) {
+                const nameToUse = user.name || user.fullName
+                setProfileImage(`https://ui-avatars.com/api/?name=${encodeURIComponent(nameToUse)}&size=120&background=6366f1&color=fff`)
+              }
+            } else {
+              setProfileError('Unable to load profile data. Please refresh the page or contact support.')
+            }
+          } catch (e) {
+            console.error('Error loading from localStorage as fallback:', e)
+            setProfileError('Unable to load profile data. Please refresh the page or contact support.')
+          }
+        }
+      } catch (error: any) {
+        console.error('❌ Unexpected error fetching profile data:', error)
+        setProfileError(error?.message || 'An unexpected error occurred')
+      } finally {
+        setProfileLoading(false)
+      }
+    }
+
+    fetchProfileData()
+  }, [])
 
   // Refs for textareas
   const termsTextareaRef = useRef<HTMLTextAreaElement>(null)
@@ -450,19 +648,55 @@ export default function SettingsProfilePage() {
 
   const renderPersonalInfo = () => (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">{t('personalInformation')}</h2>
-        <p className="text-sm text-gray-500">{t('updateProfileDetails') || 'Update your profile details and personal information.'}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900 mb-1">{t('personalInformation')}</h2>
+          <p className="text-sm text-gray-500">{t('updateProfileDetails') || 'Update your profile details and personal information.'}</p>
+          {profileError && (
+            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> {profileError}
+              </p>
+            </div>
+          )}
+        </div>
+        {vendorStatus && (
+          <div className="flex items-center gap-2">
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              vendorStatus === 'approved' ? 'bg-green-100 text-green-700' :
+              vendorStatus === 'rejected' ? 'bg-red-100 text-red-700' :
+              vendorStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {vendorStatus === 'approved' ? '✓ Approved' :
+               vendorStatus === 'rejected' ? '✗ Rejected' :
+               vendorStatus === 'pending' ? '⏳ Pending' :
+               vendorStatus}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Profile Picture */}
       <div className="flex items-start gap-6 flex-wrap">
         <div className="relative">
-          <img 
-            src={profileImage || "https://ui-avatars.com/api/?name=John+Doe&size=120&background=random"} 
-            alt="Profile" 
-            className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
-          />
+          {profileLoading ? (
+            <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse border-4 border-gray-100 flex items-center justify-center">
+              <Camera size={24} className="text-gray-400" />
+            </div>
+          ) : (
+            <img 
+              src={profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fullName || 'Vendor')}&size=120&background=6366f1&color=fff`} 
+              alt="Profile" 
+              className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+              onError={(e) => {
+                // Fallback to avatar if image fails to load
+                const target = e.target as HTMLImageElement
+                const name = formData.fullName || 'Vendor'
+                target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=120&background=6366f1&color=fff`
+              }}
+            />
+          )}
           <button 
             onClick={() => profileImageRef.current?.click()}
             className="absolute bottom-0 right-0 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center border-4 border-white hover:bg-primary-600 transition-colors"

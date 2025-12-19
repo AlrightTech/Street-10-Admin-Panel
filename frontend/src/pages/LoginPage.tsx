@@ -135,16 +135,33 @@ export default function LoginPage() {
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Login error:", error);
-      const errorMessage = error?.message || "Login failed. Please check your credentials.";
-      setErrors({ 
-        email: errorMessage.includes("email") ? errorMessage : undefined,
-        password: errorMessage.includes("password") || errorMessage.includes("credentials") ? errorMessage : undefined
-      });
       
-      // If no specific field error, show general error
-      if (!errorMessage.includes("email") && !errorMessage.includes("password")) {
-        setErrors({ password: errorMessage });
+      // Extract error message from different possible locations
+      let errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      
+      if (error?.response?.data?.message) {
+        // Backend error message
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        // Generic error message
+        errorMessage = error.message;
       }
+      
+      // Handle specific error cases
+      if (error?.response?.status === 401) {
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      } else if (error?.response?.status === 404) {
+        errorMessage = "Account not found. Please check your email and try again.";
+      } else if (error?.response?.status === 403) {
+        errorMessage = "Account is not authorized. Please contact support.";
+      } else if (error?.response?.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      }
+      
+      // Set error message on password field (most common place for login errors)
+      setErrors({ 
+        password: errorMessage
+      });
     } finally {
       setLoading(false);
     }
@@ -321,6 +338,15 @@ export default function LoginPage() {
         >
           <div className="w-full max-w-md relative z-10">
             <form onSubmit={handleLogin} className="space-y-6">
+              {/* General Error Message */}
+              {(errors.password || errors.email) && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-red-800 font-medium">
+                    {errors.password || errors.email}
+                  </p>
+                </div>
+              )}
+              
               {/* Email Field */}
               <div>
                 <label
